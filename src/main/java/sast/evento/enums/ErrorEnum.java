@@ -14,7 +14,9 @@ public enum ErrorEnum {
     COMMON_ERROR(1000, "错误"),
     METHOD_NOT_EXIST(1001, "方法不存在"),
     TOKEN_ERROR(1002,"TOKEN解析错误"),
-    PERMISSION_ERROR(1003,"权限错误")
+    PERMISSION_ERROR(1003,"权限错误"),
+    USER_ALREADY_EXIST(1004,"用户已存在"),
+    STATEMENT_ERROR(1005,"权限statement错误"),
     ;
     private final Integer errCode;
     private final String errMsg;

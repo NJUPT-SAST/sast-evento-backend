@@ -8,8 +8,10 @@ import lombok.SneakyThrows;
  * @date: 2023/7/15 16:04
  */
 public class JsonUtil {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-
+    private static final ObjectMapper objectMapper;
+    static {
+       objectMapper = new ObjectMapper();
+    }
     @SneakyThrows
     public static String toJson(Object object){
         return objectMapper.writeValueAsString(object);

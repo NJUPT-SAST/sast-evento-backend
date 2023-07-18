@@ -35,14 +35,14 @@ public class JwtUtil {
         this.redisUtil = redisUtil;
     }
 
-    public String generateToken(Map<String,String> map) {
-        if(map == null){
+    public String generateToken(Map<String, String> map) {
+        if (map == null) {
             throw new LocalRunTimeException(ErrorEnum.TOKEN_ERROR);
         }
         Calendar time = Calendar.getInstance();
         time.add(Calendar.HOUR, expiration);
         JWTCreator.Builder builder = JWT.create();
-        for (Map.Entry<String,String> element : map.entrySet()){
+        for (Map.Entry<String, String> element : map.entrySet()) {
             builder.withClaim(element.getKey(), element.getValue());
         }
         builder.withExpiresAt(time.getTime());
@@ -50,7 +50,7 @@ public class JwtUtil {
     }
 
     public Map<String, Claim> getClaims(String token) {
-        if(token == null){
+        if (token == null) {
             throw new LocalRunTimeException(ErrorEnum.TOKEN_ERROR);
         }
         try {
@@ -63,13 +63,13 @@ public class JwtUtil {
     }
 
     public Boolean isExpired(String userId, String token) {
-        Long expire = redisUtil.getExpire("TOKEN:"+ userId);
+        Long expire = redisUtil.getExpire("TOKEN:" + userId);
         String oriToken = (String) redisUtil.hget("TOKEN:", userId);
         return (expire <= 0) && oriToken.equals(token);
     }
 
     public void reFreshToken(String userId) {
-        redisUtil.expire("TOKEN:"+ userId, 30, TimeUnit.DAYS);
+        redisUtil.expire("TOKEN:" + userId, 30, TimeUnit.DAYS);
     }
 
 }

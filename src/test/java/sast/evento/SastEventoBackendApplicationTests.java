@@ -15,23 +15,18 @@ class SastEventoBackendApplicationTests {
 	@Test
 	void contextLoads() {
 		//序列化测试
-		Permission policy = new Permission();
-		policy.setVersion(new Date());
-		List<Permission.Statement> list = new ArrayList<>();
-		Permission.Statement statement1 = new Permission.Statement();
-		List<Integer> actions= new ArrayList<>();
-		actions.add(111);
-		actions.add(11);
-		statement1.setActionIds(actions);
-		statement1.setResource("/aa/aa");
-		statement1.setConditions(new Date());
-		list.add(statement1);
-		policy.setStatements(list);
-		String json = JsonUtil.toJson(policy);
+		Permission permission = Permission.getDefault();
+		Permission.Statement statement = new Permission.Statement();
+		statement.setResource("ACTION_351232424");
+		statement.setConditions(new Date());
+		statement.setActions(new ArrayList<>());
+		permission.getStatements().add(statement);
+		String json = JsonUtil.toJson(permission);
 		System.out.println(json);
 		Permission p2 = JsonUtil.fromJson(json, Permission.class);
 		String json2 = JsonUtil.toJson(p2);
-		System.out.println(json2);
+		System.out.println(json2.length());
+
 	}
 
 }

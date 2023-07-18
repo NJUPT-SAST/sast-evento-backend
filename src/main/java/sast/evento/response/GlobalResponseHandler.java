@@ -19,7 +19,6 @@ import sast.evento.enums.ErrorEnum;
  */
 @RestControllerAdvice
 public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
-
     @Resource
     private ObjectMapper objectMapper;
 
