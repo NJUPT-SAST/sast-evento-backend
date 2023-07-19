@@ -2,12 +2,10 @@ package sast.evento.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
 import org.springframework.lang.Nullable;
-import sast.evento.dataobject.Action;
+import sast.evento.entitiy.Action;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,7 +21,7 @@ import java.util.List;
 @NoArgsConstructor
 public class Permission {
     @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date version;//最后一次更改日期
+    private Date version;
 
     private List<Statement> statements;
     @Data
@@ -31,12 +29,12 @@ public class Permission {
     @NoArgsConstructor
     public static class Statement {
 
-        private List<Action> actions;
+        private List<Action> actions;//解决存全部的长度问题和资源浪费问题
 
         private String resource;
         @Nullable
         @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
-        private Date conditions;
+        private Date conditions;//管理端：查看所有有权管理活动的用户
     }
 
     public static Permission getDefault(){

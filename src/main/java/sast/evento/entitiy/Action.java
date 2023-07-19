@@ -1,4 +1,4 @@
-package sast.evento.dataobject;
+package sast.evento.entitiy;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import org.springframework.lang.NonNull;
 
 import java.util.Objects;
 
@@ -23,7 +22,6 @@ import java.util.Objects;
 @Accessors(chain = true)
 public class Action {
     @TableId(value = "id", type = IdType.AUTO)
-    @NonNull
     private Integer id;
 
     private String actionName;

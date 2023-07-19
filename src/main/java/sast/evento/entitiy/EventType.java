@@ -1,9 +1,12 @@
-package sast.evento.dataobject;
+package sast.evento.entitiy;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 
 /**
  * @projectName: sast-evento-backend
@@ -13,14 +16,14 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName(value = "location")
-public class Location {
-
+@TableName(value = "type")
+public class EventType {
+    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-    private String locationName;
+    private String typeName;
 
-    private Integer parentId;
+    private Boolean allowConflict;
 
 
 }

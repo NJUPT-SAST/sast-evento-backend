@@ -3,15 +3,17 @@ package sast.evento.utils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 /**
- * @projectName: sast-evento-backend
- * @author: feelMoose
- * @date: 2023/7/15 16:04
+ * @Title JsonUtil
+ * @Description 统一使用jackson,提供序列化工具
+ * @Author feelMoose
+ * @Date 2023/7/19 16:13
  */
 public class JsonUtil {
     private static final ObjectMapper objectMapper;
     static {
        objectMapper = new ObjectMapper();
     }
+
     @SneakyThrows
     public static String toJson(Object object){
         return objectMapper.writeValueAsString(object);

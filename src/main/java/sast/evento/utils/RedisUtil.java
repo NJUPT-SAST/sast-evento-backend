@@ -25,9 +25,6 @@ public class RedisUtil {
     public static final String prefix = "Evento:";
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
-    @Resource
-    private ObjectMapper objectMapper;
-
 
     // =============================common============================
 
@@ -123,7 +120,7 @@ public class RedisUtil {
      */
     public void produce(Object json) {
         try {
-            redisTemplate.opsForList().leftPush(prefix + MESSAGE_KEY,objectMapper.writeValueAsString(json));
+            redisTemplate.opsForList().leftPush(prefix + MESSAGE_KEY,JsonUtil.toJson(json));
         }catch (Exception e){
             e.printStackTrace();
         }

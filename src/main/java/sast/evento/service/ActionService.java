@@ -1,6 +1,6 @@
 package sast.evento.service;
 
-import sast.evento.dataobject.Action;
+import sast.evento.entitiy.Action;
 
 public interface ActionService {
     Action getActionByAPI(String url, String requestMethod);

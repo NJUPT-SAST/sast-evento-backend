@@ -5,7 +5,7 @@ import jakarta.annotation.Resource;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import sast.evento.dataobject.Action;
+import sast.evento.entitiy.Action;
 import sast.evento.enums.ErrorEnum;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.mapper.ActionMapper;
@@ -24,10 +24,9 @@ public class ActionServiceImpl implements ActionService {
     @Override
     @Cacheable(value = "action", key = "#url+#requestMethod")
     public Action getActionByAPI(String url, String requestMethod) {
-        Action action = actionMapper.selectOne(new LambdaQueryWrapper<Action>()
+        return actionMapper.selectOne(new LambdaQueryWrapper<Action>()
                 .eq(Action::getUrl, url)
                 .and(Wrapper -> Wrapper.eq(Action::getMethod, requestMethod)));
-        return action;
     }
 
     @Override
@@ -77,8 +76,6 @@ public class ActionServiceImpl implements ActionService {
         action.setActionName(actionName);
         actionMapper.updateById(action);
         return action;
-
-
     }
 
 

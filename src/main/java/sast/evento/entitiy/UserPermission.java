@@ -1,6 +1,5 @@
-package sast.evento.dataobject;
+package sast.evento.entitiy;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -20,7 +19,7 @@ import sast.evento.model.Permission;
 @NoArgsConstructor
 @TableName(value = "user_permission", autoResultMap = true)
 public class UserPermission {
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = "id")
     private String userId;
     @TableField(typeHandler = JacksonTypeHandler.class)
     private Permission permission;

@@ -9,7 +9,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
-import sast.evento.dataobject.Action;
+import sast.evento.entitiy.Action;
 import sast.evento.enums.ErrorEnum;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.model.Permission;
@@ -24,7 +24,7 @@ import java.util.Map;
 
 /**
  * @Title HttpInterceptor
- * @Description 获取访问信息, 从数据库获取API限制信息*,获取用户信息*,从数据库获取用户权限*,
+ * @Description 获取访问信息,从数据库获取API限制信息*,获取用户信息*,从数据库获取用户权限*,
  * @Description 解析TOKEN信息获取本地用户登录信息, 与API信息联合判断是否拦截
  * @Author feelMoose
  * @Date 2023/7/14 16:27
@@ -54,12 +54,12 @@ public class HttpInterceptor implements HandlerInterceptor {
             return true;
         }
         Map<String, Claim> map = jwtUtil.getClaims(token);
-        String userId = map.get("uid").asString();//todo 更改token载荷内容
+        String userId = map.get("user_id").asString();//todo 如果需要则更改token载荷内容
         Permission permission = permissionService.getPermission(userId);
         if (!permissionService.checkPermission(permission, action)) {
             throw new LocalRunTimeException(ErrorEnum.PERMISSION_ERROR);
         }
-        UserProFile userProFile = getUserProFileById(userId);
+        UserProFile userProFile = sastLinkServiceCacheAble.getUserProFile(userId);
         userProFileHolder.set(userProFile);
         return true;
     }
@@ -70,11 +70,5 @@ public class HttpInterceptor implements HandlerInterceptor {
         userProFileHolder.remove();
     }
 
-
-    @Cacheable(value = "userProFile", key = "#userId")
-    public UserProFile getUserProFileById(String userId) {
-        UserProFile userProFile = sastLinkServiceCacheAble.getUserProFile(userId);
-        return userProFile;
-    }
 
 }

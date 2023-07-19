@@ -1,6 +1,6 @@
 package sast.evento.service;
 
-import sast.evento.dataobject.Action;
+import sast.evento.entitiy.Action;
 import sast.evento.model.Permission;
 
 import java.util.List;

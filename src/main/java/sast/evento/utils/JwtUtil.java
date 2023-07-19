@@ -16,10 +16,6 @@ import java.util.Calendar;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-/**
- * @author: 風楪fy
- * @create: 2022-01-19 16:18
- **/
 @Component
 public class JwtUtil {
 
@@ -27,7 +23,7 @@ public class JwtUtil {
     private String secret;
 
     @Value("${jwt.expiration}")
-    private int expiration;
+    private Integer expiration;
 
     private final RedisUtil redisUtil;
 
@@ -69,7 +65,8 @@ public class JwtUtil {
     }
 
     public void reFreshToken(String userId) {
-        redisUtil.expire("TOKEN:" + userId, 30, TimeUnit.DAYS);
+        redisUtil.expire("TOKEN:" + userId, 3, TimeUnit.DAYS);
     }
+
 
 }
