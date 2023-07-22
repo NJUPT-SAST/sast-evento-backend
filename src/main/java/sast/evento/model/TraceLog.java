@@ -26,6 +26,7 @@ public class TraceLog {
     private String stackTrace;
 
     private final static String commonFormat = """      
+            
             ===========capture===========
             description：%s
             uri：%s
@@ -34,6 +35,7 @@ public class TraceLog {
             ===========release===========""";
 
     private final static String errorFormat = """
+            
             ===========capture===========
             description：%s
             uri：%s
