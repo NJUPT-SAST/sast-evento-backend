@@ -6,11 +6,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.MDC;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import sast.evento.model.TraceLog;
 import sast.evento.service.ActionService;
 
-import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -27,13 +27,13 @@ public class LogInterceptor implements HandlerInterceptor {
     public static ThreadLocal<TraceLog> logHolder = new ThreadLocal<>();
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
-                             Object handler) {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         MDC.put("TRACE_ID", UUID.randomUUID().toString());
         TraceLog preTraceLog = new TraceLog();
+        HandlerMethod handlerMethod = (HandlerMethod) handler;
         preTraceLog.setUri(request.getRequestURI());
         preTraceLog.setMethod(request.getMethod());
-        preTraceLog.setDescription(actionService.getActionByAPI(request.getRequestURI(), request.getMethod()).getActionName());
+        preTraceLog.setDescription(actionService.getAction(handlerMethod.getMethod().getName()).getDescription());
         preTraceLog.setStartTime(System.currentTimeMillis());
         logHolder.set(preTraceLog);
         return true;

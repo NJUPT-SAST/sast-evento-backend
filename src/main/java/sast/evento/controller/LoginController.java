@@ -1,9 +1,8 @@
 package sast.evento.controller;
 
 import jakarta.annotation.Resource;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import sast.evento.annotation.OperateLog;
 import sast.evento.service.impl.SastLinkServiceCacheAble;
 
 /**
@@ -16,11 +15,11 @@ import sast.evento.service.impl.SastLinkServiceCacheAble;
 public class LoginController {
     @Resource
     private SastLinkServiceCacheAble sastLinkServiceCacheAble;
-
-    @RequestMapping("/login")
+    @OperateLog("登录")
+    @PostMapping ("/login")
     public String login(@RequestParam(defaultValue = "")String userId,
-                        @RequestParam(defaultValue = "")String code){
-        return sastLinkServiceCacheAble.login(userId, code);
+                      @RequestParam(defaultValue = "")String password){
+        return sastLinkServiceCacheAble.login(userId, password);
     }
 
 }

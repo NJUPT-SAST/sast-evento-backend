@@ -19,7 +19,7 @@ class SastEventoBackendApplicationTests {
 		Permission.Statement statement = new Permission.Statement();
 		statement.setResource("ACTION_351232424");
 		statement.setConditions(new Date());
-		statement.setActions(new ArrayList<>());
+		statement.setMethodNames(new ArrayList<>());
 		permission.getStatements().add(statement);
 		String json = JsonUtil.toJson(permission);
 		System.out.println(json);

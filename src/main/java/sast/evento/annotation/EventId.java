@@ -7,15 +7,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * @author: NicoAsuka
- * @date: 4/29/23
- */
-@Target(ElementType.METHOD)
+@Target({ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface OperateLog {
-    @AliasFor(attribute = "description")
+
+public @interface EventId {
+    @AliasFor(attribute = "ParamName")
     String value() default "";
     @AliasFor(attribute = "value")
-    String description() default "";
+    String ParamName() default "";
 }

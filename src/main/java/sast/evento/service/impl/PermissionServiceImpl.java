@@ -4,7 +4,8 @@ import jakarta.annotation.Resource;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import sast.evento.entitiy.Action;
+import sast.evento.config.ActionRegister;
+import sast.evento.model.Action;
 import sast.evento.entitiy.UserPermission;
 import sast.evento.enums.ErrorEnum;
 import sast.evento.exception.LocalRunTimeException;
@@ -81,7 +82,7 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public Permission.Statement getBaseStatement(String userId) {
-        return getStatementByEventId(userId, "all");
+        return getStatementByEventId(userId, "common");
     }
 
     @Override
@@ -99,7 +100,7 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public List<Action> getValidBaseAction(String userId) {
-        return getValidActionByEventId(userId, "all");
+        return getValidActionByEventId(userId, "common");
     }
 
     @Override
@@ -109,12 +110,14 @@ public class PermissionServiceImpl implements PermissionService {
                 .filter(statement -> statement.getResource().equals(eventId))
                 .findAny()
                 .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.PERMISSION_ERROR))
-                .getActions();
+                .getMethodNames().stream()
+                .map(ActionRegister.actionName2action::get)
+                .toList();
     }
 
     @Override
     public Boolean clearBaseStatement(String userId) {
-        return clearStatementByEventId(userId, "all");
+        return clearStatementByEventId(userId, "common");
     }
 
     @Override
@@ -132,7 +135,7 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public Boolean updateBaseStatement(String userId, Permission.Statement statement) {
-        return updateStatementByEventId(userId, "all", statement);
+        return updateStatementByEventId(userId, "common", statement);
     }
 
     @Override
@@ -145,8 +148,8 @@ public class PermissionServiceImpl implements PermissionService {
                 .map(Permission.Statement::getResource)
                 .anyMatch(eventId::equals)) {
             permission.setStatements(permission.getStatements().stream()
-                    .map(s -> s.getResource().equals(eventId) ? statement : s)
-                    .collect(Collectors.toList()));
+                            .map(s -> s.getResource().equals(eventId) ? statement : s)
+                            .collect(Collectors.toList()));
         } else {
             permission.getStatements().add(statement);
         }
@@ -155,23 +158,27 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
-    public Boolean checkPermission(Permission permission, Action accessAction) {
-        return permission.getStatements().stream().anyMatch(statement -> checkStatement(statement, accessAction));
+    public Boolean checkPermissionByResouce(Permission permission, Action accessAction,String resource) {
+        return permission.getStatements().stream().anyMatch(statement -> checkStatementByResouce(statement, accessAction,resource));
     }
 
-    private Boolean checkStatement(Permission.Statement statement, Action accessAction) {
+    @Override
+    public Boolean checkPermission(Permission permission, Action accessAction) {
+        return permission.getStatements().stream().anyMatch(statement -> checkStatementByResouce(statement, accessAction,"common"));
+    }
+
+    private Boolean checkStatementByResouce(Permission.Statement statement, Action accessAction, String resource) {
         if (statement.getConditions() != null && statement.getConditions().after(new Date())) {
             return false;
         }
-        if (statement.getResource().equals("all") || statement.getResource().equals(accessAction.getActionName())) {
-            return statement.getActions().stream()
-                    .map(Action::getId)
-                    .anyMatch(needCheck -> checkAction(needCheck, accessAction));
+        if (statement.getResource().equals(resource)) {
+            return statement.getMethodNames().stream()
+                    .anyMatch(methodName -> checkAction(methodName, accessAction));
         }
         return false;
     }
 
-    private Boolean checkAction(Integer needCheck, Action accessAction) {
-        return accessAction.getId().equals(needCheck);
+    private Boolean checkAction(String needCheek, Action accessAction) {
+        return accessAction.getMethodName().equals(needCheek);
     }
 }
