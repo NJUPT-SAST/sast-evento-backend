@@ -24,6 +24,8 @@ public class Participate {
 
     private Boolean isParticipate;
 
+    private Boolean isManage;
+
     private Integer eventId;
 
 }
