@@ -1,6 +1,6 @@
 package sast.evento.service;
 
-import sast.evento.entitiy.Action;
+import sast.evento.model.Action;
 import sast.evento.model.Permission;
 
 import java.util.List;
@@ -39,6 +39,8 @@ public interface PermissionService {
     Boolean updateBaseStatement(String userId, Permission.Statement statement);
 
     Boolean updateStatementByEventId(String userId, String eventId, Permission.Statement statement);
+
+    Boolean checkPermissionByResouce(Permission permission, Action accessAction,String resource);
 
     Boolean checkPermission(Permission permission, Action accessAction);
 }

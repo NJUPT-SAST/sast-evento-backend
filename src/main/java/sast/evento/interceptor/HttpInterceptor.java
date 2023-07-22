@@ -5,11 +5,12 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
-import sast.evento.entitiy.Action;
+import sast.evento.annotation.EventId;
+import sast.evento.model.Action;
 import sast.evento.enums.ErrorEnum;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.model.Permission;
@@ -19,6 +20,7 @@ import sast.evento.service.PermissionService;
 import sast.evento.service.impl.SastLinkServiceCacheAble;
 import sast.evento.utils.JwtUtil;
 
+import java.util.Arrays;
 import java.util.Map;
 
 
@@ -44,10 +46,10 @@ public class HttpInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String URL = request.getRequestURI();
-        String method = request.getMethod();
         String token = request.getHeader("TOKEN");
-        Action action = actionService.getActionByAPI(URL, method);
+        HandlerMethod handlerMethod = (HandlerMethod) handler;
+        Action action = actionService.getAction(handlerMethod.getMethod().getName());
+
         if (action == null || !action.getIsVisible()) {
             throw new LocalRunTimeException(ErrorEnum.METHOD_NOT_EXIST);
         } else if (action.getIsPublic()) {
@@ -56,9 +58,21 @@ public class HttpInterceptor implements HandlerInterceptor {
         Map<String, Claim> map = jwtUtil.getClaims(token);
         String userId = map.get("user_id").asString();//todo 如果需要则更改token载荷内容
         Permission permission = permissionService.getPermission(userId);
-        if (!permissionService.checkPermission(permission, action)) {
-            throw new LocalRunTimeException(ErrorEnum.PERMISSION_ERROR);
-        }
+        Arrays.stream(handlerMethod.getMethodParameters())
+                .map(methodParameter -> methodParameter.getParameterAnnotation(EventId.class))
+                .findAny()
+                .ifPresentOrElse(
+                        eventId -> {
+                            if (!permissionService.checkPermissionByResouce(permission, action,request.getParameter(eventId.ParamName()))) {
+                                throw new LocalRunTimeException(ErrorEnum.PERMISSION_ERROR);
+                            }
+                        },
+                        () -> {
+                            if (!permissionService.checkPermission(permission, action)) {
+                                throw new LocalRunTimeException(ErrorEnum.PERMISSION_ERROR);
+                            }
+                        }
+                );
         UserProFile userProFile = sastLinkServiceCacheAble.getUserProFile(userId);
         userProFileHolder.set(userProFile);
         return true;

@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.Nullable;
-import sast.evento.entitiy.Action;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -29,7 +28,7 @@ public class Permission {
     @NoArgsConstructor
     public static class Statement {
 
-        private List<Action> actions;//解决存全部的长度问题和资源浪费问题
+        private List<String> methodNames;//解决存全部的长度问题和资源浪费问题
 
         private String resource;
         @Nullable
@@ -42,7 +41,7 @@ public class Permission {
         permission.setVersion(new Date());
         List<Permission.Statement> statements = new ArrayList<>();
         Permission.Statement statement = new Permission.Statement();
-        statement.setResource("all");
+        statement.setResource("common");
         statements.add(statement);
         permission.setStatements(statements);
         return permission;
