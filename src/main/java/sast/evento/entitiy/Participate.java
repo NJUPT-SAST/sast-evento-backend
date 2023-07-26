@@ -24,7 +24,9 @@ public class Participate {
 
     private Boolean isParticipate;
 
-    private Boolean isManage;
+    private Boolean isSubscribe;
+
+    private String userId;
 
     private Integer eventId;
 

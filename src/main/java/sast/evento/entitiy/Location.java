@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 /**
  * @projectName: sast-evento-backend
  * @author: feelMoose
@@ -23,6 +25,5 @@ public class Location {
     private String locationName;
 
     private Integer parentId;
-
 
 }
