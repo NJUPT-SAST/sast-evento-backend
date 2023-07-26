@@ -4,7 +4,7 @@ package sast.evento.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
-import sast.evento.entitiy.UserPermission;
+import sast.evento.entitiy.Permission;
 
 
 /**
@@ -14,5 +14,5 @@ import sast.evento.entitiy.UserPermission;
  */
 @Mapper
 @Repository
-public interface UserPermissionMapper extends BaseMapper<UserPermission> {
+public interface PermissionMapper extends BaseMapper<Permission> {
 }

@@ -1,22 +1,23 @@
 package sast.evento.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.Resource;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import sast.evento.config.ActionRegister;
-import sast.evento.model.Action;
-import sast.evento.entitiy.UserPermission;
+import sast.evento.entitiy.Permission;
 import sast.evento.enums.ErrorEnum;
 import sast.evento.exception.LocalRunTimeException;
-import sast.evento.mapper.UserPermissionMapper;
-import sast.evento.model.Permission;
+import sast.evento.mapper.PermissionMapper;
+import sast.evento.model.Action;
 import sast.evento.service.PermissionService;
+import sast.evento.service.UserService;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import javax.xml.validation.Validator;
+import java.lang.reflect.Method;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -26,159 +27,87 @@ import java.util.stream.Collectors;
  */
 @Service
 public class PermissionServiceImpl implements PermissionService {
+
     @Resource
-    private UserPermissionMapper userPermissionMapper;
+    private PermissionMapper permissionMapper;
 
     @Override
-    @CachePut(value = "permission", key = "#userId")
-    public Permission addPermission(String userId, Permission permission) {
-        checkUserState(userId);
-        permission.setVersion(new Date());
-        userPermissionMapper.insert(new UserPermission(userId, permission));
-        return permission;
-    }
-
-    @Override
-    @CachePut(value = "permission", key = "#userId")
-    public Permission clearPermission(String userId) {
-        checkUserState(userId);
-        Permission permission = Permission.getDefault();
-        userPermissionMapper.updateById(new UserPermission(userId, permission));
-        return permission;
-    }
-
-    @Override
-    @Cacheable(value = "permission", key = "#userId")
-    public Permission getPermission(String userId) {
-        UserPermission userPermission = userPermissionMapper.selectById(userId);
-        if (userPermission == null) {
-            throw new LocalRunTimeException(ErrorEnum.USER_ALREADY_EXIST, "Please check if user has been already log in.");
+    @CachePut(value = "permission", key = "#permission.userId +#permission.eventId")
+    public Permission addPermission(Permission permission) {
+        if(permission.getId()!=null){
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"Invalid param. Empty id is needed.");
         }
-        Permission permission = userPermission.getPermission();
+        checkValidMethods(permission);
+        permissionMapper.insert(permission.updateUpTime());
         return permission;
     }
 
     @Override
-    @CachePut(value = "permission", key = "#userId")
-    public Permission updatePermission(String userId, Permission permission) {
-        checkUserState(userId);
-        permission.setVersion(new Date());
-        userPermissionMapper.updateById(new UserPermission(userId, permission));
+    @CacheEvict(value = "permission", key = "#userId +#eventId")
+    public void deletePermission(String userId,Integer eventId)  {
+        permissionMapper.delete(new LambdaQueryWrapper<Permission>()
+                .eq(Permission::getUserId,userId)
+                .and(wrapper -> wrapper.eq(Permission::getEventId,eventId)));
+    }
+
+    @Override
+    @Cacheable(value = "permission", key = "#userId +#eventId")
+    public Permission getPermission(String userId,Integer eventId) {
+        Permission permission = permissionMapper.selectOne(new LambdaQueryWrapper<Permission>()
+                .eq(Permission::getUserId,userId)
+                .and(wrapper -> wrapper.eq(Permission::getEventId,eventId)));
+        if (permission == null) {
+            throw new LocalRunTimeException(ErrorEnum.PERMISSION_ERROR,"No valid permission exist.");
+        }
         return permission;
     }
 
     @Override
-    public void checkUserState(String userId) {
-        getPermission(userId);
+    @CachePut(value = "permission",key = "#permission.userId +#permission.eventId")
+    public Permission updatePermission(Permission permission) {
+        if(permission.getId()==null){
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"Invalid param. Id is needed.");
+        }
+        permission.updateUpTime();
+        permissionMapper.updateById(permission.updateUpTime());
+        return permission;
     }
 
     @Override
-    public Permission.Statement getStatementByEventId(String userId, String eventId) {
-        return getAllStatement(userId).stream()
-                .filter(statement -> eventId.equals(statement.getResource()))
-                .findAny()
-                .orElse(null);
+    public void deleteCommonPermission(String userId)  {
+        deletePermission(userId,0);
     }
 
     @Override
-    public Permission.Statement getBaseStatement(String userId) {
-        return getStatementByEventId(userId, "common");
+    public Permission getCommonPermission(String userId) {
+        return getPermission(userId,0);
     }
 
     @Override
-    public List<Permission.Statement> getAllStatement(String userId) {
-        return getPermission(userId).getStatements();
+    public List<String> getValidMethodNamesByEventId(String userId,Integer eventId){
+        return getPermission(userId,eventId).getMethodNames();
     }
 
     @Override
-    public List<Action> getAllValidActionByEventId(String userId, String eventId) {
-        Set<Action> actions = new HashSet<>();
-        actions.addAll(getValidBaseAction(userId));
-        actions.addAll(getValidActionByEventId(userId, eventId));
-        return actions.stream().toList();
+    public List<String> getValidCommonMethodNamesByEventId(String userId){
+        return getPermission(userId,0).getMethodNames();
     }
 
     @Override
-    public List<Action> getValidBaseAction(String userId) {
-        return getValidActionByEventId(userId, "common");
-    }
-
-    @Override
-    public List<Action> getValidActionByEventId(String userId, String eventId) {
-        return getAllStatement(userId).stream()
-                .filter(statement -> statement.getConditions() != null && statement.getConditions().after(new Date()))
-                .filter(statement -> statement.getResource().equals(eventId))
-                .findAny()
-                .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.PERMISSION_ERROR))
+    public Boolean checkPermission(String userId,Integer eventId,String methodName) {
+        return getPermission(userId,eventId)
                 .getMethodNames().stream()
-                .map(ActionRegister.actionName2action::get)
-                .toList();
+                .anyMatch(methodName::equals);
     }
 
-    @Override
-    public Boolean clearBaseStatement(String userId) {
-        return clearStatementByEventId(userId, "common");
+    private static void checkValidMethods(Permission permission){
+        /* check and put valid methodNames */
+        Optional.ofNullable(permission.getMethodNames()).ifPresent(
+                methodNames -> permission.setMethodNames(methodNames.stream()
+                        .filter(ActionRegister.actionNameSet::contains)
+                        .distinct()
+                        .toList())
+        );
     }
 
-    @Override
-    public Boolean clearStatementByEventId(String userId, String eventId) {
-        Permission.Statement statement = new Permission.Statement();
-        statement.setResource(eventId);
-        return updateStatementByEventId(userId, eventId, statement);
-    }
-
-    @Override
-    public Boolean clearAllStatement(String userId) {
-        clearPermission(userId);
-        return true;
-    }
-
-    @Override
-    public Boolean updateBaseStatement(String userId, Permission.Statement statement) {
-        return updateStatementByEventId(userId, "common", statement);
-    }
-
-    @Override
-    public Boolean updateStatementByEventId(String userId, String eventId, Permission.Statement statement) {
-        if (!statement.getResource().equals(eventId)) {
-            throw new LocalRunTimeException(ErrorEnum.STATEMENT_ERROR, "Invalid eventId.");
-        }
-        Permission permission = getPermission(userId);
-        if (permission.getStatements().stream()
-                .map(Permission.Statement::getResource)
-                .anyMatch(eventId::equals)) {
-            permission.setStatements(permission.getStatements().stream()
-                            .map(s -> s.getResource().equals(eventId) ? statement : s)
-                            .collect(Collectors.toList()));
-        } else {
-            permission.getStatements().add(statement);
-        }
-        updatePermission(userId, permission);
-        return true;
-    }
-
-    @Override
-    public Boolean checkPermissionByResouce(Permission permission, Action accessAction,String resource) {
-        return permission.getStatements().stream().anyMatch(statement -> checkStatementByResouce(statement, accessAction,resource));
-    }
-
-    @Override
-    public Boolean checkPermission(Permission permission, Action accessAction) {
-        return permission.getStatements().stream().anyMatch(statement -> checkStatementByResouce(statement, accessAction,"common"));
-    }
-
-    private Boolean checkStatementByResouce(Permission.Statement statement, Action accessAction, String resource) {
-        if (statement.getConditions() != null && statement.getConditions().after(new Date())) {
-            return false;
-        }
-        if (statement.getResource().equals(resource)) {
-            return statement.getMethodNames().stream()
-                    .anyMatch(methodName -> checkAction(methodName, accessAction));
-        }
-        return false;
-    }
-
-    private Boolean checkAction(String needCheek, Action accessAction) {
-        return accessAction.getMethodName().equals(needCheek);
-    }
 }

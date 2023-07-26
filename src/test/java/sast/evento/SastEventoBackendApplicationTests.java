@@ -2,10 +2,12 @@ package sast.evento;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import sast.evento.model.Permission;
+import sast.evento.config.ActionRegister;
+import sast.evento.entitiy.Permission;
 import sast.evento.utils.JsonUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -13,20 +15,10 @@ import java.util.List;
 class SastEventoBackendApplicationTests {
 
 	@Test
-	void contextLoads() {
+	void getAllMethodNameByJson() {
 		//序列化测试
-		Permission permission = Permission.getDefault();
-		Permission.Statement statement = new Permission.Statement();
-		statement.setResource("ACTION_351232424");
-		statement.setConditions(new Date());
-		statement.setMethodNames(new ArrayList<>());
-		permission.getStatements().add(statement);
-		String json = JsonUtil.toJson(permission);
-		System.out.println(json);
-		Permission p2 = JsonUtil.fromJson(json, Permission.class);
-		String json2 = JsonUtil.toJson(p2);
-		System.out.println(json2.length());
-
+		String json = JsonUtil.toJson(new ArrayList<>(ActionRegister.actionNameSet));
+		System.out.println("json: "+json);
+		System.out.println("max lengh: "+json.length());
 	}
-
 }

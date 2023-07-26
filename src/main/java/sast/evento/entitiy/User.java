@@ -1,13 +1,10 @@
 package sast.evento.entitiy;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import sast.evento.model.Permission;
 
 /**
  * @projectName: sast-evento-backend
@@ -17,10 +14,11 @@ import sast.evento.model.Permission;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName(value = "user_permission", autoResultMap = true)
-public class UserPermission {
+@TableName(value = "user")
+public class User {
     @TableId(value = "id")
     private String userId;
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private Permission permission;
+
+    private String studentId;
+
 }
