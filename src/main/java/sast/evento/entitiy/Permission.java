@@ -23,21 +23,21 @@ import java.util.List;
 @NoArgsConstructor
 @TableName(value = "permission", autoResultMap = true)
 public class Permission {
-    @TableId(value = "id",type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
     private Integer eventId;
 
     private String userId;
 
-    @TableField(typeHandler = JacksonTypeHandler.class)
+    @TableField(value = "all_method_name", typeHandler = JacksonTypeHandler.class)
     private List<String> methodNames;
 
     @TableField(value = "gmt_update")
-    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
-    public Permission updateUpTime(){
+    public Permission updateUpTime() {
         this.setUpdateTime(new Date());
         return this;
     }

@@ -21,4 +21,6 @@ public class User {
 
     private String studentId;
 
+    private String openId;
+
 }

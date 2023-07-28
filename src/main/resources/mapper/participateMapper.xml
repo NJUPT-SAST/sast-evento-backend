@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="sast.evento.mapper.ParticipateMapper">
+    <select id="selectSubscribeOpenIds" parameterType="integer" resultType="string">
+        select u.open_id
+        from participate as p
+                 join user as u on u.id = p.user_id
+        where event_id = #{event_id}
+    </select>
+</mapper>
