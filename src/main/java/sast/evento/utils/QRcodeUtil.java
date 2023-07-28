@@ -7,7 +7,6 @@ import com.google.zxing.client.j2se.MatrixToImageConfig;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-import lombok.SneakyThrows;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -23,16 +22,18 @@ import java.util.Map;
  */
 public class QrCodeUtil {
 
-    public static BufferedImage generateQrCode(String contents) {
+    /* 默认大小二维码 */
+    public static BufferedImage generateQrCode(String contents) throws Exception {
         return generateQrCode(250, 250, contents, "");
     }
 
-    public static BufferedImage generateQrCode(Integer width, Integer height, String contents) {
+    /* 选择大小二维码 */
+    public static BufferedImage generateQrCode(Integer width, Integer height, String contents) throws Exception {
         return generateQrCode(width, height, contents, "");
     }
 
-    @SneakyThrows
-    public static BufferedImage generateQrCode(Integer width, Integer height, String contents, String logoPath) {
+    /* 选择大小可带logo二维码 */
+    public static BufferedImage generateQrCode(Integer width, Integer height, String contents, String logoPath) throws Exception {
         Map<EncodeHintType, Object> hints = new HashMap<>();
         hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
         hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
