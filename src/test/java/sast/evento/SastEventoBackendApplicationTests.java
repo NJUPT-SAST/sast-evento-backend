@@ -3,6 +3,8 @@ package sast.evento;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import sast.evento.config.ActionRegister;
+import sast.evento.enums.ErrorEnum;
+import sast.evento.exception.LocalRunTimeException;
 import sast.evento.utils.JsonUtil;
 import sast.evento.utils.QrCodeUtil;
 
@@ -21,7 +23,11 @@ class SastEventoBackendApplicationTests {
 
     @Test
     void generateQrCode() {
-        BufferedImage image = QrCodeUtil.generateQrCode("");
+        try {
+            BufferedImage image = QrCodeUtil.generateQrCode("");
+        } catch (Exception e) {
+            throw new LocalRunTimeException(ErrorEnum.QRCODE_ERROR);
+        }
     }
 
 }
