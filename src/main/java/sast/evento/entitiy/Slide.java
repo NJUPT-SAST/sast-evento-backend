@@ -7,23 +7,25 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Objects;
-
 /**
  * @projectName: sast-evento-backend
  * @author: feelMoose
- * @date: 2023/7/18 21:55
+ * @date: 2023/7/24 20:32
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName(value = "location")
-public class Location {
-    @TableId(value = "id", type = IdType.AUTO)
+@TableName(value = "slide")
+public class Slide {
+    @TableId(value = "id",type = IdType.AUTO)
     private Integer id;
 
-    private String locationName;
+    private String title;
 
-    private Integer parentId;
+    private String link;
+
+    private String url;
+
+    private Integer eventId;
 
 }

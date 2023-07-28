@@ -23,8 +23,10 @@ public class Feedback {
 
     private String content;
 
+    private Integer score;
+
     private Integer participateId;
 
-    private Integer userId;
+    private String userId;
 
 }

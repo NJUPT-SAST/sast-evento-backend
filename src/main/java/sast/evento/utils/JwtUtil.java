@@ -47,14 +47,14 @@ public class JwtUtil {
 
     public Map<String, Claim> getClaims(String token) {
         if (token == null) {
-            throw new LocalRunTimeException(ErrorEnum.TOKEN_ERROR);
+            throw new LocalRunTimeException(ErrorEnum.TOKEN_ERROR,"Token is null.");
         }
         try {
             JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secret)).build();
             DecodedJWT decodedJWT = verifier.verify(token);
             return decodedJWT.getClaims();
         } catch (JWTVerificationException e) {
-            throw new LocalRunTimeException(ErrorEnum.TOKEN_ERROR);
+            throw new LocalRunTimeException(ErrorEnum.TOKEN_ERROR,e.getMessage());
         }
     }
 

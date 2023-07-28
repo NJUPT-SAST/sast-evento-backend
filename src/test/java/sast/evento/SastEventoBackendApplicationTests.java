@@ -2,31 +2,46 @@ package sast.evento;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import sast.evento.model.Permission;
+import sast.evento.config.ActionRegister;
+import sast.evento.enums.ErrorEnum;
+import sast.evento.exception.LocalRunTimeException;
+import sast.evento.model.wxServiceDTO.AccessTokenRequest;
+import sast.evento.model.wxServiceDTO.WxSubscribeRequest;
 import sast.evento.utils.JsonUtil;
+import sast.evento.utils.QrCodeUtil;
 
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @SpringBootTest
 class SastEventoBackendApplicationTests {
 
-	@Test
-	void contextLoads() {
-		//序列化测试
-		Permission permission = Permission.getDefault();
-		Permission.Statement statement = new Permission.Statement();
-		statement.setResource("ACTION_351232424");
-		statement.setConditions(new Date());
-		statement.setMethodNames(new ArrayList<>());
-		permission.getStatements().add(statement);
-		String json = JsonUtil.toJson(permission);
-		System.out.println(json);
-		Permission p2 = JsonUtil.fromJson(json, Permission.class);
-		String json2 = JsonUtil.toJson(p2);
-		System.out.println(json2.length());
+    @Test
+    void getAllMethodNameByJson() {
+        String json = JsonUtil.toJson(new ArrayList<>(ActionRegister.actionNameSet));
+        System.out.println("json: " + json);
+        System.out.println("max lengh: " + json.length());
+    }
 
-	}
+    @Test
+    void generateQrCode() {
+        try {
+            BufferedImage image = QrCodeUtil.generateQrCode("");
+        } catch (Exception e) {
+            throw new LocalRunTimeException(ErrorEnum.QRCODE_ERROR);
+        }
+    }
+
+    @Test
+    void wxSubscribe() {
+        Map<String, String> dataMap = new HashMap<>();
+        dataMap.put("key1", "");
+        dataMap.put("key2", String.valueOf(111));
+        dataMap.put("key3", String.valueOf(111));
+        System.out.println(JsonUtil.toJson(WxSubscribeRequest.getData(dataMap)));
+        System.out.println(JsonUtil.toJson(new AccessTokenRequest()));
+    }
 
 }

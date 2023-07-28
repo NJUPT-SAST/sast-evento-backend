@@ -7,4 +7,5 @@ public interface ActionService {
     void setActionVisible(String method, Boolean isVisible);
     void setActionPublic(String method, Boolean isPublic);
     void setDescription(String method, String actionName);
+    void setGroup(String method, String group);
 }

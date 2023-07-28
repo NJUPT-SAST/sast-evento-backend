@@ -1,7 +1,10 @@
 package sast.evento.controller;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import sast.evento.annotation.EventId;
 
 /**
  * @projectName: sast-evento-backend
@@ -11,6 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
-
+    @PostMapping("/post")
+    public void post(@EventId(value = "id") @RequestParam Integer id){
+        System.out.println(id);
+    }
 
 }

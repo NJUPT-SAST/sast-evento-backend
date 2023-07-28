@@ -7,23 +7,20 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Objects;
-
 /**
  * @projectName: sast-evento-backend
  * @author: feelMoose
- * @date: 2023/7/18 21:55
+ * @date: 2023/7/24 20:29
  */
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName(value = "location")
-public class Location {
-    @TableId(value = "id", type = IdType.AUTO)
+@TableName(value = "department")
+public class Department {
+    @TableId(value = "id",type = IdType.AUTO)
     private Integer id;
 
-    private String locationName;
-
-    private Integer parentId;
+    private String departmentName;
 
 }

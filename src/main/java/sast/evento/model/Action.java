@@ -1,12 +1,7 @@
 package sast.evento.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.*;
-import lombok.experimental.Accessors;
-
-import java.util.Objects;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 /**
  * @projectName: sast-evento-backend
@@ -25,8 +20,11 @@ public class Action {
 
     private final String url;
 
+    private String group;//分组->父节点，默认default,方便前端选择
+
     private Boolean isVisible;
 
     private Boolean isPublic;
+
 
 }
