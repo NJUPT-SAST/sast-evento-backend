@@ -32,7 +32,7 @@ public class WxServiceImpl implements WxService {
 
     @Resource
     private RestTemplate restTemplate;
-
+    /* 获取stable_token，无需手动刷新,有效时间最少为5分钟 */
     public AccessTokenResponse getStableToken() {
         AccessTokenRequest request = new AccessTokenRequest()
                 .setAppid(appid)
@@ -49,6 +49,7 @@ public class WxServiceImpl implements WxService {
         throw new LocalRunTimeException(ErrorEnum.WX_SERVICE_ERROR, "response or access_token is empty.");
     }
 
+    /* 发送wx模板消息内容 */
     public WxSubscribeResponse seedSubscribeMessage(Integer eventId, String access_token, String openId) {
         Map<String, String> dataMap = new HashMap<>();
         dataMap.put("", "");//todo 与模板对接放入信息，类型为String

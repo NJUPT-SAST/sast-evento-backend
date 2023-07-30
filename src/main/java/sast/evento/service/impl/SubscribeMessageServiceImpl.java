@@ -54,7 +54,8 @@ public class SubscribeMessageServiceImpl implements SubscribeMessageService {
         String cron = SchedulerUtil.simpleDateFormat.format(startTime);
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("eventId", eventId);
-        SchedulerUtil.addJob(String.valueOf(eventId), jobGroupName, String.valueOf(eventId), triggerGroupName, WxSubscribeJob.class, jobDataMap, cron);
+        String stringEventId = String.valueOf(eventId);
+        SchedulerUtil.addJob(stringEventId, jobGroupName, stringEventId, triggerGroupName, WxSubscribeJob.class, jobDataMap, cron);
     }
 
     /* 更新任务时间 */
@@ -64,7 +65,7 @@ public class SubscribeMessageServiceImpl implements SubscribeMessageService {
             throw new LocalRunTimeException(ErrorEnum.WX_SUBSCRIBE_ERROR,"Wx subscribe message service is close.");
         }
         String cron = SchedulerUtil.simpleDateFormat.format(startTime);
-        SchedulerUtil.resetJobCron(String.valueOf(eventId), cron);
+        SchedulerUtil.resetJobCron(String.valueOf(eventId),triggerGroupName, cron);
     }
 
     /* 删除任务 */
@@ -73,7 +74,8 @@ public class SubscribeMessageServiceImpl implements SubscribeMessageService {
         if (isClose()) {
             throw new LocalRunTimeException(ErrorEnum.WX_SUBSCRIBE_ERROR,"Wx subscribe message service is close.");
         }
-        SchedulerUtil.removeJob(String.valueOf(eventId));
+        String stringEventId = String.valueOf(eventId);
+        SchedulerUtil.removeJob(stringEventId,jobGroupName,stringEventId,triggerGroupName);
     }
 
 }
