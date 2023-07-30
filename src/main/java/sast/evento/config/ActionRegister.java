@@ -10,7 +10,11 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
+import sast.evento.annotation.DefaultActionState;
 import sast.evento.annotation.OperateLog;
+import sast.evento.enums.ActionState;
+import sast.evento.enums.ErrorEnum;
+import sast.evento.exception.LocalRunTimeException;
 import sast.evento.model.Action;
 
 import java.io.File;
@@ -32,23 +36,15 @@ public class ActionRegister implements ApplicationListener<ContextRefreshedEvent
 
     public static Map<String, Action> actionName2action = new HashMap<>();
     public static Set<String> actionNameSet;
-    private static final Boolean defaultIsPublic = false;
-    private static final Boolean defaultIsVisible = true;
     private static final String PACKAGE_PATH = "classpath*:sast/evento/controller";
     private static final String host = "sast.evento";
     private static final String protocol = "http";
-    private static final String defaultGroup = "default";
+    private static final String defaultGroupName = "default";
 
     @SneakyThrows
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         parseAll(getAllClass(PACKAGE_PATH));
-        //默认的公开访问接口，可以在这里打开
-        actionName2action.get("login").setIsPublic(true);
-        actionName2action.get("post").setIsPublic(true);
-
-
-
         actionNameSet = actionName2action.keySet();
         log.info("Scan of action is over. Final actionName2action map is:{}", actionName2action);
     }
@@ -61,14 +57,18 @@ public class ActionRegister implements ApplicationListener<ContextRefreshedEvent
             Method[] declaredMethods = c.getDeclaredMethods();
             for (Method m : declaredMethods) {
                 RequestMapping r = AnnotatedElementUtils.findMergedAnnotation(m, RequestMapping.class);
+                DefaultActionState d = AnnotatedElementUtils.findMergedAnnotation(m, DefaultActionState.class);
                 if (r == null) {
                     continue;
                 }
+                if (d == null) {
+                    throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "run failed,the annotation defaultActionState is needed on Mapping method.");
+                }
                 URL url = new URL(protocol, host, pre + r.path()[0]);
-                OperateLog log = AnnotatedElementUtils.findMergedAnnotation(m, OperateLog.class);
-                String description = (log == null) ? "" : log.description();
+                OperateLog logAnno = AnnotatedElementUtils.findMergedAnnotation(m, OperateLog.class);
+                String description = (logAnno == null) ? "" : logAnno.description();
                 String methodName = m.getName();
-                actionName2action.put(methodName, new Action(description, methodName, r.method()[0].name(), String.valueOf(url), defaultGroup, defaultIsVisible, defaultIsPublic));
+                actionName2action.put(methodName, new Action(description, methodName, r.method()[0].name(), String.valueOf(url), defaultGroupName, d.value()));
             }
         }
     }

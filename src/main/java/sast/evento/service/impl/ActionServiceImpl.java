@@ -2,9 +2,10 @@ package sast.evento.service.impl;
 
 import org.springframework.stereotype.Service;
 import sast.evento.config.ActionRegister;
-import sast.evento.model.Action;
+import sast.evento.enums.ActionState;
 import sast.evento.enums.ErrorEnum;
 import sast.evento.exception.LocalRunTimeException;
+import sast.evento.model.Action;
 import sast.evento.service.ActionService;
 
 /**
@@ -21,13 +22,8 @@ public class ActionServiceImpl implements ActionService {
     }
 
     @Override
-    public void setActionVisible(String method, Boolean isVisible) {
-        getAction(method).setIsVisible(isVisible);
-    }
-
-    @Override
-    public void setActionPublic(String method, Boolean isPublic) {
-        getAction(method).setIsPublic(isPublic);
+    public void setActionState(String method, ActionState actionState) {
+        getAction(method).setActionState(actionState);
     }
 
     @Override
@@ -38,6 +34,7 @@ public class ActionServiceImpl implements ActionService {
         }
         action.setDescription(description);
     }
+
     @Override
     public void setGroup(String method, String group) {
         Action action = getAction(method);
@@ -46,7 +43,6 @@ public class ActionServiceImpl implements ActionService {
         }
         action.setGroup(group);
     }
-
 
 
 }
