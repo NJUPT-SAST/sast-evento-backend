@@ -96,6 +96,12 @@ public class SchedulerUtil {
         Matcher<JobKey> matcher = KeyMatcher.keyEquals(jobKey);
         scheduler.getListenerManager().addJobListener(listener,matcher);
     }
+    public static void removeJobListener(String name,String jobName,String jobGroup) throws SchedulerException{
+        JobKey jobKey = new JobKey(jobName,jobGroup);
+        Matcher<JobKey> matcher = KeyMatcher.keyEquals(jobKey);
+        Scheduler scheduler = getScheduler();
+        scheduler.getListenerManager().removeJobListenerMatcher(name,matcher);
+    }
 
     public static void addTriggerListener(String triggerName,String triggerGroup, TriggerListener listener) throws SchedulerException{
         Scheduler scheduler = getScheduler();
@@ -104,6 +110,12 @@ public class SchedulerUtil {
         scheduler.getListenerManager().addTriggerListener(listener,matcher);
     }
 
+    public static void removeTriggerListener(String name,String triggerName,String triggerGroup) throws SchedulerException{
+        TriggerKey triggerKey = new TriggerKey(triggerName,triggerGroup);
+        Matcher<TriggerKey> matcher = KeyMatcher.keyEquals(triggerKey);
+        Scheduler scheduler = getScheduler();
+        scheduler.getListenerManager().removeTriggerListenerMatcher(name,matcher);
+    }
 
     public static void removeJob(String jobName, String jobGroupName, String triggerName, String triggerGroupName) throws SchedulerException {
         Scheduler scheduler = getScheduler();

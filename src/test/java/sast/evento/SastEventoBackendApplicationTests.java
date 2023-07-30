@@ -7,10 +7,8 @@ import sast.evento.enums.ErrorEnum;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.model.wxServiceDTO.AccessTokenRequest;
 import sast.evento.model.wxServiceDTO.WxSubscribeRequest;
-import sast.evento.service.BaseRegistrationService;
-import sast.evento.service.QrCodeRegistrationService;
-import sast.evento.service.impl.BaseRegistrationServiceImpl;
-import sast.evento.service.impl.QrCodeRegistrationServiceImpl;
+import sast.evento.service.CodeService;
+import sast.evento.service.QrCodeCheckInService;
 import sast.evento.utils.JsonUtil;
 import sast.evento.utils.QrCodeUtil;
 import sast.evento.utils.SpringContextUtil;
@@ -51,13 +49,16 @@ class SastEventoBackendApplicationTests {
 
     @Test
     void refreshJobTest(){
-        Integer eventId = 111;
-        QrCodeRegistrationService service = SpringContextUtil.getBean(QrCodeRegistrationService.class);
-        service.getRegistrationQrCode(111);
-        BaseRegistrationService baseRegistrationService = SpringContextUtil.getBean(BaseRegistrationService.class);
-        String code = baseRegistrationService.getCode(111);
+        Integer eventId = 1000000;
+        QrCodeCheckInService service = SpringContextUtil.getBean(QrCodeCheckInService.class);
+        service.getCheckInQrCode(eventId);
+        CodeService codeService = SpringContextUtil.getBean(CodeService.class);
+        String code = codeService.getCode(eventId);
         System.out.println("code: "+code);
-        System.out.println("result: "+service.checkRegistrationCode(111, code));
+        System.out.println("check: "+service.checkCode(eventId, code));
+        codeService.refreshCode(eventId);
+        System.out.println("check: "+service.checkCode(eventId, code));
+        service.close(eventId);
     }
 
 

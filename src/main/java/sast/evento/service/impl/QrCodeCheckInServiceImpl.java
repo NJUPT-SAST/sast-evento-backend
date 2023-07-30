@@ -7,8 +7,8 @@ import org.quartz.JobKey;
 import org.springframework.stereotype.Service;
 import sast.evento.job.CodeRefreshJob;
 import sast.evento.job.CodeRefreshTriggerListener;
-import sast.evento.service.BaseRegistrationService;
-import sast.evento.service.QrCodeRegistrationService;
+import sast.evento.service.CodeService;
+import sast.evento.service.QrCodeCheckInService;
 import sast.evento.utils.SchedulerUtil;
 
 import java.awt.image.BufferedImage;
@@ -20,14 +20,14 @@ import java.util.Date;
  * @date: 2023/7/29 14:50
  */
 @Service
-public class QrCodeRegistrationServiceImpl implements QrCodeRegistrationService {
+public class QrCodeCheckInServiceImpl implements QrCodeCheckInService {
     private static final String jobGroupName = "job_qr_code_registration";
     private static final String triggerGroupName = "trigger_qr_code_registration";
     private static final long duration = 60000;
     private static final String refreshCron = "0 0/1 * * * ? *";//每分钟更新
 
     @Resource
-    BaseRegistrationService baseRegistrationService;
+    CodeService codeService;
 
     /* 手动关闭任务 */
     @Override
@@ -35,7 +35,8 @@ public class QrCodeRegistrationServiceImpl implements QrCodeRegistrationService 
     public void close(Integer eventId) {
         String stringEventId = String.valueOf(eventId);
         SchedulerUtil.removeJob(stringEventId,jobGroupName,stringEventId,triggerGroupName);
-        baseRegistrationService.deleteCode(eventId);
+        SchedulerUtil.removeTriggerListener(stringEventId,stringEventId,triggerGroupName);
+        codeService.deleteCode(eventId);
     }
 
     /* 查看任务是否关闭 */
@@ -48,26 +49,26 @@ public class QrCodeRegistrationServiceImpl implements QrCodeRegistrationService 
 
     @Override
     @SneakyThrows
-    public BufferedImage getRegistrationQrCode(Integer eventId) {
+    public BufferedImage getCheckInQrCode(Integer eventId) {
         /* 访问自动开启服务:访问自动开启(服务开启条件状态下) */
         JobKey jobKey = new JobKey(String.valueOf(eventId),jobGroupName);
         String stringEventId = String.valueOf(eventId);
         if(!SchedulerUtil.getScheduler().checkExists(jobKey)){
             JobDataMap jobDataMap = new JobDataMap();
             jobDataMap.put("eventId",eventId);
-            baseRegistrationService.refreshCode(eventId);
+            codeService.refreshCode(eventId);
             SchedulerUtil.addRepeatJob(stringEventId,jobGroupName,stringEventId,triggerGroupName, CodeRefreshJob.class,jobDataMap,refreshCron,new Date(),new Date(System.currentTimeMillis()+duration));
             SchedulerUtil.addTriggerListener(stringEventId,triggerGroupName,new CodeRefreshTriggerListener(eventId));
         }else {
             SchedulerUtil.resetRepeatJob(stringEventId,triggerGroupName,null,null,new Date(System.currentTimeMillis()+duration));
         }
-        return baseRegistrationService.getQrCode(eventId);
+        return codeService.getQrCode(eventId);
     }
 
     @Override
     @SneakyThrows
-    public Boolean checkRegistrationCode(Integer eventId,String registrationCode) {
-        return baseRegistrationService.getCode(eventId).equals(registrationCode);
+    public Boolean checkCode(Integer eventId,String registrationCode) {
+        return codeService.getCode(eventId).equals(registrationCode);
     }
 
 }
