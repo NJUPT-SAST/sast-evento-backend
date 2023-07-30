@@ -3,14 +3,11 @@ package sast.evento.job;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobExecutionContext;
-import org.quartz.SchedulerException;
 import org.quartz.Trigger;
-import org.quartz.TriggerKey;
 import org.quartz.listeners.TriggerListenerSupport;
 import sast.evento.enums.ErrorEnum;
 import sast.evento.exception.LocalRunTimeException;
-import sast.evento.service.BaseRegistrationService;
-import sast.evento.utils.SchedulerUtil;
+import sast.evento.service.CodeService;
 import sast.evento.utils.SpringContextUtil;
 
 /**
@@ -34,8 +31,8 @@ public class CodeRefreshTriggerListener extends TriggerListenerSupport {
     @Override
     public void triggerComplete(Trigger trigger, JobExecutionContext context, Trigger.CompletedExecutionInstruction triggerInstructionCode) {
         /* 超时自动关闭(服务开启条件状态下) */
-        BaseRegistrationService baseRegistrationServiceBean = SpringContextUtil.getBean(BaseRegistrationService.class);
-        baseRegistrationServiceBean.deleteCode(eventId);
+        CodeService codeServiceBean = SpringContextUtil.getBean(CodeService.class);
+        codeServiceBean.deleteCode(eventId);
         log.info("Code refresh job complete, code and qrcode has been removed.");
     }
 

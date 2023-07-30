@@ -3,9 +3,8 @@ package sast.evento.service.impl;
 import org.springframework.stereotype.Service;
 import sast.evento.enums.ErrorEnum;
 import sast.evento.exception.LocalRunTimeException;
-import sast.evento.service.BaseRegistrationService;
+import sast.evento.service.CodeService;
 import sast.evento.utils.QrCodeUtil;
-import sast.evento.utils.SchedulerUtil;
 import sast.evento.utils.StringUtil;
 
 import java.awt.image.BufferedImage;
@@ -19,7 +18,7 @@ import java.util.Random;
  * @date: 2023/7/29 15:40
  */
 @Service
-public class BaseRegistrationServiceImpl implements BaseRegistrationService {
+public class CodeServiceImpl implements CodeService {
     private static final Map<Integer, String> eventId2Code = new HashMap<>();
     private static final Map<Integer, BufferedImage> eventId2QrCode = new HashMap<>();
 

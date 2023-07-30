@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import sast.evento.service.BaseRegistrationService;
+import sast.evento.service.CodeService;
 import sast.evento.utils.SpringContextUtil;
 
 /**
@@ -18,8 +18,8 @@ public class CodeRefreshJob implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         Integer eventId = jobExecutionContext.getMergedJobDataMap().getInt("eventId");
-        BaseRegistrationService baseRegistrationServiceBean = SpringContextUtil.getBean(BaseRegistrationService.class);
-        baseRegistrationServiceBean.refreshCode(eventId);
+        CodeService codeServiceBean = SpringContextUtil.getBean(CodeService.class);
+        codeServiceBean.refreshCode(eventId);
         log.info("refresh Qrcode. EvenId: {}",eventId);
     }
 }
