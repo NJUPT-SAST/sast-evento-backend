@@ -1,11 +1,11 @@
 package sast.evento.service;
 
+import sast.evento.enums.ActionState;
 import sast.evento.model.Action;
 
 public interface ActionService {
     Action getAction(String method);
-    void setActionVisible(String method, Boolean isVisible);
-    void setActionPublic(String method, Boolean isPublic);
+    void setActionState(String method, ActionState actionState);
     void setDescription(String method, String actionName);
     void setGroup(String method, String group);
 }

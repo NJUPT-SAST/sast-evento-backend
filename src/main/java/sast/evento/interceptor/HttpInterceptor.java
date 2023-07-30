@@ -11,6 +11,7 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 import sast.evento.annotation.EventId;
+import sast.evento.enums.ActionState;
 import sast.evento.enums.ErrorEnum;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.model.Action;
@@ -45,21 +46,24 @@ public class HttpInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        if(handler instanceof ResourceHttpRequestHandler){
+        if (handler instanceof ResourceHttpRequestHandler) {
             return true;
         }
         Method method = ((HandlerMethod) handler).getMethod();
         String token = request.getHeader("TOKEN");
         Action action = actionService.getAction(method.getName());
-        if (action == null || !action.getIsVisible()) {
+        if (action == null || action.getActionState().equals(ActionState.INVISIBLE)) {
             throw new LocalRunTimeException(ErrorEnum.METHOD_NOT_EXIST);
-        } else if (action.getIsPublic()) {
+        } else if (action.getActionState().equals(ActionState.PUBLIC)) {
             return true;
         }
         Map<String, Claim> map = jwtUtil.getClaims(token);
         String userId = map.get("user_id").asString();
-        EventId eventAnno = AnnotatedElementUtils.findMergedAnnotation(method, EventId.class);
-        if (eventAnno != null) {
+        if (action.getActionState().equals(ActionState.MANAGER)) {
+            EventId eventAnno = AnnotatedElementUtils.findMergedAnnotation(method, EventId.class);
+            if (eventAnno == null) {
+                throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "annotation EventId on requestParam is needed.");
+            }
             String eventId = request.getParameter(eventAnno.name());
             if (eventId == null) {
                 throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "EventId in requestParam should not be null.");
