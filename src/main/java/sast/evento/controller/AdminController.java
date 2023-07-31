@@ -1,12 +1,14 @@
 package sast.evento.controller;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import sast.evento.annotation.DefaultActionState;
 import sast.evento.annotation.EventId;
-import sast.evento.enums.ActionState;
+import sast.evento.annotation.OperateLog;
+import sast.evento.common.enums.ActionState;
 
 /**
  * @projectName: sast-evento-backend
@@ -16,10 +18,5 @@ import sast.evento.enums.ActionState;
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
-    @DefaultActionState(ActionState.PUBLIC)
-    @PostMapping("/post")
-    public void post(@EventId(value = "id") @RequestParam Integer id){
-        System.out.println(id);
-    }
 
 }

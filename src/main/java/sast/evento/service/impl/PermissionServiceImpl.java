@@ -8,17 +8,12 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import sast.evento.config.ActionRegister;
 import sast.evento.entitiy.Permission;
-import sast.evento.enums.ErrorEnum;
+import sast.evento.common.enums.ErrorEnum;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.mapper.PermissionMapper;
-import sast.evento.model.Action;
 import sast.evento.service.PermissionService;
-import sast.evento.service.UserService;
 
-import javax.xml.validation.Validator;
-import java.lang.reflect.Method;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @projectName: sast-evento-backend

@@ -1,6 +1,6 @@
 package sast.evento.service;
 
-import sast.evento.enums.ActionState;
+import sast.evento.common.enums.ActionState;
 import sast.evento.model.Action;
 
 public interface ActionService {

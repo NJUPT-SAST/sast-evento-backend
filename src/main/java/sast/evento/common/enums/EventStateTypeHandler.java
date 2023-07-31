@@ -1,4 +1,4 @@
-package sast.evento.enums;
+package sast.evento.common.enums;
 
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;

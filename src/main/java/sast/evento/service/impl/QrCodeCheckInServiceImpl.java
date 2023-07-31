@@ -4,6 +4,7 @@ import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
 import org.quartz.JobDataMap;
 import org.quartz.JobKey;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import sast.evento.job.CodeRefreshJob;
 import sast.evento.job.CodeRefreshTriggerListener;
@@ -23,8 +24,11 @@ import java.util.Date;
 public class QrCodeCheckInServiceImpl implements QrCodeCheckInService {
     private static final String jobGroupName = "job_qr_code_registration";
     private static final String triggerGroupName = "trigger_qr_code_registration";
-    private static final long duration = 60000;
-    private static final String refreshCron = "0 0/1 * * * ? *";//每分钟更新
+
+    @Value("${evento.QrCode.duration}")
+    private long duration;
+    @Value("${evento.QrCode.refreshCron}")
+    private String refreshCron;
 
     @Resource
     CodeService codeService;

@@ -2,7 +2,7 @@ package sast.evento.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import sast.evento.enums.ActionState;
+import sast.evento.common.enums.ActionState;
 
 /**
  * @projectName: sast-evento-backend
@@ -21,7 +21,7 @@ public class Action {
 
     private final String url;
 
-    private String group = "default";
+    private String group;
 
     private ActionState actionState;//操作状态
 

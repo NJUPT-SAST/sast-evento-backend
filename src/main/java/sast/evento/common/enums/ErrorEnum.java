@@ -1,4 +1,4 @@
-package sast.evento.enums;
+package sast.evento.common.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -2,6 +2,7 @@ package sast.evento.config;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.annotation.AnnotatedElementUtils;
@@ -12,8 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
 import sast.evento.annotation.DefaultActionState;
 import sast.evento.annotation.OperateLog;
-import sast.evento.enums.ActionState;
-import sast.evento.enums.ErrorEnum;
+import sast.evento.common.enums.ErrorEnum;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.model.Action;
 
@@ -37,9 +37,12 @@ public class ActionRegister implements ApplicationListener<ContextRefreshedEvent
     public static Map<String, Action> actionName2action = new HashMap<>();
     public static Set<String> actionNameSet;
     private static final String PACKAGE_PATH = "classpath*:sast/evento/controller";
-    private static final String host = "sast.evento";
-    private static final String protocol = "http";
     private static final String defaultGroupName = "default";
+
+    @Value("${evento.host}")
+    private String host;
+    @Value("${evento.protocol}")
+    private String protocol;
 
     @SneakyThrows
     @Override

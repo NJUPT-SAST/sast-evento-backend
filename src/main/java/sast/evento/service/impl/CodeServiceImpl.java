@@ -1,7 +1,7 @@
 package sast.evento.service.impl;
 
 import org.springframework.stereotype.Service;
-import sast.evento.enums.ErrorEnum;
+import sast.evento.common.enums.ErrorEnum;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.service.CodeService;
 import sast.evento.utils.QrCodeUtil;
