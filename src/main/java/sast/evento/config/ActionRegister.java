@@ -41,6 +41,8 @@ public class ActionRegister implements ApplicationListener<ContextRefreshedEvent
 
     @Value("${evento.host}")
     private String host;
+    @Value("${evento.port}")
+    private Integer port;
     @Value("${evento.protocol}")
     private String protocol;
 
@@ -67,7 +69,7 @@ public class ActionRegister implements ApplicationListener<ContextRefreshedEvent
                 if (d == null) {
                     throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "run failed,the annotation defaultActionState is needed on Mapping method.");
                 }
-                URL url = new URL(protocol, host, pre + r.path()[0]);
+                URL url = new URL(protocol, host, port, pre + r.path()[0]);
                 OperateLog logAnno = AnnotatedElementUtils.findMergedAnnotation(m, OperateLog.class);
                 String description = (logAnno == null) ? "" : logAnno.description();
                 String methodName = m.getName();
