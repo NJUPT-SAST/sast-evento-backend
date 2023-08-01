@@ -23,7 +23,7 @@ public class EventController {
 
     /* 由后端生成部分信息置于二维码，userId需要前端填充 */
     @OperateLog("签到")
-    @DefaultActionState(ActionState.PUBLIC)/* 这里为public,eventId注解没什么用 */
+    @DefaultActionState(ActionState.LOGIN)/* 这里为public,eventId注解没什么用 */
     @GetMapping("/checkIn")
     public String CheckIn(@RequestParam @EventId Integer eventId,
                           @RequestParam String userId,
@@ -53,7 +53,7 @@ public class EventController {
     }
 
     @OperateLog("查看用户历史活动列表（参加过已结束）")
-    @DefaultActionState(ActionState.PUBLIC)
+    @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/history")
     public List<EventModel> getHistory() {
         UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
@@ -65,7 +65,6 @@ public class EventController {
     @DeleteMapping("/info")
     public String deleteEvent(@RequestParam @EventId Integer eventId) {
         return null;
-
     }
 
     @OperateLog("获取活动详情")

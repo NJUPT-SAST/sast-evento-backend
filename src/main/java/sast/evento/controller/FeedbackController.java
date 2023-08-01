@@ -34,7 +34,7 @@ public class FeedbackController {
     }
 
     @OperateLog("用户添加反馈")
-    @DefaultActionState(ActionState.PUBLIC)
+    @DefaultActionState(ActionState.LOGIN)
     @PostMapping("/info")
     public Integer addFeedback(@RequestParam(required = false) String content,
                               @RequestParam Integer score,
@@ -44,7 +44,7 @@ public class FeedbackController {
     }
 
     @OperateLog("用户获取反馈")
-    @DefaultActionState(ActionState.PUBLIC)
+    @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/info")
     public List<FeedbackModel> getFeedback() {
         UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
@@ -52,7 +52,7 @@ public class FeedbackController {
     }
 
     @OperateLog("用户修改反馈")
-    @DefaultActionState(ActionState.PUBLIC)
+    @DefaultActionState(ActionState.LOGIN)
     @PatchMapping("/info")
     public String patchFeedback(@RequestParam(required = false) String content,
                                 @RequestParam(required = false) Integer score,
@@ -62,7 +62,7 @@ public class FeedbackController {
     }
 
     @OperateLog("用户删除反馈")
-    @DefaultActionState(ActionState.PUBLIC)
+    @DefaultActionState(ActionState.LOGIN)
     @DeleteMapping("/info")
     public String deleteFeedback(@RequestParam Integer feedbackId) {
         UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
