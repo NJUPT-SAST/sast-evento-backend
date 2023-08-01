@@ -20,7 +20,7 @@ import java.util.Map;
  * @author: feelMoose
  * @date: 2023/7/26 17:47
  */
-public class QrCodeUtil {
+public class QRCodeUtil {
 
     /* 默认大小二维码 */
     public static BufferedImage generateQrCode(String contents) throws Exception {

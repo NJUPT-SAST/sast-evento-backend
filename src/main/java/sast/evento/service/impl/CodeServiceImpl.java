@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 import sast.evento.common.enums.ErrorEnum;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.service.CodeService;
-import sast.evento.utils.QrCodeUtil;
+import sast.evento.utils.QRCodeUtil;
 import sast.evento.utils.StringUtil;
 
 import java.awt.image.BufferedImage;
@@ -28,7 +28,7 @@ public class CodeServiceImpl implements CodeService {
         String code = StringUtil.getRandomString(10, new Random());
         BufferedImage bufferedImage = null;
         try {
-            bufferedImage = QrCodeUtil.generateQrCode(code);
+            bufferedImage = QRCodeUtil.generateQrCode(code);
         } catch (Exception e) {
             throw new LocalRunTimeException(ErrorEnum.QRCODE_ERROR);
         }
