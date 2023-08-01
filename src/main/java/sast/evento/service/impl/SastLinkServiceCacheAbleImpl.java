@@ -5,6 +5,7 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import sast.evento.model.UserProFile;
+import sast.evento.service.SastLinkServiceCacheAble;
 import sast.evento.utils.JwtUtil;
 
 import java.util.HashMap;
@@ -16,7 +17,7 @@ import java.util.Map;
  * @date: 2023/7/14 14:12
  */
 @Service
-public class SastLinkServiceCacheAbleImpl {
+public class SastLinkServiceCacheAbleImpl implements SastLinkServiceCacheAble {
     /* 带缓存的SastLink登录服务 */
 
     /* 在这里调用SastLinkSDK的方法并缓存信息 */
