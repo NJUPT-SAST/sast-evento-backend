@@ -18,6 +18,8 @@ public enum ErrorEnum {
     USER_ALREADY_EXIST(1002, "用户已存在"),
     TOKEN_ERROR(1003, "TOKEN解析错误"),
     METHOD_NOT_EXIST(1004, "该操作不存在"),
+    /* 参数错误 */
+    PARAM_ERROR(1005, "传参异常"),
     /*  */
 
 
