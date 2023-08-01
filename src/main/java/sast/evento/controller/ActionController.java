@@ -10,6 +10,7 @@ import sast.evento.annotation.OperateLog;
 import sast.evento.common.enums.ActionState;
 import sast.evento.model.Action;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -21,6 +22,13 @@ public class ActionController {
     @DefaultActionState(ActionState.ADMIN)
     public List<Action> getActionList() {
         return null;
+    }
+
+    @GetMapping("/states")
+    @OperateLog("获取所有可用的活动状态")
+    @DefaultActionState(ActionState.ADMIN)
+    public List<ActionState> getStates() {
+        return Arrays.stream(ActionState.values()).toList();
     }
 
     @PatchMapping("/info")

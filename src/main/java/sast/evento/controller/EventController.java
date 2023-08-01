@@ -34,7 +34,7 @@ public class EventController {
     @OperateLog("获取活动签到二维码")
     @DefaultActionState(ActionState.ADMIN)/* 这里为admin,eventId注解没什么用 */
     @GetMapping("/qrcode")
-    public BufferedImage eventQrcodeGet(@RequestParam Integer eventId) {
+    public BufferedImage eventQrcodeGet(@RequestParam @EventId Integer eventId) {
         return null;
     }
 
@@ -87,7 +87,7 @@ public class EventController {
     @OperateLog("发起活动（添加活动）")
     @DefaultActionState(ActionState.ADMIN)
     @PostMapping("/info")
-    public String addEvent(@RequestBody Event event) {
+    public Integer addEvent(@RequestBody Event event) {
         if (event.getId() != null) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "id should be null.");
         UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
         /* 记得给自己加活动权限鸭喵 */
