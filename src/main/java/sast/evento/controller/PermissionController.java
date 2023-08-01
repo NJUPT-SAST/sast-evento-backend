@@ -1,6 +1,5 @@
 package sast.evento.controller;
 
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import sast.evento.annotation.DefaultActionState;
 import sast.evento.annotation.EventId;
@@ -12,7 +11,7 @@ import sast.evento.model.Action;
 import java.util.List;
 
 
-@Controller
+@RestController
 @RequestMapping("/permission")
 public class PermissionController {
 

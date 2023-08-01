@@ -1,6 +1,5 @@
 package sast.evento.controller;
 
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import sast.evento.annotation.DefaultActionState;
@@ -10,7 +9,7 @@ import sast.evento.entitiy.Slide;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("/slide")
 public class SlideController {
 
