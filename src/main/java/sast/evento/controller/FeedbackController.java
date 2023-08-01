@@ -1,6 +1,5 @@
 package sast.evento.controller;
 
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import sast.evento.annotation.DefaultActionState;
 import sast.evento.annotation.EventId;
@@ -14,7 +13,7 @@ import sast.evento.model.UserProFile;
 import java.util.List;
 import java.util.Map;
 
-@Controller
+@RestController
 @RequestMapping("/feedback")
 public class FeedbackController {
 
@@ -37,8 +36,8 @@ public class FeedbackController {
     @DefaultActionState(ActionState.LOGIN)
     @PostMapping("/info")
     public Integer addFeedback(@RequestParam(required = false) String content,
-                              @RequestParam Integer score,
-                              @RequestParam Integer eventId) {
+                               @RequestParam Integer score,
+                               @RequestParam Integer eventId) {
         UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
         return null;
     }

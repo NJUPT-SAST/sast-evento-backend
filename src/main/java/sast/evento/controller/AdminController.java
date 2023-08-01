@@ -1,11 +1,6 @@
 package sast.evento.controller;
 
-import org.apache.ibatis.annotations.Delete;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.NativeWebRequest;
 import sast.evento.annotation.DefaultActionState;
 import sast.evento.annotation.OperateLog;
 import sast.evento.common.enums.ActionState;
@@ -15,9 +10,8 @@ import sast.evento.entitiy.Location;
 import sast.evento.exception.LocalRunTimeException;
 
 import java.util.List;
-import java.util.Optional;
 
-@Controller
+@RestController
 @RequestMapping("/admin")
 public class AdminController{
 
