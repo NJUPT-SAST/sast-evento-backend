@@ -17,7 +17,7 @@ import sast.evento.model.Action;
 import sast.evento.model.UserProFile;
 import sast.evento.service.ActionService;
 import sast.evento.service.PermissionService;
-import sast.evento.service.impl.SastLinkServiceCacheAble;
+import sast.evento.service.SastLinkServiceCacheAble;
 import sast.evento.utils.JwtUtil;
 
 import java.lang.reflect.Method;

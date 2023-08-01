@@ -1,11 +1,14 @@
 package sast.evento.controller;
 
 import jakarta.annotation.Resource;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import sast.evento.annotation.DefaultActionState;
 import sast.evento.annotation.OperateLog;
 import sast.evento.common.enums.ActionState;
-import sast.evento.service.impl.SastLinkServiceCacheAble;
+import sast.evento.service.SastLinkServiceCacheAble;
 
 /**
  * @projectName: sast-evento-backend
@@ -20,22 +23,20 @@ public class LoginController {
     private SastLinkServiceCacheAble sastLinkServiceCacheAble;
 
     @OperateLog("link登录")
-    @PostMapping ("/link")
+    @PostMapping("/link")
     @DefaultActionState(ActionState.PUBLIC)
-    public String linkLogin(@RequestParam(defaultValue = "")String userId,
-                      @RequestParam(defaultValue = "")String password){
+    public String linkLogin(@RequestParam(defaultValue = "") String userId,
+                            @RequestParam(defaultValue = "") String password) {
         return sastLinkServiceCacheAble.login(userId, password);//todo 对接sast link
     }
 
     @OperateLog("wx登录")
-    @PostMapping ("/wx")
+    @PostMapping("/wx")
     @DefaultActionState(ActionState.PUBLIC)
-    public String wxLogin(@RequestParam(defaultValue = "")String userId,
-                        @RequestParam(defaultValue = "")String password){
+    public String wxLogin(@RequestParam(defaultValue = "") String userId,
+                          @RequestParam(defaultValue = "") String password) {
         return sastLinkServiceCacheAble.login(userId, password);//todo 对接sast link
     }
-
-
 
 
 }
