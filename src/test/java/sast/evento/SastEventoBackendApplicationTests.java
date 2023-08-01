@@ -10,7 +10,7 @@ import sast.evento.model.wxServiceDTO.WxSubscribeRequest;
 import sast.evento.service.CodeService;
 import sast.evento.service.QrCodeCheckInService;
 import sast.evento.utils.JsonUtil;
-import sast.evento.utils.QrCodeUtil;
+import sast.evento.utils.QRCodeUtil;
 import sast.evento.utils.SpringContextUtil;
 
 import java.awt.image.BufferedImage;
@@ -31,7 +31,7 @@ class SastEventoBackendApplicationTests {
     @Test
     void generateQrCode() {
         try {
-            BufferedImage image = QrCodeUtil.generateQrCode("");
+            BufferedImage image = QRCodeUtil.generateQrCode("");
         } catch (Exception e) {
             throw new LocalRunTimeException(ErrorEnum.QRCODE_ERROR);
         }
