@@ -15,7 +15,7 @@ import sast.evento.service.ActionService;
  */
 @Service
 public class ActionServiceImpl implements ActionService {
-
+    /* 接口管理服务 */
     @Override
     public Action getAction(String method) {
         return ActionRegister.actionName2action.get(method);

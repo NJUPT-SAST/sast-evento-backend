@@ -22,10 +22,9 @@ import java.util.*;
  */
 @Service
 public class PermissionServiceImpl implements PermissionService {
-
+    /* 权限服务 */
     @Resource
     private PermissionMapper permissionMapper;
-
     @Override
     @CachePut(value = "permission", key = "#permission.userId +#permission.eventId")
     public Permission addPermission(Permission permission) {

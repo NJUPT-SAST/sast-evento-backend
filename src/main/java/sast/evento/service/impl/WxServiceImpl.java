@@ -25,6 +25,8 @@ import java.util.Map;
  */
 @Service
 public class WxServiceImpl implements WxService {
+    /* 基础微信相关服务 */
+
     @Value("${wx.templateId}")
     public String template_id;
     @Value("${wx.secret}")

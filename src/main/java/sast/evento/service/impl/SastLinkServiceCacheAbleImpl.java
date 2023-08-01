@@ -17,6 +17,8 @@ import java.util.Map;
  */
 @Service
 public class SastLinkServiceCacheAbleImpl {
+    /* 带缓存的SastLink登录服务 */
+
     /* 在这里调用SastLinkSDK的方法并缓存信息 */
     //todo 对接Sast_Link_SDK
     @Resource

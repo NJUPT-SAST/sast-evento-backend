@@ -23,6 +23,18 @@ import java.util.Date;
 @Slf4j
 @Service
 public class SubscribeMessageServiceImpl implements SubscribeMessageService {
+    /* 可以定时发送消息的微信订阅消息服务 */
+
+    /* 流程如下：
+    * 创建活动时创建定时任务
+    * 修改活动时修改定时任务时间
+    * 取消活动或删除活动时删除定时任务
+    *
+    * 定时任务会在startTime开始读取数据库中订阅某活动的用户（只允许从微信订阅,一定有openId）
+    * 并获取微信stable_access_token,根据模板id和一定的格式发送消息
+    *
+    * 可以选择是否开启这一功能
+    */
     private static final String jobGroupName = "job_wx_subscribe";
     private static final String triggerGroupName = "trigger_wx_subscribe";
     @Getter

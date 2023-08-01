@@ -14,6 +14,7 @@ import sast.evento.service.UserService;
  */
 @Service
 public class UserServiceImpl implements UserService {
+    /* 因为sastLink原因存储信息暂时未确定，但是一定会存studentId和openId */
     @Resource
     private UserMapper userMapper;
 
