@@ -10,7 +10,8 @@ public enum ActionState {
     ADMIN(0),
     MANAGER(1),
     PUBLIC(2),
-    INVISIBLE(3);
+    LOGIN(3),
+    INVISIBLE(4);
     final int num;
 
     ActionState(int num) {

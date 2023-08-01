@@ -55,9 +55,14 @@ public class HttpInterceptor implements HandlerInterceptor {
                 .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.METHOD_NOT_EXIST, "method not exist."));
         String userId = null;
         switch (action.getActionState()) {
+            /* 鉴权状态可拓展 */
             case INVISIBLE -> throw new LocalRunTimeException(ErrorEnum.METHOD_NOT_EXIST, "method inVisible.");
             case PUBLIC -> {
                 return true;
+            }
+            case LOGIN -> {
+                Map<String, Claim> map = jwtUtil.getClaims(token);
+                userId = map.get("user_id").asString();
             }
             case MANAGER -> {
                 Map<String, Claim> map = jwtUtil.getClaims(token);
