@@ -3,7 +3,7 @@ package sast.evento.response;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import sast.evento.enums.ErrorEnum;
+import sast.evento.common.enums.ErrorEnum;
 
 /**
  * @author: NicoAsuka

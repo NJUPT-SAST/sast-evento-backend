@@ -1,20 +1,13 @@
 package sast.evento.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import sast.evento.entitiy.Department;
-import sast.evento.entitiy.EventDepartment;
 import sast.evento.entitiy.EventType;
 import sast.evento.entitiy.Location;
-import sast.evento.enums.EventState;
-import sast.evento.enums.EventStateTypeHandler;
+import sast.evento.common.enums.EventState;
 
 import java.util.Date;
 import java.util.List;

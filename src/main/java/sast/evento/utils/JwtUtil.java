@@ -9,7 +9,7 @@ import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import sast.evento.enums.ErrorEnum;
+import sast.evento.common.enums.ErrorEnum;
 import sast.evento.exception.LocalRunTimeException;
 
 import java.util.Calendar;
@@ -24,7 +24,6 @@ public class JwtUtil {
 
     @Value("${jwt.expiration}")
     private Integer expiration;
-
     private final RedisUtil redisUtil;
 
     public JwtUtil(RedisUtil redisUtil) {

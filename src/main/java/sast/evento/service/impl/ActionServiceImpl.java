@@ -2,8 +2,8 @@ package sast.evento.service.impl;
 
 import org.springframework.stereotype.Service;
 import sast.evento.config.ActionRegister;
-import sast.evento.enums.ActionState;
-import sast.evento.enums.ErrorEnum;
+import sast.evento.common.enums.ActionState;
+import sast.evento.common.enums.ErrorEnum;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.model.Action;
 import sast.evento.service.ActionService;
@@ -15,7 +15,7 @@ import sast.evento.service.ActionService;
  */
 @Service
 public class ActionServiceImpl implements ActionService {
-
+    /* 接口管理服务 */
     @Override
     public Action getAction(String method) {
         return ActionRegister.actionName2action.get(method);

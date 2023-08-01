@@ -5,7 +5,7 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import sast.evento.enums.ErrorEnum;
+import sast.evento.common.enums.ErrorEnum;
 import sast.evento.response.GlobalResponse;
 
 import java.util.stream.Collectors;

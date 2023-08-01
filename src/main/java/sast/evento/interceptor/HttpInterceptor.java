@@ -11,18 +11,18 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 import sast.evento.annotation.EventId;
-import sast.evento.enums.ActionState;
-import sast.evento.enums.ErrorEnum;
+import sast.evento.common.enums.ErrorEnum;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.model.Action;
 import sast.evento.model.UserProFile;
 import sast.evento.service.ActionService;
 import sast.evento.service.PermissionService;
-import sast.evento.service.impl.SastLinkServiceCacheAble;
+import sast.evento.service.SastLinkServiceCacheAble;
 import sast.evento.utils.JwtUtil;
 
 import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.Optional;
 
 
 /**
@@ -51,29 +51,36 @@ public class HttpInterceptor implements HandlerInterceptor {
         }
         Method method = ((HandlerMethod) handler).getMethod();
         String token = request.getHeader("TOKEN");
-        Action action = actionService.getAction(method.getName());
-        if (action == null || action.getActionState().equals(ActionState.INVISIBLE)) {
-            throw new LocalRunTimeException(ErrorEnum.METHOD_NOT_EXIST);
-        } else if (action.getActionState().equals(ActionState.PUBLIC)) {
-            return true;
-        }
-        Map<String, Claim> map = jwtUtil.getClaims(token);
-        String userId = map.get("user_id").asString();
-        if (action.getActionState().equals(ActionState.MANAGER)) {
-            EventId eventAnno = AnnotatedElementUtils.findMergedAnnotation(method, EventId.class);
-            if (eventAnno == null) {
-                throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "annotation EventId on requestParam is needed.");
+        Action action = Optional.ofNullable(actionService.getAction(method.getName()))
+                .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.METHOD_NOT_EXIST, "method not exist."));
+        String userId = null;
+        switch (action.getActionState()) {
+            /* 鉴权状态可拓展 */
+            case INVISIBLE -> throw new LocalRunTimeException(ErrorEnum.METHOD_NOT_EXIST, "method inVisible.");
+            case PUBLIC -> {
+                return true;
             }
-            String eventId = request.getParameter(eventAnno.name());
-            if (eventId == null) {
-                throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "EventId in requestParam should not be null.");
+            case LOGIN -> {
+                Map<String, Claim> map = jwtUtil.getClaims(token);
+                userId = map.get("user_id").asString();
             }
-            if (!permissionService.checkPermission(userId, Integer.parseInt(eventId), action.getMethodName())) {
-                throw new LocalRunTimeException(ErrorEnum.PERMISSION_ERROR);
+            case MANAGER -> {
+                Map<String, Claim> map = jwtUtil.getClaims(token);
+                userId = map.get("user_id").asString();
+                EventId eventAnno = Optional.ofNullable(AnnotatedElementUtils.findMergedAnnotation(method, EventId.class))
+                        .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "annotation EventId on requestParam is needed."));
+                String eventId = Optional.ofNullable(request.getParameter(eventAnno.name()))
+                        .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "eventId in requestParam should not be null."));
+                if (!permissionService.checkPermission(userId, Integer.parseInt(eventId), action.getMethodName())) {
+                    throw new LocalRunTimeException(ErrorEnum.PERMISSION_ERROR);
+                }
             }
-        } else {
-            if (!permissionService.checkPermission(userId, 0, action.getMethodName())) {
-                throw new LocalRunTimeException(ErrorEnum.PERMISSION_ERROR);
+            case ADMIN -> {
+                Map<String, Claim> map = jwtUtil.getClaims(token);
+                userId = map.get("user_id").asString();
+                if (!permissionService.checkPermission(userId, 0, action.getMethodName())) {
+                    throw new LocalRunTimeException(ErrorEnum.PERMISSION_ERROR);
+                }
             }
         }
         UserProFile userProFile = sastLinkServiceCacheAble.getUserProFile(userId);//todo 等待对接sastLink
@@ -86,6 +93,4 @@ public class HttpInterceptor implements HandlerInterceptor {
                                 Object handler, @Nullable Exception ex) {
         userProFileHolder.remove();
     }
-
-
 }

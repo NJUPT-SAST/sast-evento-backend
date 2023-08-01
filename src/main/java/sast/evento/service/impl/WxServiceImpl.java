@@ -2,9 +2,11 @@ package sast.evento.service.impl;
 
 
 import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import sast.evento.enums.ErrorEnum;
+import sast.evento.common.constant.Constant;
+import sast.evento.common.enums.ErrorEnum;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.model.wxServiceDTO.AccessTokenRequest;
 import sast.evento.model.wxServiceDTO.AccessTokenResponse;
@@ -23,12 +25,16 @@ import java.util.Map;
  */
 @Service
 public class WxServiceImpl implements WxService {
-    public static final String template_id = "template_id";
-    public static final String secret = "secret";
-    public static final String appid = "appid";
-    public static final String wxAccessTokenURL = "https://api.weixin.qq.com/cgi-bin/stable_token";
-    public static final String wxSubscribeURL = "https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token={}";
-    public static final int retryTimes = 5;
+    /* 基础微信相关服务 */
+
+    @Value("${wx.templateId}")
+    public String template_id;
+    @Value("${wx.secret}")
+    public String secret;
+    @Value("${wx.appid}")
+    public String appid;
+    @Value("${wx.TokenRetryTimes}")
+    public int retryTimes;
 
     @Resource
     private RestTemplate restTemplate;
@@ -40,7 +46,7 @@ public class WxServiceImpl implements WxService {
         int times = 0;
         AccessTokenResponse response = null;
         while (times < retryTimes) {
-            response = restTemplate.postForObject(wxAccessTokenURL, request, AccessTokenResponse.class);
+            response = restTemplate.postForObject(Constant.wxAccessTokenURL, request, AccessTokenResponse.class);
             if (response != null && !response.getAccess_token().isEmpty()) {
                 return response;
             }
@@ -61,7 +67,7 @@ public class WxServiceImpl implements WxService {
                 .setTouser(openId);
         Map<String, String> wxSubscribeVariables = new HashMap<>();
         wxSubscribeVariables.put("access_token", access_token);
-        WxSubscribeResponse response = restTemplate.postForObject(wxSubscribeURL, wxSubscribeRequest, WxSubscribeResponse.class, wxSubscribeVariables);
+        WxSubscribeResponse response = restTemplate.postForObject(Constant.wxSubscribeURL, wxSubscribeRequest, WxSubscribeResponse.class, wxSubscribeVariables);
         if (response == null || !response.getErrcode().equals("0")) {
             throw new LocalRunTimeException(ErrorEnum.WX_SUBSCRIBE_ERROR, "Seed message failed, return: " + response);
         }

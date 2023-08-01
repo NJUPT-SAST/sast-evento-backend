@@ -1,7 +1,7 @@
 package sast.evento.service.impl;
 
 import org.springframework.stereotype.Service;
-import sast.evento.enums.ErrorEnum;
+import sast.evento.common.enums.ErrorEnum;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.service.CodeService;
 import sast.evento.utils.QrCodeUtil;
@@ -19,9 +19,9 @@ import java.util.Random;
  */
 @Service
 public class CodeServiceImpl implements CodeService {
+    /* 基础的二维码和验证服务 */
     private static final Map<Integer, String> eventId2Code = new HashMap<>();
     private static final Map<Integer, BufferedImage> eventId2QrCode = new HashMap<>();
-
     /* 刷新是交给job负责的,使用时最好只访问get */
     @Override
     public BufferedImage refreshCode(Integer eventId) {

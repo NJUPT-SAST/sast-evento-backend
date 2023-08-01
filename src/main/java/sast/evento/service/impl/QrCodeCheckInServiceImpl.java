@@ -4,6 +4,7 @@ import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
 import org.quartz.JobDataMap;
 import org.quartz.JobKey;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import sast.evento.job.CodeRefreshJob;
 import sast.evento.job.CodeRefreshTriggerListener;
@@ -21,11 +22,22 @@ import java.util.Date;
  */
 @Service
 public class QrCodeCheckInServiceImpl implements QrCodeCheckInService {
+    /* 自动生成刷新和自动删除缓存的二维码和验证服务 */
+
+    /* 流程如下：
+     * 第一次获取二维码后自动生成并缓存验证码和二维码
+     * 开启定时刷新任务,定时刷新验证码和二维码
+     * 同时开启监听器当任务结束自动回收缓存中的验证码和二维码
+     *
+     * 好处是多端访问时统一了二维码的刷新和每个活动二维码的统一性
+     */
     private static final String jobGroupName = "job_qr_code_registration";
     private static final String triggerGroupName = "trigger_qr_code_registration";
-    private static final long duration = 60000;
-    private static final String refreshCron = "0 0/1 * * * ? *";//每分钟更新
 
+    @Value("${evento.QrCode.duration}")
+    private long duration;
+    @Value("${evento.QrCode.refreshCron}")
+    private String refreshCron;
     @Resource
     CodeService codeService;
 

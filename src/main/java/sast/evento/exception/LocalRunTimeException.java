@@ -2,7 +2,7 @@ package sast.evento.exception;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import sast.evento.enums.ErrorEnum;
+import sast.evento.common.enums.ErrorEnum;
 
 /**
  * @author: NicoAsuka
