@@ -2,6 +2,8 @@ package sast.evento;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 import sast.evento.config.ActionRegister;
 import sast.evento.common.enums.ErrorEnum;
 import sast.evento.exception.LocalRunTimeException;
@@ -9,11 +11,17 @@ import sast.evento.model.wxServiceDTO.AccessTokenRequest;
 import sast.evento.model.wxServiceDTO.WxSubscribeRequest;
 import sast.evento.service.CodeService;
 import sast.evento.service.QrCodeCheckInService;
+import sast.evento.utils.CosUtil;
 import sast.evento.utils.JsonUtil;
 import sast.evento.utils.QRCodeUtil;
 import sast.evento.utils.SpringContextUtil;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,7 +69,20 @@ class SastEventoBackendApplicationTests {
         service.close(eventId);
     }
 
-
+    @Test
+    void CosUtilTest(){
+        MultipartFile file = null;
+        try {
+            File tempfile = new File("C:\\Users\\Dell\\Desktop\\output.png");
+            InputStream inputStream = new FileInputStream(tempfile);
+            file = new MockMultipartFile("test",tempfile.getName(),"image/png",inputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        String url = CosUtil.upload(file);
+        System.out.println(url);
+        CosUtil.delete("https://sast-evento-1309205610.cos.ap-shanghai.myqcloud.com/output_1691070638102");
+    }
 
 
 }
