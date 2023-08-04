@@ -6,7 +6,7 @@ import sast.evento.exception.LocalRunTimeException;
 import java.util.Arrays;
 
 public enum ActionState {
-    /* 权限分类,不作为权限分配的标准,作为分类获取权限的依据 */
+    /* 操作状态,根据操作状态选择鉴权流程 */
     ADMIN(0),
     MANAGER(1),
     PUBLIC(2),

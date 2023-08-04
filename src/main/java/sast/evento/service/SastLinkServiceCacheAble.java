@@ -8,7 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public interface SastLinkServiceCacheAble {
-    String login(String userId,String code);
+    String linkLogin(String code);
+    String wxLogin(String code);
     String logout(String userId,String code);
     UserProFile getUserProFile(String userId);
     UserProFile updateUserProFile(String userId,UserProFile userProFile);

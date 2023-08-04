@@ -13,7 +13,7 @@ import sast.evento.common.enums.ActionState;
 @AllArgsConstructor
 public class Action {
 
-    private String description;
+    private final String description;
 
     private final String methodName;//作为获取action唯一标准
 
@@ -23,7 +23,7 @@ public class Action {
 
     private String group;
 
-    private ActionState actionState;//操作状态
+    private ActionState actionState;
 
 
 }

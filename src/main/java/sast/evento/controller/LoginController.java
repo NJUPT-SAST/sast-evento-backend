@@ -25,18 +25,17 @@ public class LoginController {
     @OperateLog("link登录")
     @PostMapping("/link")
     @DefaultActionState(ActionState.PUBLIC)
-    public String linkLogin(@RequestParam(defaultValue = "") String userId,
-                            @RequestParam(defaultValue = "") String password) {
-        return sastLinkServiceCacheAble.login(userId, password);//todo 对接sast link
+    public String linkLogin(@RequestParam String code) {
+        return sastLinkServiceCacheAble.linkLogin(code);//todo 对接sast link
     }
 
     @OperateLog("wx登录")
     @PostMapping("/wx")
     @DefaultActionState(ActionState.PUBLIC)
-    public String wxLogin(@RequestParam(defaultValue = "") String userId,
-                          @RequestParam(defaultValue = "") String password) {
-        return sastLinkServiceCacheAble.login(userId, password);//todo 对接sast link
+    public String wxLogin(@RequestParam String code) {
+        return sastLinkServiceCacheAble.wxLogin(code);//todo 对接sast link
     }
+
 
 
 }
