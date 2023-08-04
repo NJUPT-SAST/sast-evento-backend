@@ -5,6 +5,7 @@ import jakarta.annotation.Resource;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
 import sast.evento.common.enums.ErrorEnum;
 import sast.evento.config.ActionRegister;
 import sast.evento.entitiy.Permission;
@@ -19,6 +20,7 @@ import java.util.Optional;
  * @author: feelMoose
  * @date: 2023/8/4 9:54
  */
+@Service
 public class PermissionServiceCacheAbleImpl implements PermissionServiceCacheAble {
     /* 权限服务 */
     @Resource

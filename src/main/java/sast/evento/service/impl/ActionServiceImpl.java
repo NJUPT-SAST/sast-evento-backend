@@ -27,15 +27,6 @@ public class ActionServiceImpl implements ActionService {
     }
 
     @Override
-    public void setDescription(String method, String description) {
-        Action action = getAction(method);
-        if (action.getDescription().equals(description)) {
-            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "Same actionName has been already set.");
-        }
-        action.setDescription(description);
-    }
-
-    @Override
     public void setGroup(String method, String group) {
         Action action = getAction(method);
         if (action.getGroup().equals(group)) {
