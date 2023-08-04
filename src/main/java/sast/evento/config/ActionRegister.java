@@ -24,6 +24,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @projectName: sast-evento-backend
@@ -34,7 +35,7 @@ import java.util.*;
 @Component
 public class ActionRegister implements ApplicationListener<ContextRefreshedEvent> {
 
-    public static Map<String, Action> actionName2action = new HashMap<>();
+    public static Map<String, Action> actionName2action = new ConcurrentHashMap<>();
     public static Set<String> actionNameSet;
     private static final String PACKAGE_PATH = "classpath*:sast/evento/controller";
     private static final String defaultGroupName = "default";
@@ -52,6 +53,7 @@ public class ActionRegister implements ApplicationListener<ContextRefreshedEvent
         parseAll(getAllClass(PACKAGE_PATH));
         actionNameSet = actionName2action.keySet();
         log.info("Scan of action is over. Final actionName2action map is:{}", actionName2action);
+        log.info("and final actionName set is:{} total action num:{}",actionNameSet,actionNameSet.size());
     }
 
     @SneakyThrows

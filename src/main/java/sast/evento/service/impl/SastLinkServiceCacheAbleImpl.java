@@ -24,14 +24,24 @@ public class SastLinkServiceCacheAbleImpl implements SastLinkServiceCacheAble {
     //todo 对接Sast_Link_SDK
     @Resource
     private JwtUtil jwtUtil;
-
-    public String login(String userId,String code){
+    @Override
+    public String linkLogin(String code){
         /* 存储用来获取用户信息的 access_token */
         Map<String,String> map = new HashMap<>();
-        map.put("user_id",userId);
-        return jwtUtil.generateToken(map);
+        map.put("code",code);
+
+
+        String userId = "";
+        Map<String,String> payload = new HashMap<>();
+        map.put("userId",userId);
+        return jwtUtil.generateToken(payload);
     }
 
+    @Override
+    public String wxLogin(String code) {
+        return null;
+    }
+    @Override
     public String logout(String userId,String code){
         return null;
     }
