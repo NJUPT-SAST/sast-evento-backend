@@ -47,7 +47,7 @@ public class CodeServiceImpl implements CodeService {
     public String getCode(Integer eventId) {
         String code = eventId2Code.get(eventId);
         if (code.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "no match eventId.");
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "no match eventId");
         }
         return code;
     }
@@ -56,7 +56,7 @@ public class CodeServiceImpl implements CodeService {
     public BufferedImage getQrCode(Integer eventId) {
         BufferedImage bufferedImage = eventId2QrCode.get(eventId);
         if (bufferedImage == null) {
-            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "no match eventId.");
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "no match eventId");
         }
         return bufferedImage;
     }
@@ -64,7 +64,7 @@ public class CodeServiceImpl implements CodeService {
     @Override
     public void deleteCode(Integer eventId) {
         if(!eventId2Code.containsKey(eventId)){
-            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "no match eventId.");
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "no match eventId");
         }
         eventId2Code.remove(eventId);
         eventId2QrCode.remove(eventId);

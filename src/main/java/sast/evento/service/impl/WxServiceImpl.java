@@ -52,7 +52,7 @@ public class WxServiceImpl implements WxService {
             }
             times++;
         }
-        throw new LocalRunTimeException(ErrorEnum.WX_SERVICE_ERROR, "response or access_token is empty.");
+        throw new LocalRunTimeException(ErrorEnum.WX_SERVICE_ERROR, "response or access_token is empty");
     }
 
     /* 发送wx模板消息内容 */

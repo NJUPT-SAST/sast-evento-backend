@@ -33,7 +33,7 @@ public class CodeRefreshTriggerListener extends TriggerListenerSupport {
         /* 超时自动关闭(服务开启条件状态下) */
         CodeService codeServiceBean = SpringContextUtil.getBean(CodeService.class);
         codeServiceBean.deleteCode(eventId);
-        log.info("Code refresh job complete, code and qrcode has been removed.");
+        log.info("Code refresh job complete, code and qrcode has been removed");
     }
 
 

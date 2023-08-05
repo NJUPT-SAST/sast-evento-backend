@@ -60,7 +60,7 @@ public class SubscribeMessageServiceImpl implements SubscribeMessageService {
     @SneakyThrows
     public void addWxSubScribeJob(Integer eventId, Date startTime) {
         if (isClose()) {
-            throw new LocalRunTimeException(ErrorEnum.WX_SUBSCRIBE_ERROR,"Wx subscribe message service is close.");
+            throw new LocalRunTimeException(ErrorEnum.WX_SUBSCRIBE_ERROR,"Wx subscribe message service is close");
         }
         String cron = SchedulerUtil.simpleDateFormat.format(startTime);
         JobDataMap jobDataMap = new JobDataMap();
@@ -73,7 +73,7 @@ public class SubscribeMessageServiceImpl implements SubscribeMessageService {
     @SneakyThrows
     public void updateWxSubScribeJob(Integer eventId, Date startTime) {
         if (isClose()) {
-            throw new LocalRunTimeException(ErrorEnum.WX_SUBSCRIBE_ERROR,"Wx subscribe message service is close.");
+            throw new LocalRunTimeException(ErrorEnum.WX_SUBSCRIBE_ERROR,"Wx subscribe message service is close");
         }
         String cron = SchedulerUtil.simpleDateFormat.format(startTime);
         SchedulerUtil.resetJobCron(String.valueOf(eventId),triggerGroupName, cron);

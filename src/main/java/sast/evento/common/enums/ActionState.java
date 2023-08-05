@@ -22,7 +22,7 @@ public enum ActionState {
         return Arrays.stream(ActionState.values())
                 .filter(state -> state.num == num)
                 .findAny()
-                .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "action state not exist."));
+                .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "action state not exist"));
     }
 
 }

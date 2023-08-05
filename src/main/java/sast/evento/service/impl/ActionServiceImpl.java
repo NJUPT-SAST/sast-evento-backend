@@ -30,7 +30,7 @@ public class ActionServiceImpl implements ActionService {
     public void setGroup(String method, String group) {
         Action action = getAction(method);
         if (action.getGroup().equals(group)) {
-            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "Same group has been already set.");
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "Same group has been already set");
         }
         action.setGroup(group);
     }

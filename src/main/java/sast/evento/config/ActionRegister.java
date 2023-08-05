@@ -69,7 +69,7 @@ public class ActionRegister implements ApplicationListener<ContextRefreshedEvent
                     continue;
                 }
                 if (d == null) {
-                    throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "run failed,the annotation defaultActionState is needed on Mapping method.");
+                    throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "run failed,the annotation defaultActionState is needed on Mapping method");
                 }
                 URL url = new URL(protocol, host, port, pre + r.path()[0]);
                 OperateLog logAnno = AnnotatedElementUtils.findMergedAnnotation(m, OperateLog.class);
