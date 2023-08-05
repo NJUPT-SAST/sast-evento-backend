@@ -12,23 +12,23 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ErrorEnum {
     /* 错误 */
-    COMMON_ERROR(1000, "错误"),
+    COMMON_ERROR(1000, "error"),
     /* 鉴权错误 */
-    PERMISSION_ERROR(1001, "权限错误"),
-    USER_ALREADY_EXIST(1002, "用户已存在"),
-    TOKEN_ERROR(1003, "TOKEN解析错误"),
-    METHOD_NOT_EXIST(1004, "该操作不存在"),
+    PERMISSION_ERROR(1001, "permission error"),
+    USER_ALREADY_EXIST(1002, "user already exist"),
+    TOKEN_ERROR(1003, "token decode error"),
+    METHOD_NOT_EXIST(1004, "method not exist"),
     /* 参数错误 */
-    PARAM_ERROR(1005, "传参异常"),
+    PARAM_ERROR(1005, "param error"),
     /*  */
 
 
 
     /* 其他服务错误 */
-    WX_SERVICE_ERROR(10001, "微信服务错误"),
-    WX_SUBSCRIBE_ERROR(10001, "微信订阅错误"),
-    SCHEDULER_ERROR(10002, "scheduler错误"),
-    QRCODE_ERROR(10003, "二维码生成错误");
+    WX_SERVICE_ERROR(10001, "wx service error"),
+    WX_SUBSCRIBE_ERROR(10001, "wx subscribe error"),
+    SCHEDULER_ERROR(10002, "scheduler error"),
+    QRCODE_ERROR(10003, "qr code generation error");
     private final Integer errCode;
     private final String errMsg;
 }

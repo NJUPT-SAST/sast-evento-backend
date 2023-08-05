@@ -21,6 +21,7 @@ import sast.evento.service.SastLinkServiceCacheAble;
 import sast.evento.utils.JwtUtil;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 
@@ -52,11 +53,11 @@ public class HttpInterceptor implements HandlerInterceptor {
         Method method = ((HandlerMethod) handler).getMethod();
         String token = request.getHeader("TOKEN");
         Action action = Optional.ofNullable(actionService.getAction(method.getName()))
-                .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.METHOD_NOT_EXIST, "method not exist."));
+                .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.METHOD_NOT_EXIST, "unsupported service"));
         String userId = null;
         switch (action.getActionState()) {
             /* 鉴权状态可拓展 */
-            case INVISIBLE -> throw new LocalRunTimeException(ErrorEnum.METHOD_NOT_EXIST, "method inVisible.");
+            case INVISIBLE -> throw new LocalRunTimeException(ErrorEnum.METHOD_NOT_EXIST, "method inVisible");
             case PUBLIC -> {
                 return true;
             }
@@ -67,10 +68,13 @@ public class HttpInterceptor implements HandlerInterceptor {
             case MANAGER -> {
                 Map<String, Claim> map = jwtUtil.getClaims(token);
                 userId = map.get("user_id").asString();
-                EventId eventAnno = Optional.ofNullable(AnnotatedElementUtils.findMergedAnnotation(method, EventId.class))
-                        .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "annotation EventId on requestParam is needed."));
+                EventId eventAnno = Arrays.stream(Optional.ofNullable(method.getParameters()).orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "eventId param is needed")))
+                        .filter(param -> AnnotatedElementUtils.hasAnnotation(param, EventId.class))
+                        .findAny()
+                        .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "annotation EventId on requestParam is needed"))
+                        .getAnnotation(EventId.class);
                 String eventId = Optional.ofNullable(request.getParameter(eventAnno.name()))
-                        .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "eventId in requestParam should not be null."));
+                        .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "eventId in requestParam should not be null"));
                 if (!permissionService.checkPermission(userId, Integer.parseInt(eventId), action.getMethodName())) {
                     throw new LocalRunTimeException(ErrorEnum.PERMISSION_ERROR);
                 }

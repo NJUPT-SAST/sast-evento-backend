@@ -166,6 +166,7 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public Boolean checkPermission(String userId, Integer eventId, String methodName) {
+        //todo 对接后更改
         return permissionServiceCacheAble.getPermission(userId, eventId)
                 .getMethodNames().stream()
                 .anyMatch(methodName::equals);
@@ -174,7 +175,7 @@ public class PermissionServiceImpl implements PermissionService {
     private User getUserByStudentId(String studentId) {
         return Optional.ofNullable(userMapper.selectOne(new LambdaQueryWrapper<User>()
                         .eq(User::getStudentId, studentId)))
-                .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "no such studentId, please add first."));
+                .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "no such studentId, please add first"));
     }
 
 }
