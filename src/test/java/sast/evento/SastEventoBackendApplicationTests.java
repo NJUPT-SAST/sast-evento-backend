@@ -11,10 +11,7 @@ import sast.evento.model.wxServiceDTO.AccessTokenRequest;
 import sast.evento.model.wxServiceDTO.WxSubscribeRequest;
 import sast.evento.service.CodeService;
 import sast.evento.service.QrCodeCheckInService;
-import sast.evento.utils.CosUtil;
-import sast.evento.utils.JsonUtil;
-import sast.evento.utils.QRCodeUtil;
-import sast.evento.utils.SpringContextUtil;
+import sast.evento.utils.*;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -28,6 +25,15 @@ import java.util.Map;
 
 @SpringBootTest
 class SastEventoBackendApplicationTests {
+
+    @Test
+    void genereateToken(){
+        JwtUtil jwtUtil = SpringContextUtil.getBean(JwtUtil.class);
+        HashMap<String,String> map = new HashMap<>();
+        map.put("user_id","1");
+        String token = jwtUtil.generateToken(map);
+        System.out.println(token);
+    }
 
     @Test
     void getAllMethodNameByJson() {

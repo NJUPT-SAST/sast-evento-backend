@@ -24,7 +24,7 @@ public enum EventState {
         return Arrays.stream(EventState.values())
                 .filter(EventState ->EventState.getState().equals(state))
                 .findAny()
-                .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"Invalid event_state value."));
+                .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"Invalid event_state value"));
     }
 
 

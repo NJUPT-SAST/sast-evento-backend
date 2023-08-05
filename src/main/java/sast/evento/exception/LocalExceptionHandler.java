@@ -23,7 +23,7 @@ public class LocalExceptionHandler {
             return GlobalResponse.failure();
         }
         ErrorEnum errorEnum = e.getErrorEnum();
-        if (errorEnum == null) {
+        if (!e.getMessage().isEmpty()) {
             return GlobalResponse.failure(e.getMessage());
         }
         return GlobalResponse.failure(errorEnum);
@@ -31,7 +31,6 @@ public class LocalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public <T> GlobalResponse<T> handlerValidationException(MethodArgumentNotValidException e) {
-        //流处理，获取错误信息
         String messages = e.getBindingResult().getAllErrors().stream()
                 .map(ObjectError::getDefaultMessage)
                 .collect(Collectors.joining("\n"));

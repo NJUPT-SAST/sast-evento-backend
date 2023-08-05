@@ -27,7 +27,7 @@ public class WxSubscribeJob implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         if (SubscribeMessageServiceImpl.getIsOpen()) {
-            log.info("Wx subscribe task start.");
+            log.info("Wx subscribe task start");
 
             Integer eventId = jobExecutionContext.getMergedJobDataMap().getInt("eventId");
 
@@ -47,7 +47,7 @@ public class WxSubscribeJob implements Job {
                 wxService.seedSubscribeMessage(eventId, accessTokenResponse.getAccess_token(), openId);
             }
 
-            log.info("Wx subscribe task end.");
+            log.info("Wx subscribe task end");
 
 
         }

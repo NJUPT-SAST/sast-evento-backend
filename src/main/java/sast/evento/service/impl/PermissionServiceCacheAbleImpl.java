@@ -29,7 +29,7 @@ public class PermissionServiceCacheAbleImpl implements PermissionServiceCacheAbl
     @CachePut(value = "permission", key = "#permission.userId +#permission.eventId")
     public Permission addPermission(Permission permission) {
         if(permission.getId()!=null){
-            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"Invalid param. Empty id is needed.");
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"Invalid param. Empty id is needed");
         }
         checkValidMethods(permission);
         permissionMapper.insert(permission.updateUpTime());
@@ -51,7 +51,7 @@ public class PermissionServiceCacheAbleImpl implements PermissionServiceCacheAbl
                 .eq(Permission::getUserId,userId)
                 .and(wrapper -> wrapper.eq(Permission::getEventId,eventId)));
         if (permission == null) {
-            throw new LocalRunTimeException(ErrorEnum.PERMISSION_ERROR,"No valid permission exist.");
+            throw new LocalRunTimeException(ErrorEnum.PERMISSION_ERROR,"No valid permission exist");
         }
         return permission;
     }
@@ -60,7 +60,7 @@ public class PermissionServiceCacheAbleImpl implements PermissionServiceCacheAbl
     @CachePut(value = "permission",key = "#permission.userId +#permission.eventId")
     public Permission updatePermission(Permission permission) {
         if(permission.getId()==null){
-            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"Invalid param. Id is needed.");
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"Invalid param. Id is needed");
         }
         checkValidMethods(permission);
         permission.updateUpTime();

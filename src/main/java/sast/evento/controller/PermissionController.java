@@ -41,7 +41,7 @@ public class PermissionController {
     public String deleteAdmin(@RequestParam(required = false) String studentId,
                               @RequestParam(required = false) String userId) {
         if (userId.isEmpty() && studentId.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one.");
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one");
         }
         permissionService.deleteAdmin(userId, studentId);
         return "ok";
@@ -61,7 +61,7 @@ public class PermissionController {
                            @RequestParam(required = false) String studentId,
                            @RequestParam(required = false) String userId) {
         if (userId.isEmpty() && studentId.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one.");
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one");
         }
         permissionService.addAdmin(methodNames, userId, studentId);
         return "ok";
@@ -74,7 +74,7 @@ public class PermissionController {
                            @RequestParam(required = false) String studentId,
                            @RequestParam(required = false) String userId) {
         if (userId.isEmpty() && studentId.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one.");
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one");
         }
         permissionService.updateAdminPermission(methodNames, userId, studentId);
         return "ok";
@@ -86,7 +86,7 @@ public class PermissionController {
     public List<Action> getUserAdminPermissions(@RequestParam(required = false) String studentId,
                                                 @RequestParam(required = false) String userId) {
         if (userId.isEmpty() && studentId.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one.");
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one");
         }
         return permissionService.getUserAdminPermissions(userId, studentId);
     }
@@ -98,7 +98,7 @@ public class PermissionController {
                                                   @RequestParam(required = false) String studentId,
                                                   @RequestParam(required = false) String userId) {
         if (userId.isEmpty() && studentId.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one.");
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one");
         }
         return permissionService.getUserManagerPermissions(eventId, userId, studentId);
     }
@@ -110,7 +110,7 @@ public class PermissionController {
                                 @RequestParam(required = false) String studentId,
                                 @RequestParam(required = false) String userId) {
         if (userId.isEmpty() && studentId.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one.");
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one");
         }
         permissionService.deleteManager(eventId, userId, studentId);
         return "ok";
@@ -124,7 +124,7 @@ public class PermissionController {
                              @RequestParam(required = false) String studentId,
                              @RequestParam(required = false) String userId) {
         if (userId.isEmpty() && studentId.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one.");
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one");
         }
         permissionService.updateManagerPermission(eventId, methodNames, userId, studentId);
         return "ok";
@@ -138,7 +138,7 @@ public class PermissionController {
                              @RequestParam(required = false) String studentId,
                              @RequestParam(required = false) String userId) {
         if (userId.isEmpty() && studentId.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one.");
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one");
         }
         permissionService.addManager(eventId, methodNames, userId, studentId);
         return "ok";
@@ -157,7 +157,7 @@ public class PermissionController {
     public List<Integer> getManageEvent(@RequestParam(required = false) String studentId,
                                         @RequestParam(required = false) String userId) {
         if (userId.isEmpty() && studentId.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one.");
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one");
         }
         return permissionService.getManageEvent(userId, studentId);
     }
