@@ -77,17 +77,6 @@ class SastEventoBackendApplicationTests {
 
     @Test
     void CosUtilTest(){
-        MultipartFile file = null;
-        try {
-            File tempfile = new File("C:\\Users\\Dell\\Desktop\\output.png");
-            InputStream inputStream = new FileInputStream(tempfile);
-            file = new MockMultipartFile("test",tempfile.getName(),"image/png",inputStream);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        String url = CosUtil.upload(file);
-        System.out.println(url);
-        CosUtil.delete("https://sast-evento-1309205610.cos.ap-shanghai.myqcloud.com/output_1691070638102");
     }
 
 
