@@ -15,4 +15,12 @@
     from permission
     where user_id = #{userId}
 </select>
+
+<update id="updatePermission">
+    update permission
+    set all_method_name = #{all_method_name},
+        gmt_update = #{update_time,jdbcType=TIMESTAMP}
+    where user_id = #{user_id} and event_id = #{event_id}
+</update>
+
 </mapper>

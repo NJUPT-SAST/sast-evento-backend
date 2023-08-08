@@ -33,8 +33,10 @@ public class SlideServiceImpl implements SlideService {
     }
 
     @Override
-    public void deleteEventSlide(Integer slideId) {
-        slideMapper.deleteById(slideId);
+    public void deleteEventSlide(Integer slideId,Integer eventId) {
+        slideMapper.delete(new LambdaQueryWrapper<Slide>()
+                .eq(Slide::getEventId,eventId)
+                .and(wrapper -> wrapper.eq(Slide::getId,slideId)));
     }
 
     @Override
@@ -57,7 +59,7 @@ public class SlideServiceImpl implements SlideService {
 
     @Override
     public void deleteHomeSlide(Integer slideId) {
-        deleteEventSlide(slideId);
+        deleteEventSlide(slideId,0);
     }
 
     @Override

@@ -49,7 +49,7 @@ public class SlideController {
     @DeleteMapping("/event/info")
     public String deleteEventSlide(@RequestParam @EventId Integer eventId,
                                    @RequestParam Integer slideId) {
-        slideService.deleteEventSlide(slideId);
+        slideService.deleteEventSlide(slideId,eventId);
         return "ok";
     }
 

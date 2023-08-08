@@ -8,7 +8,7 @@ public interface SlideService {
     /* event */
     List<Slide> getEventSlides(Integer eventId);
     Integer addEventSlide(Integer eventId, String url, String link, String title);
-    void deleteEventSlide( Integer slideId);
+    void deleteEventSlide( Integer slideId,Integer eventId);
     void patchEventSlide(Integer eventId, Integer slideId, String url, String link, String title);
     /* home */
     List<Slide> getHomeSlides(Integer size);

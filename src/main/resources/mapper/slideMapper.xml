@@ -5,22 +5,22 @@
 <mapper namespace="sast.evento.mapper.SlideMapper">
 
 <update id="updateSlide">
-    update slide
+    update slide s
     <set>
-        <if test="eventId != null">
-            event_id = #{event_id},
+        <if test="event_id != null">
+            s.event_id = #{event_id},
         </if>
         <if test="url != null">
-            url = #{url},
+            s.url = #{url},
         </if>
         <if test="link != null">
-            link = #{link},
+            s.link = #{link},
         </if>
         <if test="title != null">
-            title = #{title},
+            s.title = #{title},
         </if>
     </set>
-    where id = #{id}
+    where s.id = #{id}
 </update>
 
 </mapper>
