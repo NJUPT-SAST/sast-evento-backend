@@ -12,6 +12,7 @@ import sast.evento.entitiy.Permission;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.mapper.PermissionMapper;
 import sast.evento.service.PermissionServiceCacheAble;
+import sast.evento.utils.JsonUtil;
 
 import java.util.Optional;
 
@@ -59,12 +60,11 @@ public class PermissionServiceCacheAbleImpl implements PermissionServiceCacheAbl
     @Override
     @CachePut(value = "permission",key = "#permission.userId +#permission.eventId")
     public Permission updatePermission(Permission permission) {
-        if(permission.getId()==null){
-            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"Invalid param. Id is needed");
-        }
         checkValidMethods(permission);
-        permission.updateUpTime();
-        permissionMapper.updateById(permission.updateUpTime());
+        permissionMapper.updatePermission(permission.getUserId(),
+                permission.getEventId(),
+                JsonUtil.toJson(permission.getMethodNames()),
+                permission.updateUpTime().getUpdateTime());
         return permission;
     }
 

@@ -22,16 +22,16 @@ import java.util.List;
 @RequestMapping("/picture")
 public class PictureController{
 
-    @OperateLog("获取图片url列表")
+    @OperateLog("获取所有目录")
     @DefaultActionState(ActionState.LOGIN)
-    @GetMapping("/list")
+    @GetMapping("/dir")
     public List<String> getDir(@RequestParam(defaultValue = "") String dir){
         return CosUtil.getDirs(dir);
     }
 
-    @OperateLog("获取所有目录")
+    @OperateLog("获取图片url列表")
     @DefaultActionState(ActionState.LOGIN)
-    @GetMapping("/dir")
+    @GetMapping("/list")
     public List<String> getUrls(@RequestParam(defaultValue = "") String dir,
                                 @RequestParam(defaultValue = "") String lastUrl,
                                 @RequestParam(defaultValue = "20") Integer size){

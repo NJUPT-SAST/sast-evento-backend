@@ -47,7 +47,7 @@ public class SastLinkServiceCacheAbleImpl implements SastLinkServiceCacheAble {
     }
     @Cacheable(value = "userProFile", key = "#userId")
     public UserProFile getUserProFile(String userId) {
-        return null;
+        return new UserProFile();
     }
 
     @CachePut(value = "userProFile", key = "#userId")
