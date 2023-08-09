@@ -32,6 +32,8 @@ public class FeedbackController {
         return null;
     }
 
+    /**
+     */
     @OperateLog("用户添加反馈")
     @DefaultActionState(ActionState.LOGIN)
     @PostMapping("/info")
@@ -42,6 +44,8 @@ public class FeedbackController {
         return null;
     }
 
+    /**
+     */
     @OperateLog("用户获取反馈")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/info")
@@ -50,6 +54,8 @@ public class FeedbackController {
         return null;
     }
 
+    /**
+     */
     @OperateLog("用户修改反馈")
     @DefaultActionState(ActionState.LOGIN)
     @PatchMapping("/info")
@@ -60,6 +66,8 @@ public class FeedbackController {
         return null;
     }
 
+    /**
+     */
     @OperateLog("用户删除反馈")
     @DefaultActionState(ActionState.LOGIN)
     @DeleteMapping("/info")

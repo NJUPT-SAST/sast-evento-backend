@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="sast.evento.mapper.CompleteLocationMapper">
+<mapper namespace="sast.evento.mapper.LocationMapper">
 
-    <select id="selectCompleteLocation" resultType="java.lang.String">
+    <select id="getLocationName" resultType="java.lang.String">
         WITH RECURSIVE location_tree (id,location_name,parent_id,full_location) AS (
                 SELECT
                     l1.id,

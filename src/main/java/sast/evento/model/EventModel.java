@@ -42,7 +42,7 @@ public class EventModel {
 
     private EventType eventType;
 
-    private Location location;
+    private String location;
 
     private String tag;
 
