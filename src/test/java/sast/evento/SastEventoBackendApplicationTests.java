@@ -6,8 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
+import sast.evento.common.enums.EventState;
 import sast.evento.config.ActionRegister;
 import sast.evento.common.enums.ErrorEnum;
+import sast.evento.entitiy.Department;
+import sast.evento.entitiy.EventType;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.mapper.EventModelMapper;
 import sast.evento.mapper.LocationMapper;
@@ -15,6 +18,7 @@ import sast.evento.model.EventModel;
 import sast.evento.model.wxServiceDTO.AccessTokenRequest;
 import sast.evento.model.wxServiceDTO.WxSubscribeRequest;
 import sast.evento.service.CodeService;
+import sast.evento.service.EventService;
 import sast.evento.service.QrCodeCheckInService;
 import sast.evento.service.impl.EventServiceImpl;
 import sast.evento.utils.*;
@@ -87,21 +91,50 @@ class SastEventoBackendApplicationTests {
     }
 
     @Resource
-    private EventModelMapper eventModelMapper;
-
-    @Test
-    void eventTest() {
-        EventModel eventModel = eventModelMapper.selectEventModel(2);
-        System.out.println(eventModel);
-    }
-
-    @Resource
     private LocationMapper locationMapper;
 
     @Test
     void locationTest() {
         String locationName = locationMapper.getLocationName(9);
         System.out.println(locationName);
+    }
+
+    @Resource
+    private EventModelMapper eventModelMapper;
+
+    @Test
+    void eventMapperTest() {
+        EventModel eventModel = eventModelMapper.selectEventModel(2);
+        System.out.println(eventModel);
+        System.out.println();
+
+        EventState state = eventModel.getState();
+        System.out.println("state");
+        System.out.println(state.getState());
+        System.out.println(state.name());
+        System.out.println();
+
+        EventType eventType = eventModel.getEventType();
+        System.out.println("eventType");
+        System.out.println(eventType.getId());
+        System.out.println(eventType.getTypeName());
+        System.out.println();
+
+        List<Department> departments = eventModel.getDepartments();
+        System.out.println("departments");
+        for (Department department : departments) {
+            System.out.println(department.getId());
+            System.out.println(department.getDepartmentName());
+        }
+        System.out.println();
+    }
+
+    @Resource
+    private EventService eventService;
+
+    @Test
+    void eventServiceTest() {
+        System.out.println(eventService.getEvent(2));
     }
 
 }
