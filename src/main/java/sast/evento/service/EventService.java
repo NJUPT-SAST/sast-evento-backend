@@ -16,7 +16,7 @@ public interface EventService {
     EventModel getEvent(Integer eventId);
 
     // 查看用户历史活动列表（参加过已结束）
-    List<EventModel> getHistory(UserProFile userProFile);
+    List<EventModel> getHistory(Integer userId);
 
     // 查看所有正在进行的活动列表
     List<EventModel> getConducting();

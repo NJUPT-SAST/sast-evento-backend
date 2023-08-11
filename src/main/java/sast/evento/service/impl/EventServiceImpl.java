@@ -32,7 +32,7 @@ public class EventServiceImpl implements EventService {
         if (eventId == null || eventId <= 0) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
-        EventModel eventModel = eventModelMapper.selectEventModel(eventId);
+        EventModel eventModel = eventModelMapper.getById(eventId);
         if (eventModel == null) {
             return null;
         }
@@ -48,25 +48,30 @@ public class EventServiceImpl implements EventService {
 
     // 查看用户历史活动列表（参加过已结束）
     @Override
-    public List<EventModel> getHistory(UserProFile userProFile) {
-        return null;
+    public List<EventModel> getHistory(Integer userId) {
+        if (userId == null) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
+        }
+        return eventModelMapper.getHistory(userId);
     }
 
     // 查看所有正在进行的活动列表
     @Override
     public List<EventModel> getConducting() {
-        return null;
+        return eventModelMapper.getConducting();
     }
 
-    // 查看最新活动列表
+    // 查看最新活动列表（按开始时间正序排列未开始的活动）
     @Override
     public List<EventModel> getNewest() {
-        return null;
+        return eventModelMapper.getNewest();
     }
 
-    // 获取活动列表
+    // 获取活动列表(分页）
     @Override
     public List<EventModel> getEvents(Integer page, Integer size) {
-        return null;
+        Integer index = (page - 1) * size;
+        return eventModelMapper.getEvents(index, size);
     }
+
 }

@@ -53,7 +53,7 @@ public class EventController {
 
     /**
      */
-    @OperateLog("查看最新活动列表")
+    @OperateLog("查看最新活动列表（按开始时间正序排列未开始的活动）")
     @DefaultActionState(ActionState.PUBLIC)
     @GetMapping("/newest")
     public List<EventModel> getNewest() {
@@ -67,7 +67,12 @@ public class EventController {
     @GetMapping("/history")
     public List<EventModel> getHistory() {
         UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        return eventService.getHistory(userProFile);
+        if (userProFile == null) {
+            return null;
+        }
+        String userIdStr = userProFile.getUserId();
+        Integer userIdInt = Integer.valueOf(userIdStr);
+        return eventService.getHistory(userIdInt);
     }
 
     @OperateLog("删除活动")
