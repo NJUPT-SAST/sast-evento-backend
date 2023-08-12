@@ -20,8 +20,9 @@ public enum ErrorEnum {
     METHOD_NOT_EXIST(1004, "method not exist"),
     /* 参数错误 */
     PARAM_ERROR(1005, "param error"),
-    /*  */
-
+    /* 数据不存在 */
+    EVENT_TYPE_NOT_EXIST(1006, "eventType not exist"),
+    LOCATION_NOT_EXIST(1007, "location not exist"),
 
 
     /* 其他服务错误 */

@@ -32,24 +32,35 @@ public class FeedbackController {
         return null;
     }
 
+    /**
+     */
     @OperateLog("用户添加反馈")
     @DefaultActionState(ActionState.LOGIN)
     @PostMapping("/info")
-    public Integer addFeedback(@RequestParam(required = false) String content,
+    public String addFeedback(@RequestParam(required = false) String content,
                                @RequestParam Integer score,
                                @RequestParam Integer eventId) {
         UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
+        if (userProFile == null) {
+            return null;
+        }
+        String userIdStr = userProFile.getUserId();
+        Integer userIdInt = Integer.valueOf(userIdStr);
         return null;
     }
 
-    @OperateLog("用户获取反馈")
+    /**
+     */
+    @OperateLog("用户获取反馈列表")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/info")
-    public List<FeedbackModel> getFeedback() {
+    public List<FeedbackModel> getFeedbacks() {
         UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
         return null;
     }
 
+    /**
+     */
     @OperateLog("用户修改反馈")
     @DefaultActionState(ActionState.LOGIN)
     @PatchMapping("/info")
@@ -60,6 +71,8 @@ public class FeedbackController {
         return null;
     }
 
+    /**
+     */
     @OperateLog("用户删除反馈")
     @DefaultActionState(ActionState.LOGIN)
     @DeleteMapping("/info")

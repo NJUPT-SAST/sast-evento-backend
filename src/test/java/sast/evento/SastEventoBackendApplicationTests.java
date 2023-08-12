@@ -1,16 +1,26 @@
 package sast.evento;
 
+import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
+import sast.evento.common.enums.EventState;
 import sast.evento.config.ActionRegister;
 import sast.evento.common.enums.ErrorEnum;
+import sast.evento.entitiy.Department;
+import sast.evento.entitiy.EventType;
 import sast.evento.exception.LocalRunTimeException;
+import sast.evento.mapper.EventModelMapper;
+import sast.evento.mapper.LocationMapper;
+import sast.evento.model.EventModel;
 import sast.evento.model.wxServiceDTO.AccessTokenRequest;
 import sast.evento.model.wxServiceDTO.WxSubscribeRequest;
 import sast.evento.service.CodeService;
+import sast.evento.service.EventService;
 import sast.evento.service.QrCodeCheckInService;
+import sast.evento.service.impl.EventServiceImpl;
 import sast.evento.utils.*;
 
 import java.awt.image.BufferedImage;
@@ -21,6 +31,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @SpringBootTest
