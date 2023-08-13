@@ -13,6 +13,7 @@ import sast.evento.interceptor.HttpInterceptor;
 import sast.evento.model.EventModel;
 import sast.evento.model.UserProFile;
 import sast.evento.service.EventService;
+import sast.evento.service.PermissionService;
 
 import java.awt.image.BufferedImage;
 import java.util.Date;
@@ -24,6 +25,9 @@ public class EventController {
 
     @Resource
     private EventService eventService;
+
+    @Resource
+    private PermissionService permissionService;
 
     /* 由后端生成部分信息置于二维码，userId需要前端填充 */
     @OperateLog("签到")
@@ -103,12 +107,25 @@ public class EventController {
     @OperateLog("发起活动（添加活动）")
     @DefaultActionState(ActionState.ADMIN)
     @PostMapping("/info")
-    public Integer addEvent(@RequestBody Event event) {
+    public String addEvent(@RequestBody Event event) {
         if (event.getId() != null) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "id should be null.");
         UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
         /* 记得给自己加活动权限鸭喵 */
         /* 检测内容不为null的部分添加 */
-        return null;
+        /* 留空不予添加 */
+        if (
+                (event.getTitle() == null) ||
+                (event.getGmtEventStart() == null) ||
+                (event.getGmtEventEnd() == null) ||
+                (event.getGmtRegistrationStart() == null) ||
+                (event.getGmtRegistrationEnd() == null)) {
+            /* 检测必需参数是否存在 */
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "id should be null.");
+        }
+        Integer eventId = eventService.addEvent(event);
+        // TODO permissionService.addManager 参数修改
+        permissionService.addManager(eventId, null, userProFile.getUserId(), null);
+        return "success";
     }
 
     @OperateLog("修改活动")

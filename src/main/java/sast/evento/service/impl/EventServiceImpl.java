@@ -3,13 +3,11 @@ package sast.evento.service.impl;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import sast.evento.common.enums.ErrorEnum;
+import sast.evento.common.enums.EventState;
 import sast.evento.entitiy.Event;
-import sast.evento.entitiy.EventType;
-import sast.evento.entitiy.Location;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.mapper.*;
 import sast.evento.model.EventModel;
-import sast.evento.model.UserProFile;
 import sast.evento.service.EventService;
 
 import java.util.List;
@@ -26,6 +24,8 @@ public class EventServiceImpl implements EventService {
     @Resource
     private LocationMapper locationMapper;
 
+    @Resource
+    private EventMapper eventMapper;
     // 获取活动详情
     @Override
     public EventModel getEvent(Integer eventId) {
@@ -85,6 +85,45 @@ public class EventServiceImpl implements EventService {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
         return eventModelMapper.getSubscribed(userId);
+    }
+
+    @Override
+    public Integer addEvent(Event event) {
+        if (event == null) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
+        }
+        if (eventMapper.insert(event) > 0) {
+            return event.getId();
+        }
+        throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR);
+    }
+
+    @Override
+    public Boolean deleteEvent(Integer eventId) {
+        if (eventId == null) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
+        }
+        return eventMapper.deleteById(eventId) > 0;
+    }
+
+    @Override
+    public Boolean updateEvent(Event event) {
+        if (event == null) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
+        }
+        return eventMapper.updateById(event) > 0;
+    }
+
+
+    @Override
+    public Boolean cancelEvent(Integer eventId) {
+        if (eventId == null) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
+        }
+        Event event = new Event();
+        event.setId(eventId);
+        event.setState(EventState.CANCELED);
+        return eventMapper.updateById(event) > 0;
     }
 
 }
