@@ -28,5 +28,4 @@ public class Feedback {
     private Integer participateId;
 
     private String userId;
-
 }

@@ -27,7 +27,7 @@
         </collection>
     </resultMap>
 
-    <select id="getById" resultMap="eventModelMap">
+    <sql id="select">
         SELECT e.id,
                e.title,
                e.description,
@@ -43,6 +43,9 @@
                t.allow_conflict,
                d.id AS department_id,
                d.department_name AS department_name
+    </sql>
+    
+    <sql id="fromJoinOn">
         FROM event AS e
                  LEFT JOIN
              type AS t ON e.type_id = t.id
@@ -50,53 +53,25 @@
              event_department AS ed ON e.id = ed.event_id
                  LEFT JOIN
              department AS d ON ed.department_id = d.id
+    </sql>
+
+<!--    获取活动详情-->
+    <select id="getById" resultMap="eventModelMap">
+        <include refid="select" />
+        <include refid="fromJoinOn" />
         WHERE e.id = #{eventId}
     </select>
 
 <!--    正在进行的活动列表-->
     <select id="getConducting" resultMap="eventModelMap">
-        SELECT e.id,
-               e.title,
-               e.description,
-               e.gmt_event_start,
-               e.gmt_event_end,
-               e.gmt_registration_start,
-               e.gmt_registration_end,
-               e.location_id,
-               e.tag,
-               e.state,
-               t.id AS type_id,
-               t.type_name,
-               t.allow_conflict,
-               d.id AS department_id,
-               d.department_name AS department_name
-        FROM event AS e
-                 LEFT JOIN
-             type AS t ON e.type_id = t.id
-                 LEFT JOIN
-             event_department AS ed ON e.id = ed.event_id
-                 LEFT JOIN
-             department AS d ON ed.department_id = d.id
+        <include refid="select" />
+        <include refid="fromJoinOn" />
         WHERE e.state = 3
     </select>
 
 <!--    查看用户历史活动列表（参加过已结束）-->
     <select id="getHistory" resultMap="eventModelMap">
-        SELECT e.id,
-               e.title,
-               e.description,
-               e.gmt_event_start,
-               e.gmt_event_end,
-               e.gmt_registration_start,
-               e.gmt_registration_end,
-               e.location_id,
-               e.tag,
-               e.state,
-               t.id AS type_id,
-               t.type_name,
-               t.allow_conflict,
-               d.id AS department_id,
-               d.department_name AS department_name
+        <include refid="select" />
         FROM event AS e
                  LEFT JOIN
              participate AS p ON e.id = p.event_id
@@ -111,57 +86,26 @@
 
 <!--    最新的活动列表（按开始时间正序排列未开始的活动）-->
     <select id="getNewest" resultMap="eventModelMap">
-        SELECT e.id,
-               e.title,
-               e.description,
-               e.gmt_event_start,
-               e.gmt_event_end,
-               e.gmt_registration_start,
-               e.gmt_registration_end,
-               e.location_id,
-               e.tag,
-               e.state,
-               t.id AS type_id,
-               t.type_name,
-               t.allow_conflict,
-               d.id AS department_id,
-               d.department_name AS department_name
-        FROM event AS e
-                 LEFT JOIN
-             type AS t ON e.type_id = t.id
-                 LEFT JOIN
-             event_department AS ed ON e.id = ed.event_id
-                 LEFT JOIN
-             department AS d ON ed.department_id = d.id
+        <include refid="select" />
+        <include refid="fromJoinOn" />
         WHERE e.state = 1
         ORDER BY e.gmt_event_start ASC
     </select>
 
 <!--    获取活动列表(分页）-->
     <select id="getEvents" resultMap="eventModelMap">
-        SELECT e.id,
-               e.title,
-               e.description,
-               e.gmt_event_start,
-               e.gmt_event_end,
-               e.gmt_registration_start,
-               e.gmt_registration_end,
-               e.location_id,
-               e.tag,
-               e.state,
-               t.id AS type_id,
-               t.type_name,
-               t.allow_conflict,
-               d.id AS department_id,
-               d.department_name AS department_name
-        FROM event AS e
-                 LEFT JOIN
-             type AS t ON e.type_id = t.id
-                 LEFT JOIN
-             event_department AS ed ON e.id = ed.event_id
-                 LEFT JOIN
-             department AS d ON ed.department_id = d.id
+        <include refid="select" />
+        <include refid="fromJoinOn" />
                  JOIN
              (SELECT id FROM event LIMIT #{index}, #{size}) AS e_ids ON e.id = e_ids.id
     </select>
+
+<!--    获取已订阅的活动列表-->
+    <select id="getSubscribed" resultMap="eventModelMap">
+        <include refid="select" />
+        <include refid="fromJoinOn" />
+                 JOIN
+                 (SELECT id FROM event LIMIT #{index}, #{size}) AS e_ids ON e.id = e_ids.id
+    </select>
+
 </mapper>

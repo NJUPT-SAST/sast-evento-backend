@@ -27,4 +27,7 @@ public interface EventService {
     // 获取活动列表
     List<EventModel> getEvents(Integer page, Integer size);
 
+    // 获取已订阅的活动列表
+    List<EventModel> getSubscribed(Integer userId);
+
 }

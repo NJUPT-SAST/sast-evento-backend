@@ -29,7 +29,7 @@ public class EventServiceImpl implements EventService {
     // 获取活动详情
     @Override
     public EventModel getEvent(Integer eventId) {
-        if (eventId == null || eventId <= 0) {
+        if (eventId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
         EventModel eventModel = eventModelMapper.getById(eventId);
@@ -38,7 +38,7 @@ public class EventServiceImpl implements EventService {
         }
 
         String locationIdStr = eventModel.getLocation();
-        if (locationIdStr != null && !"".equals(locationIdStr)) {
+        if (locationIdStr != null && !"".equals(locationIdStr.trim())) {
             Integer locationIdInt = Integer.valueOf(locationIdStr);
             String locationName = locationMapper.getLocationName(locationIdInt);
             eventModel.setLocation(locationName);
@@ -70,8 +70,21 @@ public class EventServiceImpl implements EventService {
     // 获取活动列表(分页）
     @Override
     public List<EventModel> getEvents(Integer page, Integer size) {
+        if (page == null || page < 0 || size == null || size < 0) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
+        }
+
         Integer index = (page - 1) * size;
         return eventModelMapper.getEvents(index, size);
+    }
+
+    // 获取已订阅的活动列表
+    @Override
+    public List<EventModel> getSubscribed(Integer userId) {
+        if (userId == null) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
+        }
+        return eventModelMapper.getSubscribed(userId);
     }
 
 }

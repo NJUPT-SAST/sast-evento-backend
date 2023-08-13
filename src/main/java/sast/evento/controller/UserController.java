@@ -1,19 +1,25 @@
 package sast.evento.controller;
 
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 import sast.evento.annotation.DefaultActionState;
 import sast.evento.annotation.OperateLog;
 import sast.evento.common.enums.ActionState;
 import sast.evento.common.enums.ErrorEnum;
 import sast.evento.exception.LocalRunTimeException;
+import sast.evento.interceptor.HttpInterceptor;
 import sast.evento.model.Action;
+import sast.evento.model.EventModel;
 import sast.evento.model.UserProFile;
+import sast.evento.service.EventService;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/user")
 public class UserController {
+    @Resource
+    private EventService eventService;
 
     /**
      */
@@ -46,6 +52,21 @@ public class UserController {
     public String subscribe(@RequestParam Integer eventId,
                             @RequestParam Boolean isSubscribe) {
         return null;
+    }
+
+    /**
+     */
+    @OperateLog("获取已订阅的活动列表")
+    @DefaultActionState(ActionState.LOGIN)
+    @GetMapping("/subscribed")
+    public List<EventModel> getSubscribed() {
+        UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
+        if (userProFile == null) {
+            return null;
+        }
+        String userIdStr = userProFile.getUserId();
+        Integer userIdInt = Integer.valueOf(userIdStr);
+        return eventService.getSubscribed(userIdInt);
     }
 
     @OperateLog("获取查看个人全部可用接口")

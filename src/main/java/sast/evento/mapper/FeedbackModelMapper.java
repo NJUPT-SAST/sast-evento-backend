@@ -4,15 +4,19 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
-import sast.evento.entitiy.Feedback;
 import sast.evento.model.FeedbackModel;
 
 import java.util.List;
 
+/**
+ * @projectName: sast-evento-backend
+ * @author: mio
+ * @date: 2023/8/13 11:06
+ */
 @Mapper
 @Repository
-public interface FeedbackMapper extends BaseMapper<Feedback> {
+public interface FeedbackModelMapper {
 
-    Integer addFeedback(@Param("userId") Integer userId, @Param("content") String content, @Param("score") Integer score, @Param("eventId") Integer eventId);
+    List<FeedbackModel> getFeedbacks(@Param("userId") Integer userId);
 
 }

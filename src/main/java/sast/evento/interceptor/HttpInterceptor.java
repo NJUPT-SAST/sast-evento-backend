@@ -89,7 +89,7 @@ public class HttpInterceptor implements HandlerInterceptor {
         }
 //        UserProFile userProFile = sastLinkServiceCacheAble.getUserProFile(userId);//todo 等待对接sastLink
         UserProFile userProFile = new UserProFile();
-        userProFile.setUserId("1");
+        userProFile.setUserId("2");
         userProFileHolder.set(userProFile);
         return true;
     }

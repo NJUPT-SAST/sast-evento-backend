@@ -1,14 +1,17 @@
 package sast.evento.controller;
 
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 import sast.evento.annotation.DefaultActionState;
 import sast.evento.annotation.EventId;
 import sast.evento.annotation.OperateLog;
 import sast.evento.common.enums.ActionState;
 import sast.evento.interceptor.HttpInterceptor;
+import sast.evento.mapper.FeedbackModelMapper;
 import sast.evento.model.FeedbackModel;
 import sast.evento.model.FeedbacksDTO;
 import sast.evento.model.UserProFile;
+import sast.evento.service.FeedbackService;
 
 import java.util.List;
 import java.util.Map;
@@ -16,6 +19,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/feedback")
 public class FeedbackController {
+    @Resource
+    private FeedbackService feedbackService;
 
     @OperateLog("获取活动反馈详情")
     @DefaultActionState(ActionState.ADMIN)
@@ -38,7 +43,7 @@ public class FeedbackController {
     @DefaultActionState(ActionState.LOGIN)
     @PostMapping("/info")
     public String addFeedback(@RequestParam(required = false) String content,
-                               @RequestParam Integer score,
+                               @RequestParam Double score,
                                @RequestParam Integer eventId) {
         UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
         if (userProFile == null) {
@@ -46,7 +51,7 @@ public class FeedbackController {
         }
         String userIdStr = userProFile.getUserId();
         Integer userIdInt = Integer.valueOf(userIdStr);
-        return null;
+        return feedbackService.addFeedback(userIdInt, content, score, eventId);
     }
 
     /**
@@ -56,19 +61,33 @@ public class FeedbackController {
     @GetMapping("/info")
     public List<FeedbackModel> getFeedbacks() {
         UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        return null;
+        if (userProFile == null) {
+            return null;
+        }
+        String userIdStr = userProFile.getUserId();
+        Integer userIdInt = Integer.valueOf(userIdStr);
+        return feedbackService.getFeedbacks(userIdInt);
     }
 
     /**
+     */
+    /*
+     * 如果传进来的 content 为空，则清空数据库的 content 字段。（考虑到有人可能想清空反馈内容，所以这样设计）
+     * score 为五分制，一位小数。如果传进来的为空，则不做修改。
      */
     @OperateLog("用户修改反馈")
     @DefaultActionState(ActionState.LOGIN)
     @PatchMapping("/info")
     public String patchFeedback(@RequestParam(required = false) String content,
-                                @RequestParam(required = false) Integer score,
+                                @RequestParam(required = false) Double score,
                                 @RequestParam Integer feedbackId) {
         UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        return null;
+        if (userProFile == null) {
+            return null;
+        }
+        String userIdStr = userProFile.getUserId();
+        Integer userIdInt = Integer.valueOf(userIdStr);
+        return feedbackService.patchFeedback(userIdInt, feedbackId, content, score);
     }
 
     /**
@@ -78,6 +97,11 @@ public class FeedbackController {
     @DeleteMapping("/info")
     public String deleteFeedback(@RequestParam Integer feedbackId) {
         UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        return null;
+        if (userProFile == null) {
+            return null;
+        }
+        String userIdStr = userProFile.getUserId();
+        Integer userIdInt = Integer.valueOf(userIdStr);
+        return feedbackService.deleteFeedback(userIdInt, feedbackId);
     }
 }
