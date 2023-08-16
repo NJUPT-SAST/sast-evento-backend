@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 public enum EventState {
     NOT_STARTED(1,"未开始"),
-    CHECKING_IN(2,"签到中"),
+    CHECKING_IN(2,"报名中"),
     IN_PROGRESS(3,"进行中"),
     CANCELED(4,"已取消"),
     ENDED(5,"已结束")

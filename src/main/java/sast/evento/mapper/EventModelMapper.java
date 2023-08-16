@@ -34,4 +34,7 @@ public interface EventModelMapper {
     // 获取已订阅的活动列表
     List<EventModel> getSubscribed(@Param("userId") Integer userId);
 
+    // 获取已报名的活动列表
+    List<EventModel> getRegistered(@Param("userId") Integer userId);
+
 }

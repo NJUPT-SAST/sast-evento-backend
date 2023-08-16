@@ -13,4 +13,9 @@ import java.util.List;
 public interface ParticipateMapper extends BaseMapper<Participate> {
     List<String> selectSubscribeOpenIds(@Param("event_id") Integer eventId);
 
+    // 订阅活动 / 取消订阅
+    Integer subscribe(@Param("userId") Integer userId, @Param("eventId") Integer eventId, @Param("isSubscribe") Boolean isSubscribe);
+
+    // 报名活动
+    Integer register(@Param("userId") Integer userId, @Param("eventId") Integer eventId);
 }

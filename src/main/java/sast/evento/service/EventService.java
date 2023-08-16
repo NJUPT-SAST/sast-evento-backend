@@ -30,4 +30,7 @@ public interface EventService {
     // 获取已订阅的活动列表
     List<EventModel> getSubscribed(Integer userId);
 
+    // 获取已报名的活动列表
+    List<EventModel> getRegistered(Integer userId);
+
 }

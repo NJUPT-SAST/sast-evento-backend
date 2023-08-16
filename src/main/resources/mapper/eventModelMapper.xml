@@ -27,7 +27,7 @@
         </collection>
     </resultMap>
 
-    <sql id="select">
+    <sql id="selectFrom">
         SELECT e.id,
                e.title,
                e.description,
@@ -43,9 +43,6 @@
                t.allow_conflict,
                d.id AS department_id,
                d.department_name AS department_name
-    </sql>
-    
-    <sql id="fromJoinOn">
         FROM event AS e
                  LEFT JOIN
              type AS t ON e.type_id = t.id
@@ -57,55 +54,52 @@
 
 <!--    获取活动详情-->
     <select id="getById" resultMap="eventModelMap">
-        <include refid="select" />
-        <include refid="fromJoinOn" />
+        <include refid="selectFrom" />
         WHERE e.id = #{eventId}
     </select>
 
 <!--    正在进行的活动列表-->
     <select id="getConducting" resultMap="eventModelMap">
-        <include refid="select" />
-        <include refid="fromJoinOn" />
+        <include refid="selectFrom" />
         WHERE e.state = 3
     </select>
 
 <!--    查看用户历史活动列表（参加过已结束）-->
     <select id="getHistory" resultMap="eventModelMap">
-        <include refid="select" />
-        FROM event AS e
-                 LEFT JOIN
-             participate AS p ON e.id = p.event_id
-                 LEFT JOIN
-             type AS t ON e.type_id = t.id
-                 LEFT JOIN
-             event_department AS ed ON e.id = ed.event_id
-                 LEFT JOIN
-             department AS d ON ed.department_id = d.id
+        <include refid="selectFrom" />
+        LEFT JOIN
+            participate AS p ON e.id = p.event_id
         WHERE p.user_id = #{userId} AND p.is_participate = 1
     </select>
 
 <!--    最新的活动列表（按开始时间正序排列未开始的活动）-->
     <select id="getNewest" resultMap="eventModelMap">
-        <include refid="select" />
-        <include refid="fromJoinOn" />
+        <include refid="selectFrom" />
         WHERE e.state = 1
         ORDER BY e.gmt_event_start ASC
     </select>
 
 <!--    获取活动列表(分页）-->
     <select id="getEvents" resultMap="eventModelMap">
-        <include refid="select" />
-        <include refid="fromJoinOn" />
+        <include refid="selectFrom" />
                  JOIN
              (SELECT id FROM event LIMIT #{index}, #{size}) AS e_ids ON e.id = e_ids.id
     </select>
 
 <!--    获取已订阅的活动列表-->
     <select id="getSubscribed" resultMap="eventModelMap">
-        <include refid="select" />
-        <include refid="fromJoinOn" />
-                 JOIN
-                 (SELECT id FROM event LIMIT #{index}, #{size}) AS e_ids ON e.id = e_ids.id
+        <include refid="selectFrom" />
+        LEFT JOIN
+            participate AS p ON e.id = p.event_id
+        WHERE p.user_id = #{userId} AND p.is_subscribe = 1
+    </select>
+
+    <!--    获取已报名的活动列表-->
+    <select id="getRegistered" resultMap="eventModelMap">
+        <include refid="selectFrom" />
+        LEFT JOIN
+            participate AS p ON e.id = p.event_id
+        WHERE p.user_id = #{userId} AND p.is_registration = 1
     </select>
 
 </mapper>

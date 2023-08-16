@@ -9,4 +9,18 @@
                  join user as u on u.id = p.user_id
         where event_id = #{event_id}
     </select>
+
+    // 订阅活动 / 取消订阅
+    <update id="subscribe">
+
+
+
+    </update>
+
+    // 报名活动
+    <update id="register">
+
+
+
+    </update>
 </mapper>

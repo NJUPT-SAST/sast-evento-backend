@@ -59,14 +59,14 @@ public class FeedbackController {
     @OperateLog("用户获取反馈列表")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/info")
-    public List<FeedbackModel> getFeedbacks() {
+    public List<FeedbackModel> getListByUserId() {
         UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
         if (userProFile == null) {
             return null;
         }
         String userIdStr = userProFile.getUserId();
         Integer userIdInt = Integer.valueOf(userIdStr);
-        return feedbackService.getFeedbacks(userIdInt);
+        return feedbackService.getListByUserId(userIdInt);
     }
 
     /**
@@ -103,5 +103,14 @@ public class FeedbackController {
         String userIdStr = userProFile.getUserId();
         Integer userIdInt = Integer.valueOf(userIdStr);
         return feedbackService.deleteFeedback(userIdInt, feedbackId);
+    }
+
+    /**
+     */
+    @OperateLog("获取活动反馈列表（该活动的所有反馈）")
+    @DefaultActionState(ActionState.LOGIN)
+    @GetMapping("/list")
+    public List<FeedbackModel> getListByEventId(@RequestParam Integer eventId) {
+        return feedbackService.getListByEventId(eventId);
     }
 }

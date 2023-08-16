@@ -38,17 +38,16 @@ public class FeedbackServiceImpl implements FeedbackService {
         // 将 score 扩大十倍并转化为 Integer 存入数据库
         Integer scoreInt = (int) (scoreDou * 10);
         Integer addResult = feedbackMapper.addFeedback(userId, content, scoreInt, eventId);
-        System.out.println(addResult);
         return addResult != null && addResult > 0 ? "添加反馈成功" : "添加反馈失败";
     }
 
     // 用户获取反馈列表
     @Override
-    public List<FeedbackModel> getFeedbacks(Integer userId) {
+    public List<FeedbackModel> getListByUserId(Integer userId) {
         if (userId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
-        return feedbackModelMapper.getFeedbacks(userId);
+        return feedbackModelMapper.getListByUserId(userId);
     }
 
     /*
@@ -94,5 +93,14 @@ public class FeedbackServiceImpl implements FeedbackService {
 
         Integer deleteResult = feedbackMapper.delete(queryWrapper);
         return deleteResult != null && deleteResult > 0 ? "删除反馈成功" : "删除反馈失败";
+    }
+
+    // 获取活动反馈列表（该活动的所有反馈）
+    @Override
+    public List<FeedbackModel> getListByEventId(Integer eventId) {
+        if (eventId == null) {
+            return null;
+        }
+        return feedbackModelMapper.getListByEventId(eventId);
     }
 }

@@ -87,4 +87,12 @@ public class EventServiceImpl implements EventService {
         return eventModelMapper.getSubscribed(userId);
     }
 
+    @Override
+    public List<EventModel> getRegistered(Integer userId) {
+        if (userId == null) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
+        }
+        return eventModelMapper.getRegistered(userId);
+    }
+
 }

@@ -12,6 +12,7 @@ import sast.evento.model.Action;
 import sast.evento.model.EventModel;
 import sast.evento.model.UserProFile;
 import sast.evento.service.EventService;
+import sast.evento.service.ParticipateService;
 
 import java.util.List;
 
@@ -20,6 +21,8 @@ import java.util.List;
 public class UserController {
     @Resource
     private EventService eventService;
+    @Resource
+    private ParticipateService participateService;
 
     /**
      */
@@ -46,12 +49,18 @@ public class UserController {
 
     /**
      */
-    @OperateLog("报名订阅活动")
+    @OperateLog("订阅活动 / 取消订阅")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/subscribe")
     public String subscribe(@RequestParam Integer eventId,
                             @RequestParam Boolean isSubscribe) {
-        return null;
+        UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
+        if (userProFile == null) {
+            return null;
+        }
+        String userIdStr = userProFile.getUserId();
+        Integer userIdInt = Integer.valueOf(userIdStr);
+        return participateService.subscribe(userIdInt, eventId, isSubscribe);
     }
 
     /**
@@ -67,6 +76,36 @@ public class UserController {
         String userIdStr = userProFile.getUserId();
         Integer userIdInt = Integer.valueOf(userIdStr);
         return eventService.getSubscribed(userIdInt);
+    }
+
+    /**
+     */
+    @OperateLog("报名活动")
+    @DefaultActionState(ActionState.LOGIN)
+    @GetMapping("/register")
+    public String register(@RequestParam Integer eventId) {
+        UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
+        if (userProFile == null) {
+            return null;
+        }
+        String userIdStr = userProFile.getUserId();
+        Integer userIdInt = Integer.valueOf(userIdStr);
+        return participateService.register(userIdInt, eventId);
+    }
+
+    /**
+     */
+    @OperateLog("获取已报名的活动列表")
+    @DefaultActionState(ActionState.LOGIN)
+    @GetMapping("/registered")
+    public List<EventModel> getRegistered() {
+        UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
+        if (userProFile == null) {
+            return null;
+        }
+        String userIdStr = userProFile.getUserId();
+        Integer userIdInt = Integer.valueOf(userIdStr);
+        return eventService.getRegistered(userIdInt);
     }
 
     @OperateLog("获取查看个人全部可用接口")

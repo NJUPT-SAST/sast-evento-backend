@@ -15,7 +15,7 @@ public interface FeedbackService {
     String addFeedback(Integer userId, String content, Double score, Integer eventId);
 
     // 用户获取反馈列表
-    List<FeedbackModel> getFeedbacks(Integer userId);
+    List<FeedbackModel> getListByUserId(Integer userId);
 
     // 用户修改反馈
 
@@ -23,5 +23,8 @@ public interface FeedbackService {
 
     // 用户删除反馈
     String deleteFeedback(Integer userId, Integer feedbackId);
+
+    // 获取活动反馈列表（该活动的所有反馈）
+    List<FeedbackModel> getListByEventId(Integer eventId);
 
 }
