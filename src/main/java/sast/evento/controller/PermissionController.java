@@ -10,6 +10,7 @@ import sast.evento.common.enums.ErrorEnum;
 import sast.evento.entitiy.User;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.model.Action;
+import sast.evento.model.treeDataNodeDTO.TreeDataNode;
 import sast.evento.service.PermissionService;
 
 import java.util.List;
@@ -28,11 +29,26 @@ public class PermissionController {
         return permissionService.getAllAdminPermissions();
     }
 
+
+    @OperateLog("以树结构获取所有admin权限")
+    @DefaultActionState(ActionState.ADMIN)
+    @GetMapping("/admin/treeData")
+    public List<TreeDataNode> getAllAdminPermissionsAsTree() {
+        return permissionService.getAllAdminPermissionsAsTree();
+    }
+
     @OperateLog("获取所有manager权限")
     @DefaultActionState(ActionState.MANAGER)
     @GetMapping("/manager/all")
     public List<Action> getAllManagerPermissions(@RequestParam @EventId Integer eventId) {
         return permissionService.getAllManagerPermissions();
+    }
+
+    @OperateLog("以树结构获取所有manager权限")
+    @DefaultActionState(ActionState.MANAGER)
+    @GetMapping("/manager/treeData")
+    public List<TreeDataNode> getAllManagerPermissionsAsTree(@RequestParam @EventId Integer eventId) {
+        return permissionService.getAllManagerPermissionsAsTree();
     }
 
     @OperateLog("删除后台管理者")
@@ -91,8 +107,19 @@ public class PermissionController {
         return permissionService.getUserAdminPermissions(userId, studentId);
     }
 
-    @OperateLog("获取用户对某活动，manager权限")
-    @DefaultActionState(ActionState.LOGIN)
+    @OperateLog("获取用户具有的admin权限(字符串)")
+    @DefaultActionState(ActionState.ADMIN)
+    @GetMapping("/admin/user/list")
+    public List<String> getUserAdminPermissAsList(@RequestParam(required = false) String studentId,
+                                                @RequestParam(required = false) String userId) {
+        if (userId.isEmpty() && studentId.isEmpty()) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one");
+        }
+        return permissionService.getUserAdminPermissAsList(userId, studentId);
+    }
+
+    @OperateLog("获取用户对某活动manager权限")
+    @DefaultActionState(ActionState.MANAGER)
     @GetMapping("/event/manager/user")
     public List<Action> getUserManagerPermissions(@RequestParam @EventId Integer eventId,
                                                   @RequestParam(required = false) String studentId,
@@ -101,6 +128,18 @@ public class PermissionController {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one");
         }
         return permissionService.getUserManagerPermissions(eventId, userId, studentId);
+    }
+
+    @OperateLog("获取用户对某活动manager的权限(字符串)")
+    @DefaultActionState(ActionState.MANAGER)
+    @GetMapping("/event/manager/user/list")
+    public List<String> getUserManagerPermissAsList(@RequestParam @EventId Integer eventId,
+                                                    @RequestParam(required = false) String studentId,
+                                                    @RequestParam(required = false) String userId) {
+        if (userId.isEmpty() && studentId.isEmpty()) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one");
+        }
+        return permissionService.getUserManagerPermissAsList(eventId,userId, studentId);
     }
 
     @OperateLog("删除活动管理者")
