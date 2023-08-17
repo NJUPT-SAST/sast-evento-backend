@@ -11,7 +11,13 @@ import sast.evento.mapper.*;
 import sast.evento.model.EventModel;
 import sast.evento.model.UserProFile;
 import sast.evento.service.EventService;
+import sast.evento.utils.TimeUtil;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -25,6 +31,9 @@ public class EventServiceImpl implements EventService {
     private EventModelMapper eventModelMapper;
     @Resource
     private LocationMapper locationMapper;
+
+    @Resource
+    private TimeUtil timeUtil;
 
     // 获取活动详情
     @Override
@@ -72,6 +81,36 @@ public class EventServiceImpl implements EventService {
     public List<EventModel> getEvents(Integer page, Integer size) {
         Integer index = (page - 1) * size;
         return eventModelMapper.getEvents(index, size);
+    }
+
+    @Override
+    public List<EventModel> postForEvents(List<Integer> typeId,List<Integer> departmentId, String time){
+        if(typeId.isEmpty()){
+            if(departmentId.isEmpty()){
+                if(time.isEmpty()){
+                    return getEvents(1,10);
+                }
+                List<Date> date = timeUtil.getDateOfMonday(time);
+                return eventModelMapper.getEventByTime(date.get(0),date.get(1));
+            }
+            if(time.isEmpty()){
+                return eventModelMapper.getEventByDepartmentId(departmentId);
+            }
+            List<Date> date = timeUtil.getDateOfMonday(time);
+            return eventModelMapper.getEventByDepartmentIdAndTime(departmentId,date.get(0),date.get(1));
+        }
+        if(departmentId.isEmpty()){
+            if(time.isEmpty()){
+                return eventModelMapper.getEventByTypeId(typeId);
+            }
+            List<Date> date = timeUtil.getDateOfMonday(time);
+            return eventModelMapper.getEventByTypeIdAndTime(typeId,date.get(0),date.get(1));
+        }
+        if(time.isEmpty()){
+            return eventModelMapper.getEventByTypeIdAndDepartmentId(typeId,departmentId);
+        }
+        List<Date> date = timeUtil.getDateOfMonday(time);
+        return eventModelMapper.postForEventsByAll(typeId,departmentId,date.get(0),date.get(1));
     }
 
 }

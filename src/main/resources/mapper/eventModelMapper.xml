@@ -27,6 +27,56 @@
         </collection>
     </resultMap>
 
+    <!--    将重复的SELECT和FROM语句放在这里，精简sql代码，用于引用   -->
+    <sql id="baseSelectAndFrom">
+        SELECT e.id,
+               e.title,
+               e.description,
+               e.gmt_event_start,
+               e.gmt_event_end,
+               e.gmt_registration_start,
+               e.gmt_registration_end,
+               e.location_id,
+               e.tag,
+               e.state,
+               t.id AS type_id,
+               t.type_name,
+               t.allow_conflict,
+               d.id AS department_id,
+               d.department_name AS department_name
+        FROM event AS e
+                 LEFT JOIN
+             type AS t ON e.type_id = t.id
+                 LEFT JOIN
+             event_department AS ed ON e.id = ed.event_id
+                 LEFT JOIN
+             department AS d ON ed.department_id = d.id
+    </sql>
+
+    <!--    根据time选出活动列表获取活动列表的sql片段    -->
+    <sql id ="byTime">
+        e.gmt_event_start BETWEEN #{monday} AND #{next_monday}
+    </sql>
+
+    <!--    根据departmentId选出活动列表的sql片段    -->
+    <sql id="byDepartmentId">
+        e.id IN
+        (
+        SELECT ed.event_id FROM event_department AS ed WHERE ed.department_id IN
+        <foreach collection="department_id" item="department_id" open="(" separator="," close=")">
+            #{department_id}
+        </foreach>
+        )
+    </sql>
+
+    <!--    根据typeId选出活动列表的sql片段    -->
+    <sql id="byTypeId">
+        e.type_id IN
+        <foreach collection="type_id" item="type_id" open="(" separator="," close=")">
+            #{type_id}
+        </foreach>
+    </sql>
+
     <select id="getById" resultMap="eventModelMap">
         SELECT e.id,
                e.title,
@@ -163,5 +213,64 @@
              department AS d ON ed.department_id = d.id
                  JOIN
              (SELECT id FROM event LIMIT #{index}, #{size}) AS e_ids ON e.id = e_ids.id
+    </select>
+
+    <!--    根据time选出活动列表获取活动列表    -->
+    <select id="getEventByTime" resultMap="eventModelMap">
+        <include refid="baseSelectAndFrom" />
+        WHERE
+        <include refid="byTime" />
+    </select>
+
+    <!--    根据departmentId选出活动列表    -->
+    <select id="getEventByDepartmentId" resultMap="eventModelMap">
+        <include refid="baseSelectAndFrom" />
+        WHERE
+        <include refid="byDepartmentId" />
+    </select>
+
+    <!--    根据departmentId和time选出活动列表   -->
+    <select id="getEventByDepartmentIdAndTime" resultMap="eventModelMap">
+        <include refid="baseSelectAndFrom" />
+        WHERE
+        <include refid="byTime" />
+        AND 
+        <include refid="byDepartmentId" />
+    </select>
+
+    <!--    根据typeId选出活动列表    -->
+    <select id="getEventByTypeId" resultMap="eventModelMap">
+        <include refid="baseSelectAndFrom" />
+        WHERE
+        <include refid="byTypeId" />
+    </select>
+
+    <!--    根据typeId和time选出活动列表    -->
+    <select id="getEventByTypeIdAndTime" resultMap="eventModelMap">
+        <include refid="baseSelectAndFrom" />
+        WHERE
+        <include refid="byTypeId" />
+        AND
+        <include refid="byTime" />
+    </select>
+
+    <!--    根据typeId和departmentId选出活动列表    -->
+    <select id="getEventByTypeIdAndDepartmentId" resultMap="eventModelMap">
+        <include refid="baseSelectAndFrom" />
+        WHERE
+        <include refid="byTypeId" />
+        AND
+        <include refid="byDepartmentId" />
+    </select>
+
+    <!--    根据三个筛选条件选出活动列表    -->
+    <select id="postForEventsByAll" resultMap="eventModelMap">
+        <include refid="baseSelectAndFrom" />
+        WHERE
+        <include refid="byTime" />
+        AND
+        <include refid="byTypeId" />
+        AND
+        <include refid="byDepartmentId" />
     </select>
 </mapper>

@@ -15,7 +15,6 @@ import sast.evento.model.UserProFile;
 import sast.evento.service.EventService;
 
 import java.awt.image.BufferedImage;
-import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -133,12 +132,11 @@ public class EventController {
     @OperateLog("获取活动列表(筛选)")
     @DefaultActionState(ActionState.PUBLIC)
     @PostMapping("/list")
-    public List<EventModel> postForEvents(@RequestParam(required = false) Boolean filterByUser,
-                                          @RequestParam(required = false) List<Integer> typeId,
+    public List<EventModel> postForEvents(@RequestParam(required = false) List<Integer> typeId,
                                           @RequestParam(required = false) List<Integer> departmentId,
-                                          @RequestParam(required = false) Date time) {
+                                          @RequestParam(required = false) String time) {
         UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        return null;
+        return eventService.postForEvents(typeId,departmentId,time);
     }
 
 }
