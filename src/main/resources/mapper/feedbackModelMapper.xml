@@ -13,6 +13,7 @@
         WHERE f.user_id = #{userId}
     </select>
 
+<!--    获取活动反馈列表（该活动的所有人的反馈）-->
     <select id="getListByEventId" resultType="sast.evento.model.FeedbackModel">
         SELECT f.id, f.content, ROUND(f.score, 1) AS score, p.event_id AS eventId
         FROM feedback AS f

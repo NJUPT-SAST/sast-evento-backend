@@ -58,7 +58,7 @@ public class FeedbackController {
      */
     @OperateLog("用户获取反馈列表")
     @DefaultActionState(ActionState.LOGIN)
-    @GetMapping("/info")
+    @GetMapping("/user/info")
     public List<FeedbackModel> getListByUserId() {
         UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
         if (userProFile == null) {
@@ -107,7 +107,7 @@ public class FeedbackController {
 
     /**
      */
-    @OperateLog("获取活动反馈列表（该活动的所有反馈）")
+    @OperateLog("获取活动反馈列表（该活动的所有人的反馈）")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/list")
     public List<FeedbackModel> getListByEventId(@RequestParam Integer eventId) {

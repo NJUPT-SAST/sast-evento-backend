@@ -24,7 +24,7 @@ public interface FeedbackService {
     // 用户删除反馈
     String deleteFeedback(Integer userId, Integer feedbackId);
 
-    // 获取活动反馈列表（该活动的所有反馈）
+    // 获取活动反馈列表（该活动的所有人的反馈）
     List<FeedbackModel> getListByEventId(Integer eventId);
 
 }

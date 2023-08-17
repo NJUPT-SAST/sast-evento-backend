@@ -37,8 +37,8 @@ public class FeedbackServiceImpl implements FeedbackService {
 
         // 将 score 扩大十倍并转化为 Integer 存入数据库
         Integer scoreInt = (int) (scoreDou * 10);
-        Integer addResult = feedbackMapper.addFeedback(userId, content, scoreInt, eventId);
-        return addResult != null && addResult > 0 ? "添加反馈成功" : "添加反馈失败";
+        Integer insertResult = feedbackMapper.addFeedback(userId, content, scoreInt, eventId);
+        return insertResult != null && insertResult > 0 ? "添加反馈成功" : "添加反馈失败";
     }
 
     // 用户获取反馈列表
@@ -95,7 +95,7 @@ public class FeedbackServiceImpl implements FeedbackService {
         return deleteResult != null && deleteResult > 0 ? "删除反馈成功" : "删除反馈失败";
     }
 
-    // 获取活动反馈列表（该活动的所有反馈）
+    // 获取活动反馈列表（该活动的所有人的反馈）
     @Override
     public List<FeedbackModel> getListByEventId(Integer eventId) {
         if (eventId == null) {

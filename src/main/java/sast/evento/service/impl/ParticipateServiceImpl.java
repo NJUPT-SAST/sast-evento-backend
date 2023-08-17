@@ -38,7 +38,7 @@ public class ParticipateServiceImpl implements ParticipateService {
         if (userId == null || eventId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
-        Integer updateResult = participateMapper.register(userId, eventId);
-        return updateResult != null && updateResult > 0 ? "报名成功" : "报名失败";
+        Integer insertResult = participateMapper.register(userId, eventId);
+        return insertResult != null && insertResult > 0 ? "报名成功" : "报名失败";
     }
 }
