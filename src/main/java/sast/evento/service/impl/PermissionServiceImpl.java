@@ -12,11 +12,13 @@ import sast.evento.exception.LocalRunTimeException;
 import sast.evento.mapper.PermissionMapper;
 import sast.evento.mapper.UserMapper;
 import sast.evento.model.Action;
+import sast.evento.model.treeDataNodeDTO.AntDesignTreeDataNode;
+import sast.evento.model.treeDataNodeDTO.SemiTreeDataNode;
+import sast.evento.model.treeDataNodeDTO.TreeDataNode;
 import sast.evento.service.PermissionService;
 import sast.evento.service.PermissionServiceCacheAble;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @projectName: sast-evento-backend
@@ -40,6 +42,11 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
+    public List<TreeDataNode> getAllAdminPermissionsAsTree() {
+        return toTreeData(getAllAdminPermissions());
+    }
+
+    @Override
     public List<Action> getAllManagerPermissions() {
         return ActionRegister.actionName2action.values().stream()
                 .filter(action -> action.getActionState().equals(ActionState.MANAGER))
@@ -47,10 +54,15 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
+    public List<TreeDataNode> getAllManagerPermissionsAsTree() {
+        return toTreeData(getAllManagerPermissions());
+    }
+
+    @Override
     public void addAdmin(List<String> methodNames, String userId, String studentId) {
         if (userId.isEmpty()) {
             userId = Optional.ofNullable(getUserByStudentId(studentId).getUserId())
-                    .orElseThrow(()->new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"studentId no exist"));
+                    .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "studentId no exist"));
         }
         Permission permission = new Permission();
         permission.setMethodNames(methodNames);
@@ -63,7 +75,7 @@ public class PermissionServiceImpl implements PermissionService {
     public void deleteAdmin(String userId, String studentId) {
         if (userId.isEmpty()) {
             userId = Optional.ofNullable(getUserByStudentId(studentId).getUserId())
-                    .orElseThrow(()->new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"studentId no exist"));
+                    .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "studentId no exist"));
         }
         permissionServiceCacheAble.deletePermission(userId, 0);
     }
@@ -77,7 +89,7 @@ public class PermissionServiceImpl implements PermissionService {
     public void updateAdminPermission(List<String> methodNames, String userId, String studentId) {
         if (userId.isEmpty()) {
             userId = Optional.ofNullable(getUserByStudentId(studentId).getUserId())
-                    .orElseThrow(()->new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"studentId no exist"));
+                    .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "studentId no exist"));
         }
         Permission permission = new Permission();
         permission.setMethodNames(methodNames);
@@ -90,7 +102,7 @@ public class PermissionServiceImpl implements PermissionService {
     public List<Action> getUserAdminPermissions(String userId, String studentId) {
         if (userId.isEmpty()) {
             userId = Optional.ofNullable(getUserByStudentId(studentId).getUserId())
-                    .orElseThrow(()->new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"studentId no exist"));
+                    .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "studentId no exist"));
         }
         return permissionServiceCacheAble.getPermission(userId, 0).getMethodNames().stream()
                 .map(methodName -> ActionRegister.actionName2action.get(methodName))
@@ -98,10 +110,19 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
+    public List<String> getUserAdminPermissAsList(String userId, String studentId) {
+        if (userId.isEmpty()) {
+            userId = Optional.ofNullable(getUserByStudentId(studentId).getUserId())
+                    .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "studentId no exist"));
+        }
+        return permissionServiceCacheAble.getPermission(userId,0).getMethodNames();
+    }
+
+    @Override
     public void addManager(Integer eventId, List<String> methodNames, String userId, String studentId) {
         if (userId.isEmpty()) {
             userId = Optional.ofNullable(getUserByStudentId(studentId).getUserId())
-                    .orElseThrow(()->new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"studentId no exist"));
+                    .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "studentId no exist"));
         }
         Permission permission = new Permission();
         permission.setMethodNames(methodNames);
@@ -114,7 +135,7 @@ public class PermissionServiceImpl implements PermissionService {
     public void deleteManager(Integer eventId, String userId, String studentId) {
         if (userId.isEmpty()) {
             userId = Optional.ofNullable(getUserByStudentId(studentId).getUserId())
-                    .orElseThrow(()->new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"studentId no exist"));
+                    .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "studentId no exist"));
         }
         permissionServiceCacheAble.deletePermission(userId, eventId);
     }
@@ -128,7 +149,7 @@ public class PermissionServiceImpl implements PermissionService {
     public void updateManagerPermission(Integer eventId, List<String> methodNames, String userId, String studentId) {
         if (userId.isEmpty()) {
             userId = Optional.ofNullable(getUserByStudentId(studentId).getUserId())
-                    .orElseThrow(()->new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"studentId no exist"));
+                    .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "studentId no exist"));
         }
         Permission permission = new Permission();
         permission.setMethodNames(methodNames);
@@ -141,7 +162,7 @@ public class PermissionServiceImpl implements PermissionService {
     public List<Action> getUserManagerPermissions(Integer eventId, String userId, String studentId) {
         if (userId.isEmpty()) {
             userId = Optional.ofNullable(getUserByStudentId(studentId).getUserId())
-                    .orElseThrow(()->new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"studentId no exist"));
+                    .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "studentId no exist"));
         }
         return permissionServiceCacheAble.getPermission(userId, eventId).getMethodNames().stream()
                 .map(methodName -> ActionRegister.actionName2action.get(methodName))
@@ -149,10 +170,19 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
+    public List<String> getUserManagerPermissAsList(Integer eventId, String userId, String studentId) {
+        if (userId.isEmpty()) {
+            userId = Optional.ofNullable(getUserByStudentId(studentId).getUserId())
+                    .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "studentId no exist"));
+        }
+        return permissionServiceCacheAble.getPermission(userId,eventId).getMethodNames();
+    }
+
+    @Override
     public List<Integer> getManageEvent(String userId, String studentId) {
         if (userId.isEmpty()) {
             userId = Optional.ofNullable(getUserByStudentId(studentId).getUserId())
-                    .orElseThrow(()->new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"studentId no exist"));
+                    .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "studentId no exist"));
         }
         return permissionMapper.getManageEvent(userId).stream()
                 .filter(integer -> !integer.equals(0))
@@ -179,6 +209,35 @@ public class PermissionServiceImpl implements PermissionService {
         return permissionServiceCacheAble.getPermission(userId, eventId)
                 .getMethodNames().stream()
                 .anyMatch(methodName::equals);
+    }
+
+    private TreeDataNode getNode(String title,String value,String key){
+        //todo 对接前端客户端
+        return new AntDesignTreeDataNode(title,value,null);
+        //return new SemiTreeDataNode(title,value,key);
+    }
+
+    public List<TreeDataNode> toTreeData(List<Action> actions) {
+        HashMap<String, List<TreeDataNode>> nodeMap = actions.stream()
+                .collect(
+                        HashMap::new,
+                        (map, action) -> {
+                            String groupName = action.getGroup();
+                            if (!map.containsKey(groupName)) map.put(groupName, new ArrayList<>());
+                            map.get(groupName).add(
+                                    getNode(action.getDescription(),action.getMethodName(),action.getMethodName())
+                            );
+                        },
+                        Map::putAll);
+        return nodeMap.keySet().stream()
+                .collect(
+                        ArrayList::new,
+                        (treeDataNodes, s) -> {
+                            TreeDataNode node = getNode(s,s,s);
+                            node.addChildren(nodeMap.get(s));
+                            treeDataNodes.add(node);
+                        },
+                        List::addAll);
     }
 
     private User getUserByStudentId(String studentId) {
