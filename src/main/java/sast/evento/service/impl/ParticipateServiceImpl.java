@@ -1,8 +1,10 @@
 package sast.evento.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import sast.evento.common.enums.ErrorEnum;
+import sast.evento.entitiy.Participate;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.mapper.ParticipateMapper;
 import sast.evento.service.ParticipateService;
@@ -40,5 +42,19 @@ public class ParticipateServiceImpl implements ParticipateService {
         }
         Integer insertResult = participateMapper.register(userId, eventId);
         return insertResult != null && insertResult > 0 ? "报名成功" : "报名失败";
+    }
+
+    // 获取个人的活动的状态
+    // 若无结果，则表示用户没有报名、没有订阅、更没有签到。
+    @Override
+    public Participate getParticipation(Integer userId, Integer eventId) {
+        if (userId == null || eventId == null) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
+        }
+
+        System.out.println(userId);
+        System.out.println(eventId);
+        QueryWrapper<Participate> queryWrapper = new QueryWrapper<>();
+        return participateMapper.selectOne(queryWrapper);
     }
 }

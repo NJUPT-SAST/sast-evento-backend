@@ -41,13 +41,22 @@ public class FeedbackServiceImpl implements FeedbackService {
         return insertResult != null && insertResult > 0 ? "添加反馈成功" : "添加反馈失败";
     }
 
-    // 用户获取反馈列表
+    // 用户获取自己的反馈列表
     @Override
     public List<FeedbackModel> getListByUserId(Integer userId) {
         if (userId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
         return feedbackModelMapper.getListByUserId(userId);
+    }
+
+    // 用户获取自己的对于某活动的反馈详情（可判断是否反馈）
+    @Override
+    public FeedbackModel getFeedback(Integer userId, Integer eventId) {
+        if (userId == null || eventId == null) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
+        }
+        return feedbackModelMapper.getFeedback(userId, eventId);
     }
 
     /*

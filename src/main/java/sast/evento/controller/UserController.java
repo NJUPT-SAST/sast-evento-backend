@@ -6,6 +6,7 @@ import sast.evento.annotation.DefaultActionState;
 import sast.evento.annotation.OperateLog;
 import sast.evento.common.enums.ActionState;
 import sast.evento.common.enums.ErrorEnum;
+import sast.evento.entitiy.Participate;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.interceptor.HttpInterceptor;
 import sast.evento.model.Action;
@@ -106,6 +107,23 @@ public class UserController {
         String userIdStr = userProFile.getUserId();
         Integer userIdInt = Integer.valueOf(userIdStr);
         return eventService.getRegistered(userIdInt);
+    }
+
+    /**
+     */
+    // 查询用户自己是否报名、订阅、参加（即签到）活动
+    // 若无结果，则表示用户没有报名、没有订阅、更没有签到。
+    @OperateLog("获取个人的活动的状态")
+    @DefaultActionState(ActionState.LOGIN)
+    @GetMapping("/participate")
+    public Participate getParticipation(@RequestParam Integer eventId) {
+        UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
+        if (userProFile == null) {
+            return null;
+        }
+        String userIdStr = userProFile.getUserId();
+        Integer userIdInt = Integer.valueOf(userIdStr);
+        return participateService.getParticipation(userIdInt, eventId);
     }
 
     @OperateLog("获取查看个人全部可用接口")

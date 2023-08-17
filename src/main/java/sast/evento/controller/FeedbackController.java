@@ -13,6 +13,7 @@ import sast.evento.model.FeedbacksDTO;
 import sast.evento.model.UserProFile;
 import sast.evento.service.FeedbackService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -56,9 +57,9 @@ public class FeedbackController {
 
     /**
      */
-    @OperateLog("用户获取反馈列表")
+    @OperateLog("用户获取自己的反馈列表")
     @DefaultActionState(ActionState.LOGIN)
-    @GetMapping("/user/info")
+    @GetMapping("/user/list")
     public List<FeedbackModel> getListByUserId() {
         UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
         if (userProFile == null) {
@@ -71,10 +72,24 @@ public class FeedbackController {
 
     /**
      */
-    /*
-     * 如果传进来的 content 为空，则清空数据库的 content 字段。（考虑到有人可能想清空反馈内容，所以这样设计）
-     * score 为五分制，一位小数。如果传进来的为空，则不做修改。
+    // 如果返回的是 null，那么表示用户没有反馈这个活动。
+    @OperateLog("用户获取自己写的某活动的反馈详情（可判断是否反馈）")
+    @DefaultActionState(ActionState.LOGIN)
+    @GetMapping("/user/info")
+    public FeedbackModel getFeedback(@RequestParam Integer eventId) {
+        UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
+        if (userProFile == null) {
+            return null;
+        }
+        String userIdStr = userProFile.getUserId();
+        Integer userIdInt = Integer.valueOf(userIdStr);
+        return feedbackService.getFeedback(userIdInt, eventId);
+    }
+
+    /**
      */
+    // 如果传进来的 content 为空，则清空数据库的 content 字段。（考虑到有人可能想清空反馈内容，所以这样设计）
+    // score 为五分制，一位小数。如果传进来的为空，则不做修改。
     @OperateLog("用户修改反馈")
     @DefaultActionState(ActionState.LOGIN)
     @PatchMapping("/info")
@@ -113,4 +128,5 @@ public class FeedbackController {
     public List<FeedbackModel> getListByEventId(@RequestParam Integer eventId) {
         return feedbackService.getListByEventId(eventId);
     }
+
 }

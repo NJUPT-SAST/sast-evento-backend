@@ -14,8 +14,11 @@ public interface FeedbackService {
     // 用户添加反馈
     String addFeedback(Integer userId, String content, Double score, Integer eventId);
 
-    // 用户获取反馈列表
+    // 用户获取自己的反馈列表
     List<FeedbackModel> getListByUserId(Integer userId);
+
+    // 用户获取自己的对于某活动的反馈详情（可判断是否反馈）
+    FeedbackModel getFeedback(Integer userId, Integer eventId);
 
     // 用户修改反馈
 

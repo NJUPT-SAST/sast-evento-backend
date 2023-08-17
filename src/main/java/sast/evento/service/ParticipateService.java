@@ -1,5 +1,7 @@
 package sast.evento.service;
 
+import sast.evento.entitiy.Participate;
+
 /**
  * @projectName: sast-evento-backend
  * @author: mio
@@ -12,5 +14,8 @@ public interface ParticipateService {
 
     // 报名活动
     String register(Integer userId, Integer eventId);
+
+    // 获取个人的活动的状态
+    Participate getParticipation(Integer userId, Integer eventId);
 
 }

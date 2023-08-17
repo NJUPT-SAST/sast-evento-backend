@@ -4,22 +4,29 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="sast.evento.mapper.FeedbackModelMapper">
 
-<!--    用户获取反馈列表-->
-    <select id="getListByUserId" resultType="sast.evento.model.FeedbackModel">
+    <sql id="selectFrom">
         SELECT f.id, f.content, ROUND(f.score, 1) AS score, p.event_id AS eventId
         FROM feedback AS f
                  LEFT JOIN
              participate AS p ON f.participate_id = p.id
+    </sql>
+
+<!--    用户获取自己的反馈列表-->
+    <select id="getListByUserId" resultType="sast.evento.model.FeedbackModel">
+        <include refid="selectFrom" />
         WHERE f.user_id = #{userId}
     </select>
 
 <!--    获取活动反馈列表（该活动的所有人的反馈）-->
     <select id="getListByEventId" resultType="sast.evento.model.FeedbackModel">
-        SELECT f.id, f.content, ROUND(f.score, 1) AS score, p.event_id AS eventId
-        FROM feedback AS f
-                 LEFT JOIN
-             participate AS p ON f.participate_id = p.id
+        <include refid="selectFrom" />
         WHERE p.event_id = #{eventId}
+    </select>
+
+<!--    用户获取自己的对于某活动的反馈详情（可判断是否反馈）-->
+    <select id="getFeedback" resultType="sast.evento.model.FeedbackModel">
+        <include refid="selectFrom"/>
+        WHERE f.user_id = #{userId} AND p.event_id = #{eventId}
     </select>
 
 </mapper>
