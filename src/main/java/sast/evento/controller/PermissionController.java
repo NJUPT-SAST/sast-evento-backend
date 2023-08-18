@@ -9,7 +9,9 @@ import sast.evento.common.enums.ActionState;
 import sast.evento.common.enums.ErrorEnum;
 import sast.evento.entitiy.User;
 import sast.evento.exception.LocalRunTimeException;
+import sast.evento.interceptor.HttpInterceptor;
 import sast.evento.model.Action;
+import sast.evento.model.UserProFile;
 import sast.evento.model.treeDataNodeDTO.TreeDataNode;
 import sast.evento.service.PermissionService;
 
@@ -111,7 +113,7 @@ public class PermissionController {
     @DefaultActionState(ActionState.ADMIN)
     @GetMapping("/admin/user/list")
     public List<String> getUserAdminPermissAsList(@RequestParam(required = false) String studentId,
-                                                @RequestParam(required = false) String userId) {
+                                                  @RequestParam(required = false) String userId) {
         if (userId.isEmpty() && studentId.isEmpty()) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one");
         }
@@ -139,7 +141,7 @@ public class PermissionController {
         if (userId.isEmpty() && studentId.isEmpty()) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one");
         }
-        return permissionService.getUserManagerPermissAsList(eventId,userId, studentId);
+        return permissionService.getUserManagerPermissAsList(eventId, userId, studentId);
     }
 
     @OperateLog("删除活动管理者")
@@ -199,6 +201,22 @@ public class PermissionController {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one");
         }
         return permissionService.getManageEvent(userId, studentId);
+    }
+
+    @OperateLog("获取用户自身admin权限用于条件渲染")
+    @DefaultActionState(ActionState.LOGIN)
+    @GetMapping(value = "/admin/self")
+    public List<String> getSelfAdminPermission() {
+        UserProFile proFile = HttpInterceptor.userProFileHolder.get();
+        return permissionService.getUserAdminPermissAsList(proFile.getUserId(), null);
+    }
+
+    @OperateLog("获取用户自身manager权限用于条件渲染")
+    @DefaultActionState(ActionState.LOGIN)
+    @GetMapping(value = "/event/manager/self")
+    public List<String> getSelfManagerPermission(@RequestParam @EventId Integer eventId) {
+        UserProFile proFile = HttpInterceptor.userProFileHolder.get();
+        return permissionService.getUserManagerPermissAsList(eventId, proFile.getUserId(), null);
     }
 
 }
