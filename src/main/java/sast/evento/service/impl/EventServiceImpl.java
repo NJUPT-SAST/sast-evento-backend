@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  * @projectName: sast-evento-backend
- * @author: mio
+ * @author: mio; Love98
  * @date: 2023/8/8 13:44
  */
 @Service
@@ -92,6 +92,30 @@ public class EventServiceImpl implements EventService {
         if (event == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
+        /* 检测必需参数是否存在 */
+        if (
+                (event.getTitle() == null) ||
+                (event.getGmtEventStart() == null) ||
+                (event.getGmtEventEnd() == null) ||
+                (event.getGmtRegistrationStart() == null) ||
+                (event.getGmtRegistrationEnd() == null)) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "id should be null.");
+        }
+        /* 检测 null 参数是否存在 */
+        if (event.getDescription() == null) {
+            event.setDescription("");
+        }
+        if (event.getLocationId() == null) {
+            event.setLocationId(0);
+        }
+        if (event.getTypeId() == null) {
+            event.setTypeId(0);
+        }
+        if (event.getTag() == null) {
+            event.setTag("");
+        }
+        /* 设置为未开始 */
+        event.setState(EventState.NOT_STARTED);
         if (eventMapper.insert(event) > 0) {
             return event.getId();
         }

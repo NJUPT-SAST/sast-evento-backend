@@ -16,6 +16,8 @@ import sast.evento.service.EventService;
 import sast.evento.service.PermissionService;
 
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -83,7 +85,7 @@ public class EventController {
     @DefaultActionState(ActionState.MANAGER)
     @DeleteMapping("/info")
     public String deleteEvent(@RequestParam @EventId Integer eventId) {
-        return null;
+        return eventService.deleteEvent(eventId).toString();
     }
 
     /**
@@ -101,7 +103,7 @@ public class EventController {
     public String patchEvent(@RequestParam @EventId Integer eventId,
                              @RequestBody Event event) {
         if (!event.getId().equals(eventId)) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid id.");
-        return null;
+        return eventService.deleteEvent(eventId).toString();
     }
 
     @OperateLog("发起活动（添加活动）")
@@ -112,19 +114,11 @@ public class EventController {
         UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
         /* 记得给自己加活动权限鸭喵 */
         /* 检测内容不为null的部分添加 */
-        /* 留空不予添加 */
-        if (
-                (event.getTitle() == null) ||
-                (event.getGmtEventStart() == null) ||
-                (event.getGmtEventEnd() == null) ||
-                (event.getGmtRegistrationStart() == null) ||
-                (event.getGmtRegistrationEnd() == null)) {
-            /* 检测必需参数是否存在 */
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "id should be null.");
-        }
         Integer eventId = eventService.addEvent(event);
-        // TODO permissionService.addManager 参数修改
-        permissionService.addManager(eventId, null, userProFile.getUserId(), null);
+        // TODO methodNames 参数补充; studentId 从 LINK 中获取
+        String[] methods = {"putEvent", "patchEvent"};
+        List<String> methodNames = new ArrayList<>(Arrays.asList(methods));
+        permissionService.addManager(eventId, methodNames, userProFile.getUserId(), null);
         return "success";
     }
 
@@ -134,7 +128,7 @@ public class EventController {
     public String putEvent(@RequestParam @EventId Integer eventId,
                            @RequestBody Event event) {
         if (!event.getId().equals(eventId)) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid id.");
-        return null;
+        return eventService.updateEvent(event).toString();
     }
 
     /**
