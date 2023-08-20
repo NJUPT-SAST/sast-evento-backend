@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 import sast.evento.entitiy.Feedback;
+import sast.evento.model.FeedbacksDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -19,5 +20,12 @@ public interface FeedbackMapper extends BaseMapper<Feedback> {
      * @author Aiden
      */
     List<Map<String, Integer>> getFeedbackEvents(@Param("index") Integer index, @Param("size") Integer size);
+
+    /**
+     * @param eventId 活动id
+     * @return FeedbacksDTO
+     * @author Aiden
+     */
+    FeedbacksDTO getFeedback(@Param("event_id") Integer eventId);
 
 }

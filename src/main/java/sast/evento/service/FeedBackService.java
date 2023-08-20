@@ -1,6 +1,7 @@
 package sast.evento.service;
 
 import sast.evento.model.FeedbackModel;
+import sast.evento.model.FeedbacksDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,9 @@ import java.util.Map;
  * @date: 2023/8/10 22:50
  */
 public interface FeedBackService {
+
+    // 管理获取活动反馈详情
+    FeedbacksDTO getFeedback(Integer eventId);
 
     // 用户添加反馈
     String addFeedback(String content, Integer score, Integer eventId);

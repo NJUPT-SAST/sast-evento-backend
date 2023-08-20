@@ -22,11 +22,16 @@ public class FeedbackController {
     @Resource
     private FeedBackService feedBackService;
 
-    @OperateLog("获取活动反馈详情")
+    /**
+     * @param eventId 活动id
+     * @return FeedbacksDTO
+     * @author Aiden
+     */
+    @OperateLog("管理获取活动反馈详情")
     @DefaultActionState(ActionState.ADMIN)
     @GetMapping("/event")
-    public FeedbacksDTO getFeedbacks(@RequestParam @EventId Integer eventId) {
-        return null;
+    public FeedbacksDTO getFeedback(@RequestParam @EventId Integer eventId) {
+        return feedBackService.getFeedback(eventId);
     }
 
     /**

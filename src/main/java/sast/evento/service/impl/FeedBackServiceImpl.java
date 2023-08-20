@@ -4,6 +4,7 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import sast.evento.mapper.FeedbackMapper;
 import sast.evento.model.FeedbackModel;
+import sast.evento.model.FeedbacksDTO;
 import sast.evento.service.FeedBackService;
 
 import java.util.List;
@@ -18,6 +19,14 @@ import java.util.Map;
 public class FeedBackServiceImpl implements FeedBackService {
     @Resource
     private FeedbackMapper feedbackMapper;
+
+    // 管理获取活动反馈详情
+    @Override
+    public FeedbacksDTO getFeedback(Integer eventId) {
+        FeedbacksDTO feedbacksDTO = feedbackMapper.getFeedback(eventId);
+        feedbacksDTO.setEventId(eventId);
+        return feedbacksDTO;
+    }
 
     // 用户添加反馈
     @Override
