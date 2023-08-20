@@ -24,16 +24,17 @@ public class SastLinkServiceCacheAbleImpl implements SastLinkServiceCacheAble {
     //todo 对接Sast_Link_SDK
     @Resource
     private JwtUtil jwtUtil;
+
     @Override
-    public String linkLogin(String code){
+    public String linkLogin(String code) {
         /* 存储用来获取用户信息的 access_token */
-        Map<String,String> map = new HashMap<>();
-        map.put("code",code);
+        Map<String, String> map = new HashMap<>();
+        map.put("code", code);
 
 
         String userId = "";
-        Map<String,String> payload = new HashMap<>();
-        map.put("userId",userId);
+        Map<String, String> payload = new HashMap<>();
+        map.put("userId", userId);
         return jwtUtil.generateToken(payload);
     }
 
@@ -41,17 +42,19 @@ public class SastLinkServiceCacheAbleImpl implements SastLinkServiceCacheAble {
     public String wxLogin(String code) {
         return null;
     }
+
     @Override
-    public String logout(String userId,String code){
+    public String logout(String userId, String code) {
         return null;
     }
+
     @Cacheable(value = "userProFile", key = "#userId")
     public UserProFile getUserProFile(String userId) {
         return new UserProFile();
     }
 
     @CachePut(value = "userProFile", key = "#userId")
-    public UserProFile updateUserProFile(String userId,UserProFile userProFile) {
+    public UserProFile updateUserProFile(String userId, UserProFile userProFile) {
         return userProFile;
     }
 

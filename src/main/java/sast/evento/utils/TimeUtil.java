@@ -19,15 +19,15 @@ import java.util.List;
 public class TimeUtil {
 
     /**
-     * @author Aiden
      * @param time String类型
-     * @return 判断String类型的时间是否有效(满足yyyy-mm-dd格式)如果满足返回Calendar类型
-     * @exception ErrorEnum TIME_ERROR String时间格式有误
+     * @return 判断String类型的时间是否有效(满足yyyy - mm - dd格式)如果满足返回Calendar类型
+     * @throws ErrorEnum TIME_ERROR String时间格式有误
+     * @author Aiden
      */
-    public Calendar validTime(String time){
+    public Calendar validTime(String time) {
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        try{
+        try {
             Date date = sdf.parse(time);
             calendar.setTime(date);
         } catch (ParseException e) {
@@ -37,31 +37,31 @@ public class TimeUtil {
     }
 
     /**
-     * @author Aiden
      * @param time String类型
      * @return 获得某一日期所在的那一周的周一和周日的日期
+     * @author Aiden
      */
-     public List<Date> getDateOfMonday(String time){
+    public List<Date> getDateOfMonday(String time) {
         Calendar date = validTime(time);
-         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         // 设置每周的第一天为星期一
-         date.setFirstDayOfWeek(Calendar.MONDAY);
+        date.setFirstDayOfWeek(Calendar.MONDAY);
         // 获得当前日期是一个星期的第几天
-         int dayWeek = date.get(Calendar.DAY_OF_WEEK);
-         // 判断要计算的日期是否是周日，如果是则减一天计算周六的，否则会出问题，计算到下一周去了
-         if (1 == dayWeek) {
-             date.add(Calendar.DAY_OF_MONTH, -1);
-         }
-         // 获得当前日期是一个星期的第几天
-         int day = date.get(Calendar.DAY_OF_WEEK);
-         // 获取该周第一天
-         date.add(Calendar.DATE, date.getFirstDayOfWeek() - day);
+        int dayWeek = date.get(Calendar.DAY_OF_WEEK);
+        // 判断要计算的日期是否是周日，如果是则减一天计算周六的，否则会出问题，计算到下一周去了
+        if (1 == dayWeek) {
+            date.add(Calendar.DAY_OF_MONTH, -1);
+        }
+        // 获得当前日期是一个星期的第几天
+        int day = date.get(Calendar.DAY_OF_WEEK);
+        // 获取该周第一天
+        date.add(Calendar.DATE, date.getFirstDayOfWeek() - day);
 
-         List<Date> resultDate = new ArrayList<>();
-         resultDate.add(date.getTime());
-         // 获取下一周第一天（因为查询默认00:00:00）
-         date.add(Calendar.DATE, 7);
-         resultDate.add(date.getTime());
-         return resultDate;
-     }
+        List<Date> resultDate = new ArrayList<>();
+        resultDate.add(date.getTime());
+        // 获取下一周第一天（因为查询默认00:00:00）
+        date.add(Calendar.DATE, 7);
+        resultDate.add(date.getTime());
+        return resultDate;
+    }
 }

@@ -39,10 +39,10 @@
                e.location_id,
                e.tag,
                e.state,
-               t.id AS type_id,
+               t.id              AS type_id,
                t.type_name,
                t.allow_conflict,
-               d.id AS department_id,
+               d.id              AS department_id,
                d.department_name AS department_name
         FROM event AS e
                  LEFT JOIN
@@ -54,8 +54,11 @@
     </sql>
 
     <!--    根据time选出活动列表获取活动列表的sql片段    -->
-    <sql id ="byTime">
-        e.gmt_event_start BETWEEN #{monday} AND #{next_monday}
+    <sql id="byTime">
+        e.gmt_event_start BETWEEN
+        #{monday}
+        AND
+        #{next_monday}
     </sql>
 
     <!--    根据departmentId选出活动列表的sql片段    -->
@@ -88,10 +91,10 @@
                e.location_id,
                e.tag,
                e.state,
-               t.id AS type_id,
+               t.id              AS type_id,
                t.type_name,
                t.allow_conflict,
-               d.id AS department_id,
+               d.id              AS department_id,
                d.department_name AS department_name
         FROM event AS e
                  LEFT JOIN
@@ -103,7 +106,7 @@
         WHERE e.id = #{eventId}
     </select>
 
-<!--    正在进行的活动列表-->
+    <!--    正在进行的活动列表-->
     <select id="getConducting" resultMap="eventModelMap">
         SELECT e.id,
                e.title,
@@ -115,10 +118,10 @@
                e.location_id,
                e.tag,
                e.state,
-               t.id AS type_id,
+               t.id              AS type_id,
                t.type_name,
                t.allow_conflict,
-               d.id AS department_id,
+               d.id              AS department_id,
                d.department_name AS department_name
         FROM event AS e
                  LEFT JOIN
@@ -130,7 +133,7 @@
         WHERE e.state = 3
     </select>
 
-<!--    查看用户历史活动列表（参加过已结束）-->
+    <!--    查看用户历史活动列表（参加过已结束）-->
     <select id="getHistory" resultMap="eventModelMap">
         SELECT e.id,
                e.title,
@@ -142,10 +145,10 @@
                e.location_id,
                e.tag,
                e.state,
-               t.id AS type_id,
+               t.id              AS type_id,
                t.type_name,
                t.allow_conflict,
-               d.id AS department_id,
+               d.id              AS department_id,
                d.department_name AS department_name
         FROM event AS e
                  LEFT JOIN
@@ -156,10 +159,11 @@
              event_department AS ed ON e.id = ed.event_id
                  LEFT JOIN
              department AS d ON ed.department_id = d.id
-        WHERE p.user_id = #{userId} AND p.is_participate = 1
+        WHERE p.user_id = #{userId}
+          AND p.is_participate = 1
     </select>
 
-<!--    最新的活动列表（按开始时间正序排列未开始的活动）-->
+    <!--    最新的活动列表（按开始时间正序排列未开始的活动）-->
     <select id="getNewest" resultMap="eventModelMap">
         SELECT e.id,
                e.title,
@@ -171,10 +175,10 @@
                e.location_id,
                e.tag,
                e.state,
-               t.id AS type_id,
+               t.id              AS type_id,
                t.type_name,
                t.allow_conflict,
-               d.id AS department_id,
+               d.id              AS department_id,
                d.department_name AS department_name
         FROM event AS e
                  LEFT JOIN
@@ -187,7 +191,7 @@
         ORDER BY e.gmt_event_start ASC
     </select>
 
-<!--    获取活动列表(分页）-->
+    <!--    获取活动列表(分页）-->
     <select id="getEvents" resultMap="eventModelMap">
         SELECT e.id,
                e.title,
@@ -199,10 +203,10 @@
                e.location_id,
                e.tag,
                e.state,
-               t.id AS type_id,
+               t.id              AS type_id,
                t.type_name,
                t.allow_conflict,
-               d.id AS department_id,
+               d.id              AS department_id,
                d.department_name AS department_name
         FROM event AS e
                  LEFT JOIN
@@ -212,65 +216,65 @@
                  LEFT JOIN
              department AS d ON ed.department_id = d.id
                  JOIN
-             (SELECT id FROM event LIMIT #{index}, #{size}) AS e_ids ON e.id = e_ids.id
+                 (SELECT id FROM event LIMIT #{index}, #{size}) AS e_ids ON e.id = e_ids.id
     </select>
 
     <!--    根据time选出活动列表获取活动列表    -->
     <select id="getEventByTime" resultMap="eventModelMap">
-        <include refid="baseSelectAndFrom" />
+        <include refid="baseSelectAndFrom"/>
         WHERE
-        <include refid="byTime" />
+        <include refid="byTime"/>
     </select>
 
     <!--    根据departmentId选出活动列表    -->
     <select id="getEventByDepartmentId" resultMap="eventModelMap">
-        <include refid="baseSelectAndFrom" />
+        <include refid="baseSelectAndFrom"/>
         WHERE
-        <include refid="byDepartmentId" />
+        <include refid="byDepartmentId"/>
     </select>
 
     <!--    根据departmentId和time选出活动列表   -->
     <select id="getEventByDepartmentIdAndTime" resultMap="eventModelMap">
-        <include refid="baseSelectAndFrom" />
+        <include refid="baseSelectAndFrom"/>
         WHERE
-        <include refid="byTime" />
-        AND 
-        <include refid="byDepartmentId" />
+        <include refid="byTime"/>
+        AND
+        <include refid="byDepartmentId"/>
     </select>
 
     <!--    根据typeId选出活动列表    -->
     <select id="getEventByTypeId" resultMap="eventModelMap">
-        <include refid="baseSelectAndFrom" />
+        <include refid="baseSelectAndFrom"/>
         WHERE
-        <include refid="byTypeId" />
+        <include refid="byTypeId"/>
     </select>
 
     <!--    根据typeId和time选出活动列表    -->
     <select id="getEventByTypeIdAndTime" resultMap="eventModelMap">
-        <include refid="baseSelectAndFrom" />
+        <include refid="baseSelectAndFrom"/>
         WHERE
-        <include refid="byTypeId" />
+        <include refid="byTypeId"/>
         AND
-        <include refid="byTime" />
+        <include refid="byTime"/>
     </select>
 
     <!--    根据typeId和departmentId选出活动列表    -->
     <select id="getEventByTypeIdAndDepartmentId" resultMap="eventModelMap">
-        <include refid="baseSelectAndFrom" />
+        <include refid="baseSelectAndFrom"/>
         WHERE
-        <include refid="byTypeId" />
+        <include refid="byTypeId"/>
         AND
-        <include refid="byDepartmentId" />
+        <include refid="byDepartmentId"/>
     </select>
 
     <!--    根据三个筛选条件选出活动列表    -->
     <select id="postForEventsByAll" resultMap="eventModelMap">
-        <include refid="baseSelectAndFrom" />
+        <include refid="baseSelectAndFrom"/>
         WHERE
-        <include refid="byTime" />
+        <include refid="byTime"/>
         AND
-        <include refid="byTypeId" />
+        <include refid="byTypeId"/>
         AND
-        <include refid="byDepartmentId" />
+        <include refid="byDepartmentId"/>
     </select>
 </mapper>

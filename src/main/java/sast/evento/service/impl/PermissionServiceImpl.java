@@ -50,7 +50,7 @@ public class PermissionServiceImpl implements PermissionService {
     public void addAdmin(List<String> methodNames, String userId, String studentId) {
         if (userId.isEmpty()) {
             userId = Optional.ofNullable(getUserByStudentId(studentId).getUserId())
-                    .orElseThrow(()->new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"studentId no exist"));
+                    .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "studentId no exist"));
         }
         Permission permission = new Permission();
         permission.setMethodNames(methodNames);
@@ -63,7 +63,7 @@ public class PermissionServiceImpl implements PermissionService {
     public void deleteAdmin(String userId, String studentId) {
         if (userId.isEmpty()) {
             userId = Optional.ofNullable(getUserByStudentId(studentId).getUserId())
-                    .orElseThrow(()->new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"studentId no exist"));
+                    .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "studentId no exist"));
         }
         permissionServiceCacheAble.deletePermission(userId, 0);
     }
@@ -77,7 +77,7 @@ public class PermissionServiceImpl implements PermissionService {
     public void updateAdminPermission(List<String> methodNames, String userId, String studentId) {
         if (userId.isEmpty()) {
             userId = Optional.ofNullable(getUserByStudentId(studentId).getUserId())
-                    .orElseThrow(()->new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"studentId no exist"));
+                    .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "studentId no exist"));
         }
         Permission permission = new Permission();
         permission.setMethodNames(methodNames);
@@ -90,7 +90,7 @@ public class PermissionServiceImpl implements PermissionService {
     public List<Action> getUserAdminPermissions(String userId, String studentId) {
         if (userId.isEmpty()) {
             userId = Optional.ofNullable(getUserByStudentId(studentId).getUserId())
-                    .orElseThrow(()->new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"studentId no exist"));
+                    .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "studentId no exist"));
         }
         return permissionServiceCacheAble.getPermission(userId, 0).getMethodNames().stream()
                 .map(methodName -> ActionRegister.actionName2action.get(methodName))
@@ -101,7 +101,7 @@ public class PermissionServiceImpl implements PermissionService {
     public void addManager(Integer eventId, List<String> methodNames, String userId, String studentId) {
         if (userId.isEmpty()) {
             userId = Optional.ofNullable(getUserByStudentId(studentId).getUserId())
-                    .orElseThrow(()->new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"studentId no exist"));
+                    .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "studentId no exist"));
         }
         Permission permission = new Permission();
         permission.setMethodNames(methodNames);
@@ -114,7 +114,7 @@ public class PermissionServiceImpl implements PermissionService {
     public void deleteManager(Integer eventId, String userId, String studentId) {
         if (userId.isEmpty()) {
             userId = Optional.ofNullable(getUserByStudentId(studentId).getUserId())
-                    .orElseThrow(()->new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"studentId no exist"));
+                    .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "studentId no exist"));
         }
         permissionServiceCacheAble.deletePermission(userId, eventId);
     }
@@ -128,7 +128,7 @@ public class PermissionServiceImpl implements PermissionService {
     public void updateManagerPermission(Integer eventId, List<String> methodNames, String userId, String studentId) {
         if (userId.isEmpty()) {
             userId = Optional.ofNullable(getUserByStudentId(studentId).getUserId())
-                    .orElseThrow(()->new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"studentId no exist"));
+                    .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "studentId no exist"));
         }
         Permission permission = new Permission();
         permission.setMethodNames(methodNames);
@@ -141,7 +141,7 @@ public class PermissionServiceImpl implements PermissionService {
     public List<Action> getUserManagerPermissions(Integer eventId, String userId, String studentId) {
         if (userId.isEmpty()) {
             userId = Optional.ofNullable(getUserByStudentId(studentId).getUserId())
-                    .orElseThrow(()->new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"studentId no exist"));
+                    .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "studentId no exist"));
         }
         return permissionServiceCacheAble.getPermission(userId, eventId).getMethodNames().stream()
                 .map(methodName -> ActionRegister.actionName2action.get(methodName))
@@ -152,7 +152,7 @@ public class PermissionServiceImpl implements PermissionService {
     public List<Integer> getManageEvent(String userId, String studentId) {
         if (userId.isEmpty()) {
             userId = Optional.ofNullable(getUserByStudentId(studentId).getUserId())
-                    .orElseThrow(()->new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"studentId no exist"));
+                    .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "studentId no exist"));
         }
         return permissionMapper.getManageEvent(userId).stream()
                 .filter(integer -> !integer.equals(0))

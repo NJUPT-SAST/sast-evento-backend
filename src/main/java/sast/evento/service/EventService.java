@@ -1,8 +1,6 @@
 package sast.evento.service;
 
-import org.springframework.web.bind.annotation.RequestParam;
 import sast.evento.model.EventModel;
-import sast.evento.model.UserProFile;
 
 import java.util.List;
 
@@ -28,5 +26,7 @@ public interface EventService {
     // 获取活动列表
     List<EventModel> getEvents(Integer page, Integer size);
 
-    List<EventModel> postForEvents(List<Integer> typeId,List<Integer> departmentId, String time);
+    List<EventModel> postForEvents(List<Integer> typeId, List<Integer> departmentId, String time);
+
+    List<EventModel> exchangeLocationOfEvents(List<EventModel> eventModels);
 }

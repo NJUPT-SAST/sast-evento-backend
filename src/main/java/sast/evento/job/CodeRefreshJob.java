@@ -20,6 +20,6 @@ public class CodeRefreshJob implements Job {
         Integer eventId = jobExecutionContext.getMergedJobDataMap().getInt("eventId");
         CodeService codeServiceBean = SpringContextUtil.getBean(CodeService.class);
         codeServiceBean.refreshCode(eventId);
-        log.info("refresh Qrcode. EvenId: {}",eventId);
+        log.info("refresh Qrcode. EvenId: {}", eventId);
     }
 }

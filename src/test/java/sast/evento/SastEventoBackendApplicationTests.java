@@ -1,47 +1,32 @@
 package sast.evento;
 
-import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.web.multipart.MultipartFile;
-import sast.evento.common.enums.EventState;
-import sast.evento.config.ActionRegister;
 import sast.evento.common.enums.ErrorEnum;
-import sast.evento.entitiy.Department;
-import sast.evento.entitiy.EventType;
+import sast.evento.config.ActionRegister;
 import sast.evento.exception.LocalRunTimeException;
-import sast.evento.mapper.EventModelMapper;
-import sast.evento.mapper.LocationMapper;
-import sast.evento.model.EventModel;
 import sast.evento.model.wxServiceDTO.AccessTokenRequest;
 import sast.evento.model.wxServiceDTO.WxSubscribeRequest;
 import sast.evento.service.CodeService;
-import sast.evento.service.EventService;
 import sast.evento.service.QrCodeCheckInService;
-import sast.evento.service.impl.EventServiceImpl;
-import sast.evento.utils.*;
+import sast.evento.utils.JsonUtil;
+import sast.evento.utils.JwtUtil;
+import sast.evento.utils.QRCodeUtil;
+import sast.evento.utils.SpringContextUtil;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @SpringBootTest
 class SastEventoBackendApplicationTests {
 
     @Test
-    void genereateToken(){
+    void genereateToken() {
         JwtUtil jwtUtil = SpringContextUtil.getBean(JwtUtil.class);
-        HashMap<String,String> map = new HashMap<>();
-        map.put("user_id","1");
+        HashMap<String, String> map = new HashMap<>();
+        map.put("user_id", "1");
         String token = jwtUtil.generateToken(map);
         System.out.println(token);
     }
@@ -73,21 +58,21 @@ class SastEventoBackendApplicationTests {
     }
 
     @Test
-    void refreshJobTest(){
+    void refreshJobTest() {
         Integer eventId = 1000000;
         QrCodeCheckInService service = SpringContextUtil.getBean(QrCodeCheckInService.class);
         service.getCheckInQrCode(eventId);
         CodeService codeService = SpringContextUtil.getBean(CodeService.class);
         String code = codeService.getCode(eventId);
-        System.out.println("code: "+code);
-        System.out.println("check: "+service.checkCode(eventId, code));
+        System.out.println("code: " + code);
+        System.out.println("check: " + service.checkCode(eventId, code));
         codeService.refreshCode(eventId);
-        System.out.println("check: "+service.checkCode(eventId, code));
+        System.out.println("check: " + service.checkCode(eventId, code));
         service.close(eventId);
     }
 
     @Test
-    void CosUtilTest(){
+    void CosUtilTest() {
     }
 
 

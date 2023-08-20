@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="sast.evento.mapper.FeedbackMapper">
+    <select id="getFeedbackEvents" resultType="java.util.Map">
+        SELECT e.id AS event_id, COUNT(f.id) AS feedback_count
+        FROM event e
+                 LEFT JOIN participate p ON e.id = p.event_id
+                 LEFT JOIN feedback f ON p.id = f.participate_id
+                 JOIN (SELECT id FROM event LIMIT #{index}, #{size}) AS e_ids ON e.id = e_ids.id
+        GROUP BY e.id;
+    </select>
+</mapper>

@@ -1,6 +1,5 @@
 package sast.evento.utils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -10,6 +9,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,10 +23,12 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class RedisUtil {
     public static final String prefix = "Evento:";
-    @Resource
-    private RedisTemplate<String, Object> redisTemplate;
+    // ============================messageQueue=============================
+    public static final String MESSAGE_KEY = "message:queue";
 
     // =============================common============================
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     /**
      * 指定缓存失效时间
@@ -74,7 +76,6 @@ public class RedisUtil {
         return redisTemplate.getExpire(prefix + key, TimeUnit.SECONDS);
     }
 
-
     /**
      * 判断key是否存在
      *
@@ -89,7 +90,6 @@ public class RedisUtil {
             return false;
         }
     }
-
 
     /**
      * 删除缓存
@@ -109,9 +109,6 @@ public class RedisUtil {
         }
     }
 
-    // ============================messageQueue=============================
-    public static final String MESSAGE_KEY = "message:queue";
-
     /**
      * 生产消息
      *
@@ -120,8 +117,8 @@ public class RedisUtil {
      */
     public void produce(Object json) {
         try {
-            redisTemplate.opsForList().leftPush(prefix + MESSAGE_KEY,JsonUtil.toJson(json));
-        }catch (Exception e){
+            redisTemplate.opsForList().leftPush(prefix + MESSAGE_KEY, JsonUtil.toJson(json));
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -697,26 +694,27 @@ public class RedisUtil {
     /**
      * 往Set中存入数据
      *
-     * @param key Redis键
+     * @param key    Redis键
      * @param values 值
      * @return 存入的个数
      */
-    public  long setSet(final String key, final Object... values) {
-        Long count = redisTemplate.opsForSet().add(prefix +key, values);
+    public long setSet(final String key, final Object... values) {
+        Long count = redisTemplate.opsForSet().add(prefix + key, values);
         return count == null ? 0 : count;
     }
 
     /**
      * 删除Set中的数据
      *
-     * @param key Redis键
+     * @param key    Redis键
      * @param values 值
      * @return 移除的个数
      */
-    public  long setDel(final String key, final Object... values) {
-        Long count = redisTemplate.opsForSet().remove(prefix +key, values);
+    public long setDel(final String key, final Object... values) {
+        Long count = redisTemplate.opsForSet().remove(prefix + key, values);
         return count == null ? 0 : count;
     }
+
     /**
      * 随机获取set中的一个元素
      *
@@ -726,12 +724,14 @@ public class RedisUtil {
     public Object randomMember(String key) {
         Object o = null;
         try {
-            o = redisTemplate.opsForSet().randomMember(prefix +key);
+            o = redisTemplate.opsForSet().randomMember(prefix + key);
         } catch (Exception e) {
             log.error("[RedisUtils.randomMember] [error]", e);
         }
         return o;
-    }/**
+    }
+
+    /**
      * 随机移除一个元素
      *
      * @param key
@@ -740,7 +740,7 @@ public class RedisUtil {
     public Object popMember(String key) {
         Object o = null;
         try {
-            o = redisTemplate.opsForSet().pop(prefix +key);
+            o = redisTemplate.opsForSet().pop(prefix + key);
         } catch (Exception e) {
             log.error("[RedisUtils.popMember] [error]", e);
         }

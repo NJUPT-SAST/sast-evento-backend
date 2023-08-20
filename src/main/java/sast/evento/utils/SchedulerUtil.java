@@ -10,9 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @projectName: Test
@@ -46,7 +43,8 @@ public class SchedulerUtil {
                 .build();
         scheduler.scheduleJob(jobDetail, trigger);
     }
-    public static void addRepeatJob(String jobName, String jobGroupName, String triggerName, String triggerGroupName, Class<? extends org.quartz.Job> jobClass, @Nullable JobDataMap jobDataMap, String cron, Date start,Date end) throws SchedulerException {
+
+    public static void addRepeatJob(String jobName, String jobGroupName, String triggerName, String triggerGroupName, Class<? extends org.quartz.Job> jobClass, @Nullable JobDataMap jobDataMap, String cron, Date start, Date end) throws SchedulerException {
         Scheduler scheduler = getScheduler();
         if (scheduler.isShutdown()) {
             throw new RuntimeException("Please contact admin to start the scheduler first.");
@@ -74,47 +72,48 @@ public class SchedulerUtil {
         }
     }
 
-    public static void resetRepeatJob(String triggerName, String triggerGroupName, String cron,Date start,Date end) throws Exception {
+    public static void resetRepeatJob(String triggerName, String triggerGroupName, String cron, Date start, Date end) throws Exception {
         Scheduler scheduler = getScheduler();
         TriggerKey triggerKey = new TriggerKey(triggerName, triggerGroupName);
         CronTriggerImpl trigger = (CronTriggerImpl) scheduler.getTrigger(triggerKey);
         if (!trigger.getCronExpression().equalsIgnoreCase(cron)) {
             trigger.setCronExpression(cron);
         }
-        if(start != null){
+        if (start != null) {
             trigger.setStartTime(start);
         }
-        if (end != null){
+        if (end != null) {
             trigger.setEndTime(end);
         }
         scheduler.rescheduleJob(triggerKey, trigger);
     }
 
-    public static void addJobListener(String jobName,String jobGroup, JobListener listener) throws SchedulerException{
+    public static void addJobListener(String jobName, String jobGroup, JobListener listener) throws SchedulerException {
         Scheduler scheduler = getScheduler();
-        JobKey jobKey = new JobKey(jobName,jobGroup);
+        JobKey jobKey = new JobKey(jobName, jobGroup);
         Matcher<JobKey> matcher = KeyMatcher.keyEquals(jobKey);
-        scheduler.getListenerManager().addJobListener(listener,matcher);
-    }
-    public static void removeJobListener(String name,String jobName,String jobGroup) throws SchedulerException{
-        JobKey jobKey = new JobKey(jobName,jobGroup);
-        Matcher<JobKey> matcher = KeyMatcher.keyEquals(jobKey);
-        Scheduler scheduler = getScheduler();
-        scheduler.getListenerManager().removeJobListenerMatcher(name,matcher);
+        scheduler.getListenerManager().addJobListener(listener, matcher);
     }
 
-    public static void addTriggerListener(String triggerName,String triggerGroup, TriggerListener listener) throws SchedulerException{
+    public static void removeJobListener(String name, String jobName, String jobGroup) throws SchedulerException {
+        JobKey jobKey = new JobKey(jobName, jobGroup);
+        Matcher<JobKey> matcher = KeyMatcher.keyEquals(jobKey);
         Scheduler scheduler = getScheduler();
-        TriggerKey triggerKey = new TriggerKey(triggerName,triggerGroup);
-        Matcher<TriggerKey> matcher = KeyMatcher.keyEquals(triggerKey);
-        scheduler.getListenerManager().addTriggerListener(listener,matcher);
+        scheduler.getListenerManager().removeJobListenerMatcher(name, matcher);
     }
 
-    public static void removeTriggerListener(String name,String triggerName,String triggerGroup) throws SchedulerException{
-        TriggerKey triggerKey = new TriggerKey(triggerName,triggerGroup);
+    public static void addTriggerListener(String triggerName, String triggerGroup, TriggerListener listener) throws SchedulerException {
+        Scheduler scheduler = getScheduler();
+        TriggerKey triggerKey = new TriggerKey(triggerName, triggerGroup);
+        Matcher<TriggerKey> matcher = KeyMatcher.keyEquals(triggerKey);
+        scheduler.getListenerManager().addTriggerListener(listener, matcher);
+    }
+
+    public static void removeTriggerListener(String name, String triggerName, String triggerGroup) throws SchedulerException {
+        TriggerKey triggerKey = new TriggerKey(triggerName, triggerGroup);
         Matcher<TriggerKey> matcher = KeyMatcher.keyEquals(triggerKey);
         Scheduler scheduler = getScheduler();
-        scheduler.getListenerManager().removeTriggerListenerMatcher(name,matcher);
+        scheduler.getListenerManager().removeTriggerListenerMatcher(name, matcher);
     }
 
     public static void removeJob(String jobName, String jobGroupName, String triggerName, String triggerGroupName) throws SchedulerException {

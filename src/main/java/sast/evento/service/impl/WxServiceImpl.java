@@ -38,6 +38,7 @@ public class WxServiceImpl implements WxService {
 
     @Resource
     private RestTemplate restTemplate;
+
     /* 获取stable_token，无需手动刷新,有效时间最少为5分钟 */
     public AccessTokenResponse getStableToken() {
         AccessTokenRequest request = new AccessTokenRequest()

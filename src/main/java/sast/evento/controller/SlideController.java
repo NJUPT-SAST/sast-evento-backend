@@ -2,7 +2,6 @@ package sast.evento.controller;
 
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import sast.evento.annotation.DefaultActionState;
 import sast.evento.annotation.EventId;
 import sast.evento.annotation.OperateLog;
@@ -49,7 +48,7 @@ public class SlideController {
     @DeleteMapping("/event/info")
     public String deleteEventSlide(@RequestParam @EventId Integer eventId,
                                    @RequestParam Integer slideId) {
-        slideService.deleteEventSlide(slideId,eventId);
+        slideService.deleteEventSlide(slideId, eventId);
         return "ok";
     }
 

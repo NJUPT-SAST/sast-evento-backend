@@ -6,7 +6,6 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 import sast.evento.model.EventModel;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -34,68 +33,68 @@ public interface EventModelMapper extends BaseMapper<EventModel> {
     List<EventModel> getEvents(@Param("index") Integer index, @Param("size") Integer size);
 
     /**
-     * @param monday Date
+     * @param monday     Date
      * @param nextMonday Date
      * @return 根据time选出活动列表
      * @author Aiden
      */
-    List<EventModel> getEventByTime(@Param("monday") Date monday,@Param("next_monday") Date nextMonday);
+    List<EventModel> getEventByTime(@Param("monday") Date monday, @Param("next_monday") Date nextMonday);
 
     /**
-     * @author Aiden
      * @param departmentId List<Integer>
      * @return 根据departmentId选出活动列表
+     * @author Aiden
      */
     List<EventModel> getEventByDepartmentId(@Param("department_id") List<Integer> departmentId);
 
     /**
-     * @author Aiden
      * @param departmentId List<Integer>
-     * @param monday Date
-     * @param nextMonday Date
+     * @param monday       Date
+     * @param nextMonday   Date
      * @return 根据departmentId和time选出活动列表
+     * @author Aiden
      */
-    List<EventModel> getEventByDepartmentIdAndTime(@Param("department_id")List<Integer> departmentId,
+    List<EventModel> getEventByDepartmentIdAndTime(@Param("department_id") List<Integer> departmentId,
                                                    @Param("monday") Date monday,
                                                    @Param("next_monday") Date nextMonday);
 
     /**
-     * @author Aiden
      * @param typeId List<Integer>
      * @return 根据typeId选出活动列表
+     * @author Aiden
      */
     List<EventModel> getEventByTypeId(@Param("type_id") List<Integer> typeId);
 
     /**
-     * @author Aiden
-     * @param typeId List<Integer>
-     * @param monday Date
+     * @param typeId     List<Integer>
+     * @param monday     Date
      * @param nextMonday Date
      * @return 根据typeId和time选出活动列表
+     * @author Aiden
      */
     List<EventModel> getEventByTypeIdAndTime(@Param("type_id") List<Integer> typeId,
                                              @Param("monday") Date monday,
                                              @Param("next_monday") Date nextMonday);
 
     /**
-     * @author Aiden
-     * @param typeId List<Integer>
+     * @param typeId       List<Integer>
      * @param departmentId List<Integer>
      * @return 根据typeId和departmentId选出活动列表
+     * @author Aiden
      */
-    List<EventModel> getEventByTypeIdAndDepartmentId(@Param("type_id")List<Integer> typeId,
-                                                     @Param("department_id")List<Integer> departmentId);
+    List<EventModel> getEventByTypeIdAndDepartmentId(@Param("type_id") List<Integer> typeId,
+                                                     @Param("department_id") List<Integer> departmentId);
 
     /**
-     * @author Aiden
-     * @param typeId List<Integer>
+     * @param typeId       List<Integer>
      * @param departmentId List<Integer>
-     * @param monday Date
-     * @param nextMonday Date
+     * @param monday       Date
+     * @param nextMonday   Date
      * @return 根据三个筛选条件选出活动列表
+     * @author Aiden
      */
-    List<EventModel> postForEventsByAll(@Param("type_id")List<Integer> typeId,
-                                        @Param("department_id")List<Integer> departmentId,
+    List<EventModel> postForEventsByAll(@Param("type_id") List<Integer> typeId,
+                                        @Param("department_id") List<Integer> departmentId,
                                         @Param("monday") Date monday,
                                         @Param("next_monday") Date nextMonday);
 

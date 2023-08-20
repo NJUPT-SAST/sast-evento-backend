@@ -1,7 +1,5 @@
 package sast.evento.controller;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import sast.evento.annotation.DefaultActionState;
@@ -20,12 +18,12 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/picture")
-public class PictureController{
+public class PictureController {
 
     @OperateLog("获取所有目录")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/dir")
-    public List<String> getDir(@RequestParam(defaultValue = "") String dir){
+    public List<String> getDir(@RequestParam(defaultValue = "") String dir) {
         return CosUtil.getDirs(dir);
     }
 
@@ -34,27 +32,27 @@ public class PictureController{
     @GetMapping("/list")
     public List<String> getUrls(@RequestParam(defaultValue = "") String dir,
                                 @RequestParam(defaultValue = "") String lastUrl,
-                                @RequestParam(defaultValue = "20") Integer size){
-        return CosUtil.getURLs(dir,lastUrl,size);
+                                @RequestParam(defaultValue = "20") Integer size) {
+        return CosUtil.getURLs(dir, lastUrl, size);
     }
 
     @OperateLog("添加图片")
     @DefaultActionState(ActionState.ADMIN)
     @PostMapping("/info")
     public String addPicture(MultipartFile picture,
-                             @RequestParam(defaultValue = "") String dir){
-        if(picture.isEmpty()){
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR,"picture file should not be empty");
+                             @RequestParam(defaultValue = "") String dir) {
+        if (picture.isEmpty()) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "picture file should not be empty");
         }
-        return CosUtil.upload(picture,dir);
+        return CosUtil.upload(picture, dir);
     }
 
     @OperateLog("删除图片")
     @DefaultActionState(ActionState.ADMIN)
     @DeleteMapping("/info")
-    public String deletePicture(@RequestParam String url){
-        if(url.isEmpty()){
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR,"picture url should not be empty");
+    public String deletePicture(@RequestParam String url) {
+        if (url.isEmpty()) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "picture url should not be empty");
         }
         CosUtil.delete(url);
         return "ok";

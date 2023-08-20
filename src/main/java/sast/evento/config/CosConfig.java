@@ -11,6 +11,10 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class CosConfig {
+    public static String secretId;
+    public static String secretKey;
+    public static String COS_REGION;
+    public static String bucketName;
     @Value("${cos.secretId}")
     private String secretIdValue;
     @Value("${cos.secretKey}")
@@ -20,16 +24,12 @@ public class CosConfig {
     @Value("${cos.bucketName}")
     private String bucketNameValue;
 
-    public static String secretId;
-    public static String secretKey;
-    public static String COS_REGION;
-    public static String bucketName;
     @PostConstruct
-    private void config(){
-        secretId=secretIdValue;
-        secretKey=secretKeyValue;
-        COS_REGION=cosRegion;
-        bucketName=bucketNameValue;
+    private void config() {
+        secretId = secretIdValue;
+        secretKey = secretKeyValue;
+        COS_REGION = cosRegion;
+        bucketName = bucketNameValue;
     }
 
 }

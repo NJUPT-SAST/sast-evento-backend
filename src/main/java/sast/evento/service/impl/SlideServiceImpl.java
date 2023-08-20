@@ -22,26 +22,26 @@ public class SlideServiceImpl implements SlideService {
     @Override
     public List<Slide> getEventSlides(Integer eventId) {
         return slideMapper.selectList(new LambdaQueryWrapper<Slide>()
-                .eq(Slide::getEventId,eventId));
+                .eq(Slide::getEventId, eventId));
     }
 
     @Override
     public Integer addEventSlide(Integer eventId, String url, String link, String title) {
-        Slide slide = new Slide(null,title,link,url,eventId);
+        Slide slide = new Slide(null, title, link, url, eventId);
         slideMapper.insert(slide);
         return slide.getId();
     }
 
     @Override
-    public void deleteEventSlide(Integer slideId,Integer eventId) {
+    public void deleteEventSlide(Integer slideId, Integer eventId) {
         slideMapper.delete(new LambdaQueryWrapper<Slide>()
-                .eq(Slide::getEventId,eventId)
-                .and(wrapper -> wrapper.eq(Slide::getId,slideId)));
+                .eq(Slide::getEventId, eventId)
+                .and(wrapper -> wrapper.eq(Slide::getId, slideId)));
     }
 
     @Override
     public void patchEventSlide(Integer eventId, Integer slideId, String url, String link, String title) {
-        slideMapper.updateSlide(eventId,slideId,url,link,title);
+        slideMapper.updateSlide(eventId, slideId, url, link, title);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class SlideServiceImpl implements SlideService {
 
     @Override
     public void deleteHomeSlide(Integer slideId) {
-        deleteEventSlide(slideId,0);
+        deleteEventSlide(slideId, 0);
     }
 
     @Override

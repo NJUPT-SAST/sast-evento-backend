@@ -1,18 +1,20 @@
 package sast.evento.service.impl;
 
 import jakarta.annotation.Resource;
-import sast.evento.entitiy.Feedback;
+import org.springframework.stereotype.Service;
 import sast.evento.mapper.FeedbackMapper;
 import sast.evento.model.FeedbackModel;
 import sast.evento.service.FeedBackService;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @projectName: sast-evento-backend
  * @author: mio
  * @date: 2023/8/10 22:51
  */
+@Service
 public class FeedBackServiceImpl implements FeedBackService {
     @Resource
     private FeedbackMapper feedbackMapper;
@@ -39,5 +41,12 @@ public class FeedBackServiceImpl implements FeedBackService {
     @Override
     public String deleteFeedback(Integer feedbackId) {
         return null;
+    }
+
+    // 管理端获取活动及其反馈数量列表
+    @Override
+    public List<Map<String, Integer>> getFeedbackEvents(Integer page, Integer size) {
+        Integer index = (page - 1) * size;
+        return feedbackMapper.getFeedbackEvents(index, size);
     }
 }

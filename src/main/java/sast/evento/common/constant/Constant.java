@@ -10,5 +10,4 @@ public class Constant {
     public static final String wxSubscribeURL = "https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token={}";
 
 
-
 }
