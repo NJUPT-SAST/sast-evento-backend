@@ -7,8 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 @MapperScan("sast.evento.mapper")
 public class SastEventoBackendApplication {
-	public static void main(String[] args) {
-		SpringApplication.run(SastEventoBackendApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(SastEventoBackendApplication.class, args);
+    }
 
 }

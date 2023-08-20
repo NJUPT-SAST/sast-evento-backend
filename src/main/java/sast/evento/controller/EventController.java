@@ -1,5 +1,6 @@
 package sast.evento.controller;
 
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 import sast.evento.annotation.DefaultActionState;
 import sast.evento.annotation.EventId;
@@ -11,14 +12,17 @@ import sast.evento.exception.LocalRunTimeException;
 import sast.evento.interceptor.HttpInterceptor;
 import sast.evento.model.EventModel;
 import sast.evento.model.UserProFile;
+import sast.evento.service.EventService;
 
 import java.awt.image.BufferedImage;
-import java.util.Date;
 import java.util.List;
 
 @RestController
 @RequestMapping("/event")
 public class EventController {
+
+    @Resource
+    private EventService eventService;
 
     /* 由后端生成部分信息置于二维码，userId需要前端填充 */
     @OperateLog("签到")
@@ -37,26 +41,40 @@ public class EventController {
         return null;
     }
 
+    /**
+     *
+     */
     @OperateLog("查看所有正在进行的活动列表")
     @DefaultActionState(ActionState.PUBLIC)
     @GetMapping("/conducting")
     public List<EventModel> getConducting() {
-        return null;
+        return eventService.getConducting();
     }
 
-    @OperateLog("查看最新活动列表")
+    /**
+     *
+     */
+    @OperateLog("查看最新活动列表（按开始时间正序排列未开始的活动）")
     @DefaultActionState(ActionState.PUBLIC)
     @GetMapping("/newest")
     public List<EventModel> getNewest() {
-        return null;
+        return eventService.getNewest();
     }
 
+    /**
+     *
+     */
     @OperateLog("查看用户历史活动列表（参加过已结束）")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/history")
     public List<EventModel> getHistory() {
         UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        return null;
+        if (userProFile == null) {
+            return null;
+        }
+        String userIdStr = userProFile.getUserId();
+        Integer userIdInt = Integer.valueOf(userIdStr);
+        return eventService.getHistory(userIdInt);
     }
 
     @OperateLog("删除活动")
@@ -66,11 +84,14 @@ public class EventController {
         return null;
     }
 
+    /**
+     *
+     */
     @OperateLog("获取活动详情")
     @DefaultActionState(ActionState.PUBLIC)/* 这里为public,eventId注解没什么用 */
     @GetMapping("/info")
     public EventModel getEvent(@RequestParam @EventId Integer eventId) {
-        return null;
+        return eventService.getEvent(eventId);
     }
 
     @OperateLog("取消活动（部分修改活动信息）")
@@ -102,23 +123,30 @@ public class EventController {
         return null;
     }
 
+    /**
+     *
+     */
     @OperateLog("获取活动列表")
     @DefaultActionState(ActionState.PUBLIC)
     @GetMapping("/list")
     public List<EventModel> getEvents(@RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
                                       @RequestParam(value = "size", required = false, defaultValue = "10") Integer size) {
-        return null;
+        return eventService.getEvents(page, size);
     }
 
     @OperateLog("获取活动列表(筛选)")
     @DefaultActionState(ActionState.PUBLIC)
     @PostMapping("/list")
-    public List<EventModel> postForEvents(@RequestParam(required = false) Boolean filterByUser,
-                                          @RequestParam(required = false) List<Integer> typeId,
+    public List<EventModel> postForEvents(@RequestParam(required = false) List<Integer> typeId,
                                           @RequestParam(required = false) List<Integer> departmentId,
-                                          @RequestParam(required = false) Date time) {
+                                          @RequestParam(required = false) String time) {
         UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        return null;
+        // 获取未处理location的初步活动列表
+        List<EventModel> eventModels = eventService.postForEvents(typeId, departmentId, time);
+        // 获取所有处理location后的活动列表
+        return eventService.exchangeLocationOfEvents(eventModels);
+        // 处理location，从string类型的location_id转换成地址
+
     }
 
 }

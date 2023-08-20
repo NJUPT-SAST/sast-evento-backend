@@ -13,13 +13,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin")
-public class AdminController{
+public class AdminController {
 
     @OperateLog("添加活动地点")
     @DefaultActionState(ActionState.ADMIN)
     @PostMapping("/location")
     public String addLocation(@RequestBody Location location) {
-        if(location.getId() != null) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR,"id should be null.");
+        if (location.getId() != null) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "id should be null.");
         return null;
     }
 
@@ -44,7 +44,7 @@ public class AdminController{
     @PutMapping("/location")
     public String updateLocation(@RequestParam Integer locationId,
                                  @RequestBody Location location) {
-        if(!location.getId().equals(locationId)) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR,"invalid id");
+        if (!location.getId().equals(locationId)) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid id");
         /* 比较复杂，谨慎修改 */
         return null;
 
@@ -54,7 +54,7 @@ public class AdminController{
     @DefaultActionState(ActionState.ADMIN)
     @PostMapping("/type")
     public String addType(@RequestBody EventType type) {
-        if(type.getId() != null) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR,"id should be null");
+        if (type.getId() != null) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "id should be null");
         return null;
     }
 
@@ -68,8 +68,8 @@ public class AdminController{
     @OperateLog("获取活动类型")
     @DefaultActionState(ActionState.ADMIN)
     @GetMapping("/types")
-    public List<EventType> getTypes(@RequestParam(value = "page", required = false,defaultValue = "1") Integer page,
-                                    @RequestParam(value = "size", required = false,defaultValue = "10") Integer size) {
+    public List<EventType> getTypes(@RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+                                    @RequestParam(value = "size", required = false, defaultValue = "10") Integer size) {
         return null;
     }
 
@@ -78,7 +78,7 @@ public class AdminController{
     @PutMapping("/type")
     public String updateType(@RequestParam Integer typeId,
                              @RequestBody EventType type) {
-        if(!type.getId().equals(typeId)) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR,"invalid id");
+        if (!type.getId().equals(typeId)) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid id");
         return null;
     }
 

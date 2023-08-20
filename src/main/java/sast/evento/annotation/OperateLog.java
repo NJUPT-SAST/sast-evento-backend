@@ -16,6 +16,7 @@ import java.lang.annotation.Target;
 public @interface OperateLog {
     @AliasFor(attribute = "description")
     String value() default "";
+
     @AliasFor(attribute = "value")
     String description() default "";
 }

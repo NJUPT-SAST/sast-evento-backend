@@ -18,7 +18,7 @@ public class FeedbackModel {
 
     private String content;
 
-    private Integer score;
+    private Double score;
 
     private Integer eventId;
 

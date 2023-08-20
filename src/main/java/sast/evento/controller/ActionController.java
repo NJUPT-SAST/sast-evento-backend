@@ -41,7 +41,7 @@ public class ActionController {
     public String updateAction(@RequestParam String methodName,
                                @RequestParam(required = false) String actionState,
                                @RequestParam(required = false) String group) {
-        if(methodName.equals("updateAction")){
+        if (methodName.equals("updateAction")) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "warning, unsupported service");
         }
         Action action = Optional.ofNullable(actionService.getAction(methodName))

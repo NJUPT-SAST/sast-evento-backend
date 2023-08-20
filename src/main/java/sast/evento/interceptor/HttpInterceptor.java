@@ -35,6 +35,7 @@ import java.util.Optional;
  */
 @Component
 public class HttpInterceptor implements HandlerInterceptor {
+    public static ThreadLocal<UserProFile> userProFileHolder = new ThreadLocal<>();
     @Resource
     private ActionService actionService;
     @Resource
@@ -43,7 +44,6 @@ public class HttpInterceptor implements HandlerInterceptor {
     private PermissionService permissionService;
     @Resource
     private JwtUtil jwtUtil;
-    public static ThreadLocal<UserProFile> userProFileHolder = new ThreadLocal<>();
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -87,7 +87,9 @@ public class HttpInterceptor implements HandlerInterceptor {
                 }
             }
         }
-        UserProFile userProFile = sastLinkServiceCacheAble.getUserProFile(userId);//todo 等待对接sastLink
+//        UserProFile userProFile = sastLinkServiceCacheAble.getUserProFile(userId);//todo 等待对接sastLink
+        UserProFile userProFile = new UserProFile();
+        userProFile.setUserId("1");
         userProFileHolder.set(userProFile);
         return true;
     }

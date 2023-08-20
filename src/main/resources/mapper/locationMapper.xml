@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="sast.evento.mapper.LocationMapper">
+
+    <select id="getLocationName" resultType="java.lang.String">
+        WITH RECURSIVE location_tree (id, location_name, parent_id, full_location) AS (SELECT l1.id,
+                                                                                              l1.location_name,
+                                                                                              l1.parent_id,
+                                                                                              CAST(location_name AS CHAR(200))
+                                                                                       FROM location l1
+                                                                                       WHERE l1.id = #{locationId}
+                                                                                       UNION ALL
+                                                                                       SELECT l.id,
+                                                                                              l.location_name,
+                                                                                              l.parent_id,
+                                                                                              CONCAT(l.location_name, ' ', lt.full_location)
+                                                                                       FROM location l
+                                                                                                INNER JOIN
+                                                                                            location_tree lt ON l.id = lt.parent_id)
+
+        SELECT full_location
+        FROM location_tree
+        WHERE parent_id = 0
+    </select>
+
+</mapper>

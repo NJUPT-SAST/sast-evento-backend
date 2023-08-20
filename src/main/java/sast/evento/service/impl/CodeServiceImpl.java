@@ -22,6 +22,7 @@ public class CodeServiceImpl implements CodeService {
     /* 基础的二维码和验证服务 */
     private static final Map<Integer, String> eventId2Code = new HashMap<>();
     private static final Map<Integer, BufferedImage> eventId2QrCode = new HashMap<>();
+
     /* 刷新是交给job负责的,使用时最好只访问get */
     @Override
     public BufferedImage refreshCode(Integer eventId) {
@@ -63,7 +64,7 @@ public class CodeServiceImpl implements CodeService {
 
     @Override
     public void deleteCode(Integer eventId) {
-        if(!eventId2Code.containsKey(eventId)){
+        if (!eventId2Code.containsKey(eventId)) {
             throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "no match eventId");
         }
         eventId2Code.remove(eventId);

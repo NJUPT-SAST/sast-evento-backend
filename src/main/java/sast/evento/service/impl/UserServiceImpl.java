@@ -31,7 +31,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserByStudentId(String studentId) {
         return userMapper.selectOne(new LambdaQueryWrapper<User>()
-                .eq(User::getStudentId,studentId));
+                .eq(User::getStudentId, studentId));
     }
 
     @Override
