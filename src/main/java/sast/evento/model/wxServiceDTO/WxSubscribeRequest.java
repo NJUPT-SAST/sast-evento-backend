@@ -1,5 +1,6 @@
 package sast.evento.model.wxServiceDTO;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,17 +22,23 @@ public class WxSubscribeRequest {
     private String template_id;
     private String page;
     private String touser;//openId
-    private Map<String, Map<String, String>> data;
+    private Map<String, WxDataNode> data;
     private String miniprogram_state = "developer";//formal
     private String lang = "zh_CN";
 
-    public static Map<String, Map<String, String>> getData(Map<String, String> dataMap) {
-        Map<String, Map<String, String>> map = new HashMap<>();
-        dataMap.forEach((key, value) -> {
-            Map<String, String> stringMap = new HashMap<>();
-            stringMap.put("value", value);
-            map.put(key, stringMap);
-        });
-        return map;
+    @JsonIgnore
+    public static Map<String, WxDataNode> getData(Map<String, String> dataMap) {
+        return dataMap.entrySet().stream()
+                .collect(
+                        HashMap::new,
+                        (map, entry) -> map.put(entry.getKey(), new WxDataNode(entry.getValue())),
+                        Map::putAll
+                );
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class WxDataNode {
+        String value;
     }
 }
