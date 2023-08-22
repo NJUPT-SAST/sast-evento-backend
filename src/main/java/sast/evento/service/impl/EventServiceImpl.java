@@ -1,5 +1,6 @@
 package sast.evento.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import sast.evento.common.enums.ErrorEnum;
@@ -93,6 +94,7 @@ public class EventServiceImpl implements EventService {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
         /* 检测必需参数是否存在 */
+        // TODO 判断时间是否合法
         if (
                 (event.getTitle() == null) ||
                 (event.getGmtEventStart() == null) ||
@@ -135,7 +137,10 @@ public class EventServiceImpl implements EventService {
         if (event == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
-        return eventMapper.updateById(event) > 0;
+        // TODO 判断时间是否合法
+        UpdateWrapper<Event> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("id", event.getId());
+        return eventMapper.update(event, updateWrapper) > 0;
     }
 
 

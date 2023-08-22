@@ -1,5 +1,6 @@
 package sast.evento.controller;
 
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 import sast.evento.annotation.DefaultActionState;
 import sast.evento.annotation.OperateLog;
@@ -8,12 +9,15 @@ import sast.evento.common.enums.ErrorEnum;
 import sast.evento.entitiy.EventType;
 import sast.evento.entitiy.Location;
 import sast.evento.exception.LocalRunTimeException;
+import sast.evento.service.EventTypeService;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/admin")
 public class AdminController{
+    @Resource
+    private EventTypeService eventTypeService;
 
     @OperateLog("添加活动地点")
     @DefaultActionState(ActionState.ADMIN)
@@ -55,22 +59,21 @@ public class AdminController{
     @PostMapping("/type")
     public String addType(@RequestBody EventType type) {
         if(type.getId() != null) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR,"id should be null");
-        return null;
+        return eventTypeService.addEventType(type).toString();
     }
 
     @OperateLog("删除活动类型")
     @DefaultActionState(ActionState.ADMIN)
     @DeleteMapping("/type")
     public String deleteType(@RequestParam Integer typeId) {
-        return null;
+        return eventTypeService.deleteEventType(typeId).toString();
     }
 
     @OperateLog("获取活动类型")
     @DefaultActionState(ActionState.ADMIN)
     @GetMapping("/types")
-    public List<EventType> getTypes(@RequestParam(value = "page", required = false,defaultValue = "1") Integer page,
-                                    @RequestParam(value = "size", required = false,defaultValue = "10") Integer size) {
-        return null;
+    public List<EventType> getTypes() {
+        return eventTypeService.getAllEventType();
     }
 
     @OperateLog("修改活动类型")
@@ -79,7 +82,7 @@ public class AdminController{
     public String updateType(@RequestParam Integer typeId,
                              @RequestBody EventType type) {
         if(!type.getId().equals(typeId)) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR,"invalid id");
-        return null;
+        return eventTypeService.editEventType(type).toString();
     }
 
 }

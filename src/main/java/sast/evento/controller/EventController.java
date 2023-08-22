@@ -97,13 +97,13 @@ public class EventController {
         return eventService.getEvent(eventId);
     }
 
-    @OperateLog("取消活动（部分修改活动信息）")
+    @OperateLog("取消活动")
     @DefaultActionState(ActionState.MANAGER)
     @PatchMapping("/info")
     public String patchEvent(@RequestParam @EventId Integer eventId,
                              @RequestBody Event event) {
         if (!event.getId().equals(eventId)) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid id.");
-        return eventService.deleteEvent(eventId).toString();
+        return eventService.cancelEvent(eventId).toString();
     }
 
     @OperateLog("发起活动（添加活动）")
