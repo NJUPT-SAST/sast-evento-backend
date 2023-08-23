@@ -9,7 +9,9 @@ import sast.evento.common.enums.ErrorEnum;
 import sast.evento.entitiy.EventType;
 import sast.evento.entitiy.Location;
 import sast.evento.exception.LocalRunTimeException;
+import sast.evento.model.treeDataNodeDTO.TreeDataNode;
 import sast.evento.service.EventTypeService;
+import sast.evento.service.LocationService;
 
 import java.util.List;
 
@@ -18,29 +20,30 @@ import java.util.List;
 public class AdminController{
     @Resource
     private EventTypeService eventTypeService;
+    @Resource
+    private LocationService locationService;
 
     @OperateLog("添加活动地点")
     @DefaultActionState(ActionState.ADMIN)
     @PostMapping("/location")
     public String addLocation(@RequestBody Location location) {
         if(location.getId() != null) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR,"id should be null.");
-        return null;
+        return locationService.addLocation(location).toString();
     }
 
     @OperateLog("删除活动地点")
     @DefaultActionState(ActionState.ADMIN)
     @DeleteMapping("/location")
     public String deleteLocation(@RequestParam Integer locationId) {
-        return null;
+        return locationService.deleteLocation(locationId).toString();
     }
 
     @OperateLog("获取活动地点")
     @DefaultActionState(ActionState.ADMIN)
     @GetMapping("/locations")
-    public Object getLocations(@RequestParam Integer locationId) {
-        /* 请和前端协商后决定传参方式如:0-0-1 */
-        /* 以树状结构返回，和前端商讨参数和返回格式 */
-        return null;
+    public List<TreeDataNode> getLocations() {
+        /* 以树状结构返回 */
+        return locationService.getLocations();
     }
 
     @OperateLog("修改活动地点")
@@ -50,7 +53,7 @@ public class AdminController{
                                  @RequestBody Location location) {
         if(!location.getId().equals(locationId)) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR,"invalid id");
         /* 比较复杂，谨慎修改 */
-        return null;
+        return locationService.updateLocation(location).toString();
 
     }
 
