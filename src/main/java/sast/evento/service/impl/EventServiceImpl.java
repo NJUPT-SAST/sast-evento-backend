@@ -94,14 +94,16 @@ public class EventServiceImpl implements EventService {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
         /* 检测必需参数是否存在 */
-        // TODO 判断时间是否合法
         if (
                 (event.getTitle() == null) ||
                 (event.getGmtEventStart() == null) ||
                 (event.getGmtEventEnd() == null) ||
                 (event.getGmtRegistrationStart() == null) ||
                 (event.getGmtRegistrationEnd() == null)) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "id should be null.");
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "title or time should be null.");
+        }
+        if (!timeCheck(event)) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid time.");
         }
         /* 检测 null 参数是否存在 */
         if (event.getDescription() == null) {
@@ -137,7 +139,9 @@ public class EventServiceImpl implements EventService {
         if (event == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
-        // TODO 判断时间是否合法
+        if (!timeCheck(event)) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid time.");
+        }
         UpdateWrapper<Event> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("id", event.getId());
         return eventMapper.update(event, updateWrapper) > 0;
@@ -155,4 +159,7 @@ public class EventServiceImpl implements EventService {
         return eventMapper.updateById(event) > 0;
     }
 
+    private Boolean timeCheck(Event event) {
+        return !event.getGmtEventStart().after(event.getGmtEventEnd()) && !event.getGmtRegistrationStart().after(event.getGmtRegistrationEnd());
+    }
 }

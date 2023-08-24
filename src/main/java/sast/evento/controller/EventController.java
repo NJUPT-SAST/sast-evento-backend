@@ -115,7 +115,6 @@ public class EventController {
         /* 记得给自己加活动权限鸭喵 */
         /* 检测内容不为null的部分添加 */
         Integer eventId = eventService.addEvent(event);
-        // TODO methodNames 参数补充; studentId 从 LINK 中获取
         String[] methods = {"putEvent", "patchEvent"};
         List<String> methodNames = new ArrayList<>(Arrays.asList(methods));
         permissionService.addManager(eventId, methodNames, userProFile.getUserId(), null);

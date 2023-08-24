@@ -24,6 +24,7 @@ public class LocationServiceImpl implements LocationService {
         if (location == null || location.getLocationName() == null || location.getParentId() == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
+        checkParentId(location);
         return locationMapper.insert(location) > 0;
     }
 
@@ -37,6 +38,7 @@ public class LocationServiceImpl implements LocationService {
         if (location == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
+        checkParentId(location);
         UpdateWrapper<Location> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("id", location.getId());
         return locationMapper.update(location, updateWrapper) > 0;
@@ -64,5 +66,11 @@ public class LocationServiceImpl implements LocationService {
                             treeDataNodes.add(node);
                         },
                         List::addAll);
+    }
+    private void checkParentId(Location location) {
+        Integer parentId = location.getParentId();
+        if (parentId != 0 && locationMapper.selectById(parentId) == null) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parent_id do not exist");
+        }
     }
 }
