@@ -1,5 +1,6 @@
 package sast.evento;
 
+import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -14,11 +15,12 @@ import sast.evento.model.treeDataNodeDTO.TreeDataNode;
 import sast.evento.model.wxServiceDTO.AccessTokenRequest;
 import sast.evento.model.wxServiceDTO.WxSubscribeRequest;
 import sast.evento.service.CodeService;
+import sast.evento.service.LoginService;
 import sast.evento.service.QrCodeCheckInService;
-import sast.evento.utils.JsonUtil;
-import sast.evento.utils.JwtUtil;
-import sast.evento.utils.QRCodeUtil;
-import sast.evento.utils.SpringContextUtil;
+import sast.evento.utils.*;
+import sast.sastlink.sdk.model.UserInfo;
+import sast.sastlink.sdk.service.SastLinkService;
+import sast.sastlink.sdk.service.impl.RestTemplateSastLinkService;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -26,8 +28,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static sast.sastlink.sdk.enums.GrantType.REFRESH_TOKEN;
+import static sast.sastlink.sdk.enums.SastLinkApi.ACCESS_TOKEN;
+
 @SpringBootTest
 class SastEventoBackendApplicationTests {
+    @Resource
+    private RestTemplateSastLinkService sastLinkService;
+    @Resource
+    private LoginService loginService;
+    @Resource
+    private RedisUtil redisUtil;
 
     @Test
     void genereateToken() {
@@ -90,11 +101,11 @@ class SastEventoBackendApplicationTests {
     }
 
     @Test
-    void CosUtilTest() {
+    void RedisTest() {
     }
 
     @Test
-    void TreeJsonTest() {
+    void SastLinkTest() {
     }
 
 

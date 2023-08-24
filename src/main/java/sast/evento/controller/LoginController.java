@@ -1,14 +1,17 @@
 package sast.evento.controller;
 
 import jakarta.annotation.Resource;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import sast.evento.annotation.DefaultActionState;
 import sast.evento.annotation.OperateLog;
 import sast.evento.common.enums.ActionState;
-import sast.evento.service.SastLinkServiceCacheAble;
+import sast.evento.common.enums.ErrorEnum;
+import sast.evento.exception.LocalRunTimeException;
+import sast.evento.interceptor.HttpInterceptor;
+import sast.evento.model.UserProFile;
+import sast.evento.service.LoginService;
+
+import java.util.Map;
 
 /**
  * @projectName: sast-evento-backend
@@ -16,24 +19,44 @@ import sast.evento.service.SastLinkServiceCacheAble;
  * @date: 2023/7/14 19:31
  */
 @RestController
-@RequestMapping("/login")
+@RequestMapping("/user")
 public class LoginController {
-
     @Resource
-    private SastLinkServiceCacheAble sastLinkServiceCacheAble;
+    private LoginService loginService;
 
-    @OperateLog("link登录")
-    @PostMapping("/link")
+    @OperateLog("Link登录")
+    @PostMapping("/login/link")
     @DefaultActionState(ActionState.PUBLIC)
-    public String linkLogin(@RequestParam String code) {
-        return sastLinkServiceCacheAble.linkLogin(code);//todo 对接sast link
+    public Map<String, Object> linkLogin(@RequestParam String code) {
+        if (code == null || code.isEmpty()) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid code");
+        }
+        return loginService.linkLogin(code);
     }
 
-    @OperateLog("wx登录")
-    @PostMapping("/wx")
+    @OperateLog("微信登录")
+    @PostMapping("/login/wx")
     @DefaultActionState(ActionState.PUBLIC)
-    public String wxLogin(@RequestParam String code) {
-        return sastLinkServiceCacheAble.wxLogin(code);//todo 对接sast link
+    public Map<String, Object> wxLogin(@RequestParam(defaultValue = "") String email,
+                                       @RequestParam(defaultValue = "") String password,
+                                       @RequestParam String codeChallenge,
+                                       @RequestParam String codeChallengeMethod) {
+        if (email.isEmpty()) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid email");
+        }
+        if (password.isEmpty()) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid password");
+        }
+        return loginService.wxLogin(email, password, codeChallenge, codeChallengeMethod);
+    }
+
+    @OperateLog("登出")
+    @GetMapping("/logout")
+    @DefaultActionState(ActionState.LOGIN)
+    public String logout() {
+        UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
+        loginService.logout(userProFile.getUserId());
+        return "ok";
     }
 
 

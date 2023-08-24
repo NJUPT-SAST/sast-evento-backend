@@ -17,8 +17,9 @@ import sast.evento.model.Action;
 import sast.evento.model.UserProFile;
 import sast.evento.service.ActionService;
 import sast.evento.service.PermissionService;
-import sast.evento.service.SastLinkServiceCacheAble;
+import sast.evento.service.LoginService;
 import sast.evento.utils.JwtUtil;
+import sast.sastlink.sdk.model.UserInfo;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -39,7 +40,7 @@ public class HttpInterceptor implements HandlerInterceptor {
     @Resource
     private ActionService actionService;
     @Resource
-    private SastLinkServiceCacheAble sastLinkServiceCacheAble;
+    private LoginService loginService;
     @Resource
     private PermissionService permissionService;
     @Resource
@@ -87,9 +88,10 @@ public class HttpInterceptor implements HandlerInterceptor {
                 }
             }
         }
-//        UserProFile userProFile = sastLinkServiceCacheAble.getUserProFile(userId);//todo 等待对接sastLink
+        UserInfo userInfo = loginService.getUserInfo(userId);
         UserProFile userProFile = new UserProFile();
-        userProFile.setUserId("1");
+        userProFile.setUserId(userInfo.getUserId());
+        userProFile.setEmail(userInfo.getUserId());
         userProFileHolder.set(userProFile);
         return true;
     }

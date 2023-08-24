@@ -18,6 +18,14 @@
     </properties>
     <dependencies>
         <dependency>
+            <groupId>link.sast</groupId>
+            <artifactId>SastLink-Java-SDK</artifactId>
+            <type>jar</type>
+            <version>0.0.1</version>
+            <scope>system</scope>
+            <systemPath>${pom.basedir}/lib/SastLink-Java-SDK-0.0.1.jar</systemPath>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
