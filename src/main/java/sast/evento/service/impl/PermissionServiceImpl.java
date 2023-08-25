@@ -13,7 +13,6 @@ import sast.evento.mapper.PermissionMapper;
 import sast.evento.mapper.UserMapper;
 import sast.evento.model.Action;
 import sast.evento.model.treeDataNodeDTO.AntDesignTreeDataNode;
-import sast.evento.model.treeDataNodeDTO.SemiTreeDataNode;
 import sast.evento.model.treeDataNodeDTO.TreeDataNode;
 import sast.evento.service.PermissionService;
 import sast.evento.service.PermissionServiceCacheAble;
@@ -33,11 +32,19 @@ public class PermissionServiceImpl implements PermissionService {
     private PermissionMapper permissionMapper;
     @Resource
     private UserMapper userMapper;
+    /* 设置所有不需要管理的默认权限 */
+    public static final List<String> defaultManagerPermission = List.of(
+            "getAllManagerPermissionsAsTree", "getAllManagerPermissions",
+            "getUserManagerPermissions", "getUserManagerPermissAsList");
+    public static final List<String> defaultAdminPermission = List.of(
+            "getUserAdminPermissions", "getAllAdminPermissions",
+            "getAllAdminPermissionsAsTree", "getUserAdminPermissAsList");
 
     @Override
     public List<Action> getAllAdminPermissions() {
         return ActionRegister.actionName2action.values().stream()
                 .filter(action -> action.getActionState().equals(ActionState.ADMIN))
+                .filter(action -> !defaultAdminPermission.contains(action.getMethodName()))
                 .toList();
     }
 
@@ -50,6 +57,7 @@ public class PermissionServiceImpl implements PermissionService {
     public List<Action> getAllManagerPermissions() {
         return ActionRegister.actionName2action.values().stream()
                 .filter(action -> action.getActionState().equals(ActionState.MANAGER))
+                .filter(action -> !defaultManagerPermission.contains(action.getMethodName()))
                 .toList();
     }
 
@@ -65,6 +73,7 @@ public class PermissionServiceImpl implements PermissionService {
                     .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "studentId no exist"));
         }
         Permission permission = new Permission();
+        methodNames.addAll(defaultAdminPermission);
         permission.setMethodNames(methodNames);
         permission.setEventId(0);
         permission.setUserId(userId);
@@ -93,6 +102,7 @@ public class PermissionServiceImpl implements PermissionService {
         }
         Permission permission = new Permission();
         permission.setMethodNames(methodNames);
+        methodNames.addAll(defaultAdminPermission);
         permission.setEventId(0);
         permission.setUserId(userId);
         permissionServiceCacheAble.updatePermission(permission);
@@ -105,6 +115,7 @@ public class PermissionServiceImpl implements PermissionService {
                     .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "studentId no exist"));
         }
         return permissionServiceCacheAble.getPermission(userId, 0).getMethodNames().stream()
+                .filter(methodName -> !defaultAdminPermission.contains(methodName))
                 .map(methodName -> ActionRegister.actionName2action.get(methodName))
                 .toList();
     }
@@ -115,7 +126,9 @@ public class PermissionServiceImpl implements PermissionService {
             userId = Optional.ofNullable(getUserByStudentId(studentId).getUserId())
                     .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "studentId no exist"));
         }
-        return permissionServiceCacheAble.getPermission(userId,0).getMethodNames();
+        return permissionServiceCacheAble.getPermission(userId, 0).getMethodNames().stream()
+                .filter(methodName -> !defaultAdminPermission.contains(methodName))
+                .toList();
     }
 
     @Override
@@ -126,6 +139,7 @@ public class PermissionServiceImpl implements PermissionService {
         }
         Permission permission = new Permission();
         permission.setMethodNames(methodNames);
+        methodNames.addAll(defaultManagerPermission);
         permission.setEventId(eventId);
         permission.setUserId(userId);
         permissionServiceCacheAble.addPermission(permission);
@@ -153,6 +167,7 @@ public class PermissionServiceImpl implements PermissionService {
         }
         Permission permission = new Permission();
         permission.setMethodNames(methodNames);
+        methodNames.addAll(defaultManagerPermission);
         permission.setEventId(eventId);
         permission.setUserId(userId);
         permissionServiceCacheAble.updatePermission(permission);
@@ -165,6 +180,7 @@ public class PermissionServiceImpl implements PermissionService {
                     .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "studentId no exist"));
         }
         return permissionServiceCacheAble.getPermission(userId, eventId).getMethodNames().stream()
+                .filter(methodName -> !defaultManagerPermission.contains(methodName))
                 .map(methodName -> ActionRegister.actionName2action.get(methodName))
                 .toList();
     }
@@ -175,7 +191,9 @@ public class PermissionServiceImpl implements PermissionService {
             userId = Optional.ofNullable(getUserByStudentId(studentId).getUserId())
                     .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "studentId no exist"));
         }
-        return permissionServiceCacheAble.getPermission(userId,eventId).getMethodNames();
+        return permissionServiceCacheAble.getPermission(userId, eventId).getMethodNames().stream()
+                .filter(methodName -> !defaultManagerPermission.contains(methodName))
+                .toList();
     }
 
     @Override
@@ -211,9 +229,9 @@ public class PermissionServiceImpl implements PermissionService {
                 .anyMatch(methodName::equals);
     }
 
-    private TreeDataNode getNode(String title,String value,String key){
+    private TreeDataNode getNode(String title, String value, String key) {
         //todo 对接前端客户端
-        return new AntDesignTreeDataNode(title,value,null);
+        return new AntDesignTreeDataNode(title, value, null);
         //return new SemiTreeDataNode(title,value,key);
     }
 
@@ -225,7 +243,7 @@ public class PermissionServiceImpl implements PermissionService {
                             String groupName = action.getGroup();
                             if (!map.containsKey(groupName)) map.put(groupName, new ArrayList<>());
                             map.get(groupName).add(
-                                    getNode(action.getDescription(),action.getMethodName(),action.getMethodName())
+                                    getNode(action.getDescription(), action.getMethodName(), action.getMethodName())
                             );
                         },
                         Map::putAll);
@@ -233,7 +251,7 @@ public class PermissionServiceImpl implements PermissionService {
                 .collect(
                         ArrayList::new,
                         (treeDataNodes, s) -> {
-                            TreeDataNode node = getNode(s,s,s);
+                            TreeDataNode node = getNode(s, s, s);
                             node.addChildren(nodeMap.get(s));
                             treeDataNodes.add(node);
                         },
