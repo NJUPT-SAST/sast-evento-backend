@@ -12,6 +12,7 @@ import sast.evento.exception.LocalRunTimeException;
 import sast.evento.interceptor.HttpInterceptor;
 import sast.evento.model.EventModel;
 import sast.evento.model.UserProFile;
+import sast.evento.service.EventDepartmentService;
 import sast.evento.service.EventService;
 import sast.evento.service.PermissionService;
 
@@ -28,6 +29,8 @@ public class EventController {
     @Resource
     private EventService eventService;
 
+    @Resource
+    private EventDepartmentService eventDepartmentService;
     @Resource
     private PermissionService permissionService;
 
@@ -88,7 +91,13 @@ public class EventController {
     @DefaultActionState(ActionState.MANAGER)
     @DeleteMapping("/info")
     public String deleteEvent(@RequestParam @EventId Integer eventId) {
-        return eventService.deleteEvent(eventId).toString();
+        if (!eventService.deleteEvent(eventId)) {
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "delete event failed");
+        }
+        if (!eventDepartmentService.deleteEventDepartmentsByEventId(eventId)) {
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "delete eventDepartment failed");
+        }
+        return "success";
     }
 
     /**
@@ -113,13 +122,17 @@ public class EventController {
     @OperateLog("发起活动（添加活动）")
     @DefaultActionState(ActionState.ADMIN)
     @PostMapping("/info")
-    public String addEvent(@RequestBody Event event) {
-        if (event.getId() != null) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "id should be null.");
+    public String addEvent(@RequestBody EventModel eventModel) {
+        if (eventModel.getId() != null) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "id should be null.");
         UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
         /* 记得给自己加活动权限鸭喵 */
         /* 检测内容不为null的部分添加 */
+        Event event = new Event(eventModel);
         Integer eventId = eventService.addEvent(event);
-        String[] methods = {"putEvent", "patchEvent"};
+        if (!eventDepartmentService.addEventDepartments(eventId, eventModel.getDepartments())) {
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "add eventDepartment failed");
+        }
+        String[] methods = {"addEvent", "putEvent", "patchEvent", "deleteEvent"};
         List<String> methodNames = new ArrayList<>(Arrays.asList(methods));
         permissionService.addManager(eventId, methodNames, userProFile.getUserId(), null);
         return "success";

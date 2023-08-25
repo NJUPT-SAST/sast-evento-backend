@@ -19,9 +19,6 @@ import java.util.Map;
 @RequestMapping("/feedback")
 public class FeedbackController {
     @Resource
-    private FeedBackService feedbackService;
-
-    @Resource
     private FeedBackService feedBackService;
 
     /**

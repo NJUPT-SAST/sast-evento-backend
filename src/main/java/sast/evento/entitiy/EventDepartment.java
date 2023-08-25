@@ -23,6 +23,4 @@ public class EventDepartment {
     private Integer eventId;
 
     private Integer departmentId;
-
-
 }

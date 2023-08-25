@@ -43,6 +43,8 @@ public class EventModel {
 
     private String location;
 
+    private Integer locationId;
+
     private String tag;
 
     private EventState state;
