@@ -4,6 +4,7 @@ import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import org.springframework.stereotype.Component;
 import sast.evento.common.enums.ActionState;
 import sast.evento.common.enums.ErrorEnum;
 import sast.evento.config.ActionRegister;
@@ -19,6 +20,8 @@ import sast.evento.service.LoginService;
 import sast.evento.service.QrCodeCheckInService;
 import sast.evento.utils.*;
 import sast.sastlink.sdk.model.UserInfo;
+import sast.sastlink.sdk.model.response.AccessTokenResponse;
+import sast.sastlink.sdk.model.response.RefreshResponse;
 import sast.sastlink.sdk.service.SastLinkService;
 import sast.sastlink.sdk.service.impl.RestTemplateSastLinkService;
 
@@ -34,11 +37,11 @@ import static sast.sastlink.sdk.enums.SastLinkApi.ACCESS_TOKEN;
 @SpringBootTest
 class SastEventoBackendApplicationTests {
     @Resource
-    private RestTemplateSastLinkService sastLinkService;
-    @Resource
     private LoginService loginService;
     @Resource
     private RedisUtil redisUtil;
+    @Resource
+    private RestTemplateSastLinkService sastLinkService;
 
     @Test
     void genereateToken() {
@@ -106,6 +109,7 @@ class SastEventoBackendApplicationTests {
 
     @Test
     void SastLinkTest() {
+        sastLinkService.login("","");
     }
 
 

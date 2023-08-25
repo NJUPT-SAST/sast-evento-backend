@@ -23,8 +23,8 @@ public class User {
 
     private String openId;
 
-//    private String email;
-//
+    private String email;
+
 //    private String nickName;
 //
 //    private String name;

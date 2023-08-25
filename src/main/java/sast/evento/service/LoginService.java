@@ -7,7 +7,7 @@ import java.util.Map;
 public interface LoginService {
     Map<String, Object> linkLogin(String code);
 
-    Map<String, Object> wxLogin(String email, String password, String code_challenge, String code_challenge_method);
+    Map<String, Object> wxLogin(String email, String password, String code_challenge, String code_challenge_method,String openId);
 
     Map<String, String> wxRegister(String email);
 

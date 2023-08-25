@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import sast.evento.common.enums.ErrorEnum;
 import sast.evento.entitiy.User;
 import sast.evento.exception.LocalRunTimeException;
+import sast.evento.mapper.UserMapper;
 import sast.evento.service.LoginService;
 import sast.evento.utils.JsonUtil;
 import sast.evento.utils.JwtUtil;
@@ -29,6 +30,8 @@ public class LoginServiceImpl implements LoginService {
     @Resource
     private SastLinkService sastLinkService;
     @Resource
+    private UserMapper userMapper;
+    @Resource
     private JwtUtil jwtUtil;
     @Resource
     private RedisUtil redisUtil;
@@ -39,9 +42,27 @@ public class LoginServiceImpl implements LoginService {
     private static final String USER_INFO = "user_info:";
     private static final long USER_INFO_EXPIRE = 1000;
 
-
     @Override
     public Map<String, Object> linkLogin(String code) {
+        Map<String,Object> data = login(code);
+        UserInfo userInfo = (UserInfo) data.get("userInfo");
+        userMapper.ignoreInsertUser(userInfo.getUserId(),null,userInfo.getWechatId(),userInfo.getEmail());
+        return data;
+    }
+
+    @Override
+    public Map<String, Object> wxLogin(String email, String password, String code_challenge, String code_challenge_method,String openId) {
+        String token = sastLinkService.login(email, password);
+        String code = sastLinkService.authorize(token, code_challenge, code_challenge_method);
+        sastLinkService.logout(token);
+        /* 临时登录一下，登完就退 */
+        Map<String,Object> data = login(code);
+        UserInfo userInfo = (UserInfo) data.get("userInfo");
+        userMapper.ignoreInsertUser(userInfo.getUserId(),null,openId,userInfo.getEmail());
+        return data;
+    }
+
+    private Map<String, Object> login(String code){
         AccessTokenResponse accessTokenResponse = sastLinkService.accessToken(code);
         UserInfo userInfo = sastLinkService.userInfo(accessTokenResponse.getAccess_token());
         String userId = userInfo.getUserId();
@@ -51,18 +72,8 @@ public class LoginServiceImpl implements LoginService {
         redisUtil.set(ACCESS_TOKEN + userId, accessTokenResponse.getAccess_token(), ACCESS_EXPIRE);
         redisUtil.set(REFRESH_TOKEN + userId, accessTokenResponse.getRefresh_token(), REFRESH_EXPIRE);
         redisUtil.set("TOKEN:" + userId, token, jwtUtil.expiration);
-
-
+        redisUtil.set(USER_INFO + userId, JsonUtil.toJson(userInfo), USER_INFO_EXPIRE);
         return Map.of("token", token, "userInfo", userInfo);
-    }
-
-    @Override
-    public Map<String, Object> wxLogin(String email, String password, String code_challenge, String code_challenge_method) {
-        /* 临时登录一下，登完就退 */
-        String token = sastLinkService.login(email, password);
-        String code = sastLinkService.authorize(token, code_challenge, code_challenge_method);
-        sastLinkService.logout(token);
-        return linkLogin(code);
     }
 
     @Override
@@ -82,7 +93,7 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public UserInfo getUserInfo(String userId) {
-        UserInfo userInfo = null;
+        UserInfo userInfo;
         String userInfoJson = (String) Optional.ofNullable(redisUtil.get(USER_INFO + userId)).orElse("");
         if (!userInfoJson.isEmpty()) {
             userInfo = JsonUtil.fromJson(userInfoJson, UserInfo.class);
@@ -92,7 +103,7 @@ public class LoginServiceImpl implements LoginService {
                 .orElse("");
         if (accessToken.isEmpty()) {
             String refreshToken = (String) Optional.ofNullable(redisUtil.get(REFRESH_TOKEN + userId))
-                    .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "please login first"));
+                    .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "login has expired, please login first"));
             RefreshResponse refreshResponse = sastLinkService.refresh(refreshToken);
             redisUtil.set(ACCESS_TOKEN + userId, refreshResponse.getAccessToken(), ACCESS_EXPIRE);
             redisUtil.set(REFRESH_TOKEN + userId, refreshResponse.getRefreshToken(), REFRESH_EXPIRE);

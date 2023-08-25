@@ -37,17 +37,21 @@ public class LoginController {
     @OperateLog("微信登录")
     @PostMapping("/login/wx")
     @DefaultActionState(ActionState.PUBLIC)
-    public Map<String, Object> wxLogin(@RequestParam(defaultValue = "") String email,
-                                       @RequestParam(defaultValue = "") String password,
+    public Map<String, Object> wxLogin(@RequestParam String email,
+                                       @RequestParam String password,
                                        @RequestParam String codeChallenge,
-                                       @RequestParam String codeChallengeMethod) {
+                                       @RequestParam String codeChallengeMethod,
+                                       @RequestParam String openId) {
         if (email.isEmpty()) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid email");
         }
         if (password.isEmpty()) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid password");
         }
-        return loginService.wxLogin(email, password, codeChallenge, codeChallengeMethod);
+        if (openId.isEmpty()){
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid openId");
+        }
+        return loginService.wxLogin(email, password, codeChallenge, codeChallengeMethod,openId);
     }
 
     @OperateLog("登出")

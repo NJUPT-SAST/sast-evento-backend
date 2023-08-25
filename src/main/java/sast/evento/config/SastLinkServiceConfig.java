@@ -22,6 +22,8 @@ public class SastLinkServiceConfig {
     private String clientSecret;
     @Value("${sast-link.code-verifier}")
     private String codeVerifier;
+    @Value("${sast-link.link-host}")
+    private String linkHostName;
 
     @Bean
     public SastLinkService sastLinkService(RestTemplate restTemplate) {
@@ -30,6 +32,7 @@ public class SastLinkServiceConfig {
                 .setClientId(clientId)
                 .setClientSecret(clientSecret)
                 .setCodeVerifier(codeVerifier)
+                .setHostName(linkHostName)
                 .setRestTemplate(restTemplate)
                 .build();
     }
