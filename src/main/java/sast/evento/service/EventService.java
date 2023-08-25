@@ -41,4 +41,7 @@ public interface EventService {
 
     // 取消活动（部分修改活动信息）
     Boolean cancelEvent(Integer eventId);
+    List<EventModel> postForEvents(List<Integer> typeId, List<Integer> departmentId, String time);
+
+    List<EventModel> exchangeLocationOfEvents(List<EventModel> eventModels);
 }

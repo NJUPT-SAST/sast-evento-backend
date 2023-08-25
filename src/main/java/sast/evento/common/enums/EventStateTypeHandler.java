@@ -16,7 +16,7 @@ import java.sql.SQLException;
 public class EventStateTypeHandler extends BaseTypeHandler<EventState> {
     @Override
     public void setNonNullParameter(PreparedStatement preparedStatement, int i, EventState eventState, JdbcType jdbcType) throws SQLException {
-        preparedStatement.setInt(i,eventState.getState());
+        preparedStatement.setInt(i, eventState.getState());
     }
 
     @Override

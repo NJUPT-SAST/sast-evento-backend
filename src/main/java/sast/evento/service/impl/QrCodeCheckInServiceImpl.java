@@ -33,21 +33,20 @@ public class QrCodeCheckInServiceImpl implements QrCodeCheckInService {
      */
     private static final String jobGroupName = "job_qr_code_registration";
     private static final String triggerGroupName = "trigger_qr_code_registration";
-
+    @Resource
+    CodeService codeService;
     @Value("${evento.QrCode.duration}")
     private long duration;
     @Value("${evento.QrCode.refreshCron}")
     private String refreshCron;
-    @Resource
-    CodeService codeService;
 
     /* 手动关闭任务 */
     @Override
     @SneakyThrows
     public void close(Integer eventId) {
         String stringEventId = String.valueOf(eventId);
-        SchedulerUtil.removeJob(stringEventId,jobGroupName,stringEventId,triggerGroupName);
-        SchedulerUtil.removeTriggerListener(stringEventId,stringEventId,triggerGroupName);
+        SchedulerUtil.removeJob(stringEventId, jobGroupName, stringEventId, triggerGroupName);
+        SchedulerUtil.removeTriggerListener(stringEventId, stringEventId, triggerGroupName);
         codeService.deleteCode(eventId);
     }
 
@@ -55,7 +54,7 @@ public class QrCodeCheckInServiceImpl implements QrCodeCheckInService {
     @Override
     @SneakyThrows
     public Boolean isClose(Integer eventId) {
-        JobKey jobKey = new JobKey(String.valueOf(eventId),jobGroupName);
+        JobKey jobKey = new JobKey(String.valueOf(eventId), jobGroupName);
         return SchedulerUtil.isShutdown() || !SchedulerUtil.getScheduler().checkExists(jobKey);
     }
 
@@ -63,23 +62,23 @@ public class QrCodeCheckInServiceImpl implements QrCodeCheckInService {
     @SneakyThrows
     public BufferedImage getCheckInQrCode(Integer eventId) {
         /* 访问自动开启服务:访问自动开启(服务开启条件状态下) */
-        JobKey jobKey = new JobKey(String.valueOf(eventId),jobGroupName);
+        JobKey jobKey = new JobKey(String.valueOf(eventId), jobGroupName);
         String stringEventId = String.valueOf(eventId);
-        if(!SchedulerUtil.getScheduler().checkExists(jobKey)){
+        if (!SchedulerUtil.getScheduler().checkExists(jobKey)) {
             JobDataMap jobDataMap = new JobDataMap();
-            jobDataMap.put("eventId",eventId);
+            jobDataMap.put("eventId", eventId);
             codeService.refreshCode(eventId);
-            SchedulerUtil.addRepeatJob(stringEventId,jobGroupName,stringEventId,triggerGroupName, CodeRefreshJob.class,jobDataMap,refreshCron,new Date(),new Date(System.currentTimeMillis()+duration));
-            SchedulerUtil.addTriggerListener(stringEventId,triggerGroupName,new CodeRefreshTriggerListener(eventId));
-        }else {
-            SchedulerUtil.resetRepeatJob(stringEventId,triggerGroupName,null,null,new Date(System.currentTimeMillis()+duration));
+            SchedulerUtil.addRepeatJob(stringEventId, jobGroupName, stringEventId, triggerGroupName, CodeRefreshJob.class, jobDataMap, refreshCron, new Date(), new Date(System.currentTimeMillis() + duration));
+            SchedulerUtil.addTriggerListener(stringEventId, triggerGroupName, new CodeRefreshTriggerListener(eventId));
+        } else {
+            SchedulerUtil.resetRepeatJob(stringEventId, triggerGroupName, null, null, new Date(System.currentTimeMillis() + duration));
         }
         return codeService.getQrCode(eventId);
     }
 
     @Override
     @SneakyThrows
-    public Boolean checkCode(Integer eventId,String registrationCode) {
+    public Boolean checkCode(Integer eventId, String registrationCode) {
         return codeService.getCode(eventId).equals(registrationCode);
     }
 

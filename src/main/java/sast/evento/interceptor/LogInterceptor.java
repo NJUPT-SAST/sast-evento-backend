@@ -23,13 +23,13 @@ import java.util.UUID;
 
 @Component
 public class LogInterceptor implements HandlerInterceptor {
+    public static ThreadLocal<TraceLog> logHolder = new ThreadLocal<>();
     @Resource
     ActionService actionService;
-    public static ThreadLocal<TraceLog> logHolder = new ThreadLocal<>();
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        if(handler instanceof ResourceHttpRequestHandler){
+        if (handler instanceof ResourceHttpRequestHandler) {
             return true;
         }
         HandlerMethod handlerMethod = (HandlerMethod) handler;

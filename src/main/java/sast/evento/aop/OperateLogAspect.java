@@ -38,13 +38,13 @@ public class OperateLogAspect {
     }
 
     @Around("operateLog() && @annotation(anno)")
-    public Object aroundMethod(ProceedingJoinPoint proceedingPoint,OperateLog anno) throws Throwable {
-            Optional.ofNullable(LogInterceptor.logHolder.get()).ifPresent(
-                    traceLog -> log.info(traceLog
-                            .setDescription(anno.value())
-                            .setFinishTime(System.currentTimeMillis())
-                            .toLogFormat(true))
-            );
+    public Object aroundMethod(ProceedingJoinPoint proceedingPoint, OperateLog anno) throws Throwable {
+        Optional.ofNullable(LogInterceptor.logHolder.get()).ifPresent(
+                traceLog -> log.info(traceLog
+                        .setDescription(anno.value())
+                        .setFinishTime(System.currentTimeMillis())
+                        .toLogFormat(true))
+        );
         return proceedingPoint.proceed();
     }
 
@@ -70,28 +70,28 @@ public class OperateLogAspect {
         // 拿到需要的stackTrace，只拿以下两种 stackTrace
         // 注入的bean和controller方法
         List<StackTraceElement> stackTraceList = Arrays.stream(stackTrace).filter(ele -> {
-            if (eleMethodName.equals(ele.getMethodName()) && typeName.equals(ele.getClassName()))
-                return true;
-            if (ele.getFileName() != null)
-                return classSet.stream().anyMatch(ele.getFileName()::contains);
-            return false;
-        }
+                    if (eleMethodName.equals(ele.getMethodName()) && typeName.equals(ele.getClassName()))
+                        return true;
+                    if (ele.getFileName() != null)
+                        return classSet.stream().anyMatch(ele.getFileName()::contains);
+                    return false;
+                }
         ).toList();
-            // 格式处理
-            ArrayList<String> errMsg = new ArrayList<>();
-            for (StackTraceElement ele : stackTraceList) {
-                String fileName = ele.getFileName();
-                String methodName = ele.getMethodName();
-                int lineNumber = ele.getLineNumber();
-                String errTrace =  fileName + " | " + methodName + " | line:" + lineNumber + " | " + exception.getLocalizedMessage();
-                errMsg.add(errTrace);
-            }
-            Optional.ofNullable(LogInterceptor.logHolder.get()).ifPresent(
-                    traceLog -> log.error(traceLog
-                            .setDescription(anno.value())
-                            .setFinishTime(System.currentTimeMillis())
-                            .setStackTrace(StringUtils.collectionToCommaDelimitedString(errMsg))
-                            .toLogFormat(false))
-            );
+        // 格式处理
+        ArrayList<String> errMsg = new ArrayList<>();
+        for (StackTraceElement ele : stackTraceList) {
+            String fileName = ele.getFileName();
+            String methodName = ele.getMethodName();
+            int lineNumber = ele.getLineNumber();
+            String errTrace = fileName + " | " + methodName + " | line:" + lineNumber + " | " + exception.getLocalizedMessage();
+            errMsg.add(errTrace);
+        }
+        Optional.ofNullable(LogInterceptor.logHolder.get()).ifPresent(
+                traceLog -> log.error(traceLog
+                        .setDescription(anno.value())
+                        .setFinishTime(System.currentTimeMillis())
+                        .setStackTrace(StringUtils.collectionToCommaDelimitedString(errMsg))
+                        .toLogFormat(false))
+        );
     }
 }

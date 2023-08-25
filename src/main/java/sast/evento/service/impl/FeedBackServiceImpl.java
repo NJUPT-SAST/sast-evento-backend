@@ -9,9 +9,11 @@ import sast.evento.exception.LocalRunTimeException;
 import sast.evento.mapper.FeedbackMapper;
 import sast.evento.mapper.FeedbackModelMapper;
 import sast.evento.model.FeedbackModel;
+import sast.evento.model.FeedbacksDTO;
 import sast.evento.service.FeedBackService;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @projectName: sast-evento-backend
@@ -24,6 +26,14 @@ public class FeedBackServiceImpl implements FeedBackService {
     private FeedbackMapper feedbackMapper;
     @Resource
     private FeedbackModelMapper feedbackModelMapper;
+
+    // 管理获取活动反馈详情
+    @Override
+    public FeedbacksDTO getFeedback(Integer eventId) {
+        FeedbacksDTO feedbacksDTO = feedbackMapper.getFeedback(eventId);
+        feedbacksDTO.setEventId(eventId);
+        return feedbacksDTO;
+    }
 
     // 用户添加反馈
     @Override
@@ -94,5 +104,12 @@ public class FeedBackServiceImpl implements FeedBackService {
 
         Integer deleteResult = feedbackMapper.delete(queryWrapper);
         return deleteResult != null && deleteResult > 0 ? "删除反馈成功" : "删除反馈失败";
+    }
+
+    // 管理端获取活动及其反馈数量列表
+    @Override
+    public List<Map<String, Integer>> getFeedbackEvents(Integer page, Integer size) {
+        Integer index = (page - 1) * size;
+        return feedbackMapper.getFeedbackEvents(index, size);
     }
 }

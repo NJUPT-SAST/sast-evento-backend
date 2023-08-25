@@ -4,10 +4,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import sast.evento.common.enums.EventState;
 import sast.evento.entitiy.Department;
 import sast.evento.entitiy.EventType;
-import sast.evento.entitiy.Location;
-import sast.evento.common.enums.EventState;
 
 import java.util.Date;
 import java.util.List;

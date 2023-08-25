@@ -14,7 +14,9 @@ import java.util.List;
 @Repository
 public interface PermissionMapper extends BaseMapper<Permission> {
     List<User> getUserHasPermissionByEvent(Integer eventId);
+
     List<Integer> getManageEvent(String userId);
+
     void updatePermission(@Param("user_id") String userId,
                           @Param("event_id") Integer eventId,
                           @Param("all_method_name") String allMethodName,

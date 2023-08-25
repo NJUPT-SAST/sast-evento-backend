@@ -49,6 +49,7 @@ public class EventController {
     }
 
     /**
+     *
      */
     @OperateLog("查看所有正在进行的活动列表")
     @DefaultActionState(ActionState.PUBLIC)
@@ -58,6 +59,7 @@ public class EventController {
     }
 
     /**
+     *
      */
     @OperateLog("查看最新活动列表（按开始时间正序排列未开始的活动）")
     @DefaultActionState(ActionState.PUBLIC)
@@ -67,6 +69,7 @@ public class EventController {
     }
 
     /**
+     *
      */
     @OperateLog("查看用户历史活动列表（参加过已结束）")
     @DefaultActionState(ActionState.LOGIN)
@@ -89,6 +92,7 @@ public class EventController {
     }
 
     /**
+     *
      */
     @OperateLog("获取活动详情")
     @DefaultActionState(ActionState.PUBLIC)/* 这里为public,eventId注解没什么用 */
@@ -131,6 +135,7 @@ public class EventController {
     }
 
     /**
+     *
      */
     @OperateLog("获取活动列表")
     @DefaultActionState(ActionState.PUBLIC)
@@ -143,12 +148,16 @@ public class EventController {
     @OperateLog("获取活动列表(筛选)")
     @DefaultActionState(ActionState.PUBLIC)
     @PostMapping("/list")
-    public List<EventModel> postForEvents(@RequestParam(required = false) Boolean filterByUser,
-                                          @RequestParam(required = false) List<Integer> typeId,
+    public List<EventModel> postForEvents(@RequestParam(required = false) List<Integer> typeId,
                                           @RequestParam(required = false) List<Integer> departmentId,
-                                          @RequestParam(required = false) Date time) {
+                                          @RequestParam(required = false) String time) {
         UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        return null;
+        // 获取未处理location的初步活动列表
+        List<EventModel> eventModels = eventService.postForEvents(typeId, departmentId, time);
+        // 获取所有处理location后的活动列表
+        return eventService.exchangeLocationOfEvents(eventModels);
+        // 处理location，从string类型的location_id转换成地址
+
     }
 
 }

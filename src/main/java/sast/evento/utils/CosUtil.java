@@ -13,14 +13,10 @@ import com.qcloud.cos.transfer.TransferManagerConfiguration;
 import org.springframework.web.multipart.MultipartFile;
 import sast.evento.exception.LocalRunTimeException;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.net.URL;
 import java.security.MessageDigest;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -34,9 +30,10 @@ import static sast.evento.config.CosConfig.*;
  */
 public class CosUtil {
     private static final COSClient cosClient = createCOSClient();
+
     /* 上传图片，同一张图片同一个名字会覆盖，防止重复上传 */
-    public static String upload(MultipartFile file,String dir) {
-        String dirPrefix = dir.isEmpty() ? "" : (dir+"/");
+    public static String upload(MultipartFile file, String dir) {
+        String dirPrefix = dir.isEmpty() ? "" : (dir + "/");
         if (file.getSize() > 10 * 1024 * 1024) {
             throw new IllegalArgumentException("size of file is out of limit 10M.");
         }
@@ -62,14 +59,14 @@ public class CosUtil {
         } catch (Exception e) {
             throw new LocalRunTimeException(e.getMessage());
         }
-        return "https://"+bucketName+".cos."+COS_REGION+".myqcloud.com/"+key;
+        return "https://" + bucketName + ".cos." + COS_REGION + ".myqcloud.com/" + key;
     }
 
     /* 通过上一次获得的最后一个URL来获取下一个分页 */
-    public static List<String> getURLs(String dir,String lastURL,Integer size){
-        String dirPrefix = dir.isEmpty() ? "" : (dir+"/");
-        String lastKey = lastURL.isEmpty() ? "" : lastURL.substring(lastURL.indexOf("/",9)+1);
-        ListObjectsRequest request = new ListObjectsRequest(bucketName,dirPrefix,lastKey,"/",size);
+    public static List<String> getURLs(String dir, String lastURL, Integer size) {
+        String dirPrefix = dir.isEmpty() ? "" : (dir + "/");
+        String lastKey = lastURL.isEmpty() ? "" : lastURL.substring(lastURL.indexOf("/", 9) + 1);
+        ListObjectsRequest request = new ListObjectsRequest(bucketName, dirPrefix, lastKey, "/", size);
         ObjectListing objectListing = null;
         try {
             objectListing = cosClient.listObjects(request);
@@ -79,14 +76,14 @@ public class CosUtil {
         List<COSObjectSummary> summaryList = objectListing.getObjectSummaries();
         return summaryList.stream()
                 .map(COSObjectSummary::getKey)
-                .map(key -> "https://"+bucketName+".cos."+COS_REGION+".myqcloud.com/"+key)
+                .map(key -> "https://" + bucketName + ".cos." + COS_REGION + ".myqcloud.com/" + key)
                 .toList();
     }
 
     /* 获取当前桶下所有目录 */
-    public static List<String> getDirs(String dir){
-        String dirPrefix = dir.isEmpty() ? "" : (dir+"/");
-        ListObjectsRequest request = new ListObjectsRequest(bucketName,dirPrefix,"","/",1000);
+    public static List<String> getDirs(String dir) {
+        String dirPrefix = dir.isEmpty() ? "" : (dir + "/");
+        ListObjectsRequest request = new ListObjectsRequest(bucketName, dirPrefix, "", "/", 1000);
         ObjectListing objectListing = null;
         try {
             objectListing = cosClient.listObjects(request);
@@ -94,13 +91,13 @@ public class CosUtil {
             throw new LocalRunTimeException(e.getMessage());
         }
         return objectListing.getCommonPrefixes().stream()
-                .map(s -> s.substring(0,s.length()-1))
+                .map(s -> s.substring(0, s.length() - 1))
                 .toList();
     }
 
     /* 根据url删除图片 */
     public static void delete(String url) {
-        String key = url.substring(url.indexOf("/",9)+1);
+        String key = url.substring(url.indexOf("/", 9) + 1);
         try {
             cosClient.deleteObject(bucketName, key);
         } catch (CosClientException e) {
@@ -129,16 +126,17 @@ public class CosUtil {
         transferManager.setConfiguration(transferManagerConfiguration);
         return transferManager;
     }
-    private static String md5HashCode(InputStream inputStream) throws Exception{
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] buffer = new byte[1024];
-            int length = -1;
-            while ((length = inputStream.read(buffer, 0, 1024)) != -1) {
-                md.update(buffer, 0, length);
-            }
-            inputStream.close();
-            byte[] md5Bytes  = md.digest();
-            BigInteger bigInt = new BigInteger(1, md5Bytes);
-            return bigInt.toString(16);
+
+    private static String md5HashCode(InputStream inputStream) throws Exception {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        byte[] buffer = new byte[1024];
+        int length = -1;
+        while ((length = inputStream.read(buffer, 0, 1024)) != -1) {
+            md.update(buffer, 0, length);
+        }
+        inputStream.close();
+        byte[] md5Bytes = md.digest();
+        BigInteger bigInt = new BigInteger(1, md5Bytes);
+        return bigInt.toString(16);
     }
 }

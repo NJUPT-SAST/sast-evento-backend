@@ -29,7 +29,8 @@ public enum ErrorEnum {
     WX_SERVICE_ERROR(10001, "wx service error"),
     WX_SUBSCRIBE_ERROR(10001, "wx subscribe error"),
     SCHEDULER_ERROR(10002, "scheduler error"),
-    QRCODE_ERROR(10003, "qr code generation error");
+    QRCODE_ERROR(10003, "qr code generation error"),
+    TIME_ERROR(20001, "时间格式错误");
     private final Integer errCode;
     private final String errMsg;
 }

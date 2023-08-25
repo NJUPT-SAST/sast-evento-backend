@@ -17,7 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin")
-public class AdminController{
+public class AdminController {
     @Resource
     private EventTypeService eventTypeService;
     @Resource
@@ -27,7 +27,7 @@ public class AdminController{
     @DefaultActionState(ActionState.ADMIN)
     @PostMapping("/location")
     public String addLocation(@RequestBody Location location) {
-        if(location.getId() != null) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR,"id should be null.");
+        if (location.getId() != null) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "id should be null.");
         return locationService.addLocation(location).toString();
     }
 
@@ -51,7 +51,7 @@ public class AdminController{
     @PutMapping("/location")
     public String updateLocation(@RequestParam Integer locationId,
                                  @RequestBody Location location) {
-        if(!location.getId().equals(locationId)) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR,"invalid id");
+        if (!location.getId().equals(locationId)) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid id");
         /* 比较复杂，谨慎修改 */
         return locationService.updateLocation(location).toString();
 
@@ -61,7 +61,7 @@ public class AdminController{
     @DefaultActionState(ActionState.ADMIN)
     @PostMapping("/type")
     public String addType(@RequestBody EventType type) {
-        if(type.getId() != null) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR,"id should be null");
+        if (type.getId() != null) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "id should be null");
         return eventTypeService.addEventType(type).toString();
     }
 
@@ -84,7 +84,7 @@ public class AdminController{
     @PutMapping("/type")
     public String updateType(@RequestParam Integer typeId,
                              @RequestBody EventType type) {
-        if(!type.getId().equals(typeId)) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR,"invalid id");
+        if (!type.getId().equals(typeId)) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid id");
         return eventTypeService.editEventType(type).toString();
     }
 

@@ -22,6 +22,7 @@ public class UserController {
     private EventService eventService;
 
     /**
+     *
      */
     @OperateLog("获取个人信息")
     @DefaultActionState(ActionState.LOGIN)
@@ -32,6 +33,7 @@ public class UserController {
     }
 
     /**
+     *
      */
     @OperateLog("更改个人信息")
     @DefaultActionState(ActionState.LOGIN)
@@ -45,6 +47,7 @@ public class UserController {
     }
 
     /**
+     *
      */
     @OperateLog("报名订阅活动")
     @DefaultActionState(ActionState.LOGIN)

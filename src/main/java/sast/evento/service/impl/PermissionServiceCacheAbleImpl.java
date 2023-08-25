@@ -26,11 +26,22 @@ public class PermissionServiceCacheAbleImpl implements PermissionServiceCacheAbl
     /* 权限服务 */
     @Resource
     private PermissionMapper permissionMapper;
+
+    private static void checkValidMethods(Permission permission) {
+        /* check and put valid methodNames */
+        Optional.ofNullable(permission.getMethodNames()).ifPresent(
+                methodNames -> permission.setMethodNames(methodNames.stream()
+                        .filter(ActionRegister.actionNameSet::contains)
+                        .distinct()
+                        .toList())
+        );
+    }
+
     @Override
     @CachePut(value = "permission", key = "#permission.userId +#permission.eventId")
     public Permission addPermission(Permission permission) {
-        if(permission.getId()!=null){
-            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"Invalid param. Empty id is needed");
+        if (permission.getId() != null) {
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "Invalid param. Empty id is needed");
         }
         checkValidMethods(permission);
         permissionMapper.insert(permission.updateUpTime());
@@ -39,26 +50,26 @@ public class PermissionServiceCacheAbleImpl implements PermissionServiceCacheAbl
 
     @Override
     @CacheEvict(value = "permission", key = "#userId +#eventId")
-    public void deletePermission(String userId,Integer eventId)  {
+    public void deletePermission(String userId, Integer eventId) {
         permissionMapper.delete(new LambdaQueryWrapper<Permission>()
-                .eq(Permission::getUserId,userId)
-                .and(wrapper -> wrapper.eq(Permission::getEventId,eventId)));
+                .eq(Permission::getUserId, userId)
+                .and(wrapper -> wrapper.eq(Permission::getEventId, eventId)));
     }
 
     @Override
     @Cacheable(value = "permission", key = "#userId +#eventId")
-    public Permission getPermission(String userId,Integer eventId) {
+    public Permission getPermission(String userId, Integer eventId) {
         Permission permission = permissionMapper.selectOne(new LambdaQueryWrapper<Permission>()
-                .eq(Permission::getUserId,userId)
-                .and(wrapper -> wrapper.eq(Permission::getEventId,eventId)));
+                .eq(Permission::getUserId, userId)
+                .and(wrapper -> wrapper.eq(Permission::getEventId, eventId)));
         if (permission == null) {
-            throw new LocalRunTimeException(ErrorEnum.PERMISSION_ERROR,"No valid permission exist");
+            throw new LocalRunTimeException(ErrorEnum.PERMISSION_ERROR, "No valid permission exist");
         }
         return permission;
     }
 
     @Override
-    @CachePut(value = "permission",key = "#permission.userId +#permission.eventId")
+    @CachePut(value = "permission", key = "#permission.userId +#permission.eventId")
     public Permission updatePermission(Permission permission) {
         checkValidMethods(permission);
         permissionMapper.updatePermission(permission.getUserId(),
@@ -66,15 +77,5 @@ public class PermissionServiceCacheAbleImpl implements PermissionServiceCacheAbl
                 JsonUtil.toJson(permission.getMethodNames()),
                 permission.updateUpTime().getUpdateTime());
         return permission;
-    }
-
-    private static void checkValidMethods(Permission permission){
-        /* check and put valid methodNames */
-        Optional.ofNullable(permission.getMethodNames()).ifPresent(
-                methodNames -> permission.setMethodNames(methodNames.stream()
-                        .filter(ActionRegister.actionNameSet::contains)
-                        .distinct()
-                        .toList())
-        );
     }
 }
