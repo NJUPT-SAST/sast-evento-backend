@@ -9,7 +9,7 @@ import java.util.List;
  * @author: mio
  * @date: 2023/8/10 22:50
  */
-public interface FeedbackService {
+public interface FeedBackService {
 
     // 用户添加反馈
     String addFeedback(Integer userId, String content, Double score, Integer eventId);

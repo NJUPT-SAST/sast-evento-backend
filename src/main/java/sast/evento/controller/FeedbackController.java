@@ -7,11 +7,10 @@ import sast.evento.annotation.EventId;
 import sast.evento.annotation.OperateLog;
 import sast.evento.common.enums.ActionState;
 import sast.evento.interceptor.HttpInterceptor;
-import sast.evento.mapper.FeedbackModelMapper;
 import sast.evento.model.FeedbackModel;
 import sast.evento.model.FeedbacksDTO;
 import sast.evento.model.UserProFile;
-import sast.evento.service.FeedbackService;
+import sast.evento.service.FeedBackService;
 
 import java.util.List;
 import java.util.Map;
@@ -20,7 +19,7 @@ import java.util.Map;
 @RequestMapping("/feedback")
 public class FeedbackController {
     @Resource
-    private FeedbackService feedbackService;
+    private FeedBackService feedbackService;
 
     @OperateLog("获取活动反馈详情")
     @DefaultActionState(ActionState.ADMIN)

@@ -9,7 +9,7 @@ import sast.evento.exception.LocalRunTimeException;
 import sast.evento.mapper.FeedbackMapper;
 import sast.evento.mapper.FeedbackModelMapper;
 import sast.evento.model.FeedbackModel;
-import sast.evento.service.FeedbackService;
+import sast.evento.service.FeedBackService;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ import java.util.List;
  * @date: 2023/8/10 22:51
  */
 @Service
-public class FeedbackServiceImpl implements FeedbackService {
+public class FeedBackServiceImpl implements FeedBackService {
     @Resource
     private FeedbackMapper feedbackMapper;
     @Resource
