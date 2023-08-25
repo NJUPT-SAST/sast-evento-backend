@@ -2,7 +2,10 @@ package sast.evento.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import sast.evento.entitiy.EventDepartment;
+
+import java.util.List;
 
 /**
  * @Author: Love98
@@ -10,4 +13,5 @@ import sast.evento.entitiy.EventDepartment;
  */
 @Mapper
 public interface EventDepartmentMapper extends BaseMapper<EventDepartment> {
+    void insertBatch(@Param("list") List<EventDepartment> eventDepartments);
 }

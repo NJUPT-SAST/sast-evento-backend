@@ -10,7 +10,7 @@ import java.util.List;
  */
 public interface EventDepartmentService {
     Boolean addEventDepartment(Integer eventId, Integer departmentId);
-    Boolean deleteEventDepartment(Integer eventId, Integer departmentId);
+    Boolean deleteEventDepartment(Integer id);
     Boolean addEventDepartments(Integer eventId, List<Department> departmentIds);
     Boolean deleteEventDepartmentsByEventId(Integer eventId);
 }

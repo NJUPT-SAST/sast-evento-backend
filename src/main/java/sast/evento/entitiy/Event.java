@@ -64,7 +64,7 @@ public class Event {
         this.gmtEventEnd = eventModel.getGmtEventEnd();
         this.gmtRegistrationStart = eventModel.getGmtRegistrationStart();
         this.gmtRegistrationEnd = eventModel.getGmtRegistrationEnd();
-        this.typeId = eventModel.getEventType().getId();
+        this.typeId = eventModel.getTypeId();
         this.locationId = eventModel.getLocationId();
         this.tag = eventModel.getTag();
         this.state = eventModel.getState();

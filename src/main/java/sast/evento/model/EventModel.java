@@ -41,6 +41,8 @@ public class EventModel {
 
     private EventType eventType;
 
+    private Integer typeId;
+
     private String location;
 
     private Integer locationId;

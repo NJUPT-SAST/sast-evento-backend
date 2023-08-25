@@ -35,7 +35,11 @@ public class AdminController {
     @DefaultActionState(ActionState.ADMIN)
     @DeleteMapping("/location")
     public String deleteLocation(@RequestParam Integer locationId) {
-        return locationService.deleteLocation(locationId).toString();
+        if (!locationService.deleteLocation(locationId)) {
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "delete failed");
+        } else {
+            return "success";
+        }
     }
 
     @OperateLog("获取活动地点")

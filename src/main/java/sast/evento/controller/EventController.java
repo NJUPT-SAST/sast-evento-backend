@@ -91,11 +91,12 @@ public class EventController {
     @DefaultActionState(ActionState.MANAGER)
     @DeleteMapping("/info")
     public String deleteEvent(@RequestParam @EventId Integer eventId) {
-        if (!eventService.deleteEvent(eventId)) {
-            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "delete event failed");
-        }
+//      // 可以将两步操作放在同一Service层进行，并使用 Transactional 注解
         if (!eventDepartmentService.deleteEventDepartmentsByEventId(eventId)) {
             throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "delete eventDepartment failed");
+        }
+        if (!eventService.deleteEvent(eventId)) {
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "delete event failed");
         }
         return "success";
     }
