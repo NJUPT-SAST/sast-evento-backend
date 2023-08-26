@@ -3,7 +3,6 @@ package sast.evento.service.impl;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import sast.evento.common.enums.ErrorEnum;
-import sast.evento.entitiy.User;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.mapper.UserMapper;
 import sast.evento.service.LoginService;
@@ -44,25 +43,25 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public Map<String, Object> linkLogin(String code) {
-        Map<String,Object> data = login(code);
+        Map<String, Object> data = login(code);
         UserInfo userInfo = (UserInfo) data.get("userInfo");
-        userMapper.ignoreInsertUser(userInfo.getUserId(),null,userInfo.getWechatId(),userInfo.getEmail());
+        userMapper.ignoreInsertUser(userInfo.getUserId(), null, userInfo.getWechatId(), userInfo.getEmail());
         return data;
     }
 
     @Override
-    public Map<String, Object> wxLogin(String email, String password, String code_challenge, String code_challenge_method,String openId) {
+    public Map<String, Object> wxLogin(String email, String password, String code_challenge, String code_challenge_method, String openId) {
         String token = sastLinkService.login(email, password);
         String code = sastLinkService.authorize(token, code_challenge, code_challenge_method);
         sastLinkService.logout(token);
         /* 临时登录一下，登完就退 */
-        Map<String,Object> data = login(code);
+        Map<String, Object> data = login(code);
         UserInfo userInfo = (UserInfo) data.get("userInfo");
-        userMapper.ignoreInsertUser(userInfo.getUserId(),null,openId,userInfo.getEmail());
+        userMapper.ignoreInsertUser(userInfo.getUserId(), null, openId, userInfo.getEmail());
         return data;
     }
 
-    private Map<String, Object> login(String code){
+    private Map<String, Object> login(String code) {
         AccessTokenResponse accessTokenResponse = sastLinkService.accessToken(code);
         UserInfo userInfo = sastLinkService.userInfo(accessTokenResponse.getAccess_token());
         String userId = userInfo.getUserId();
@@ -88,7 +87,7 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public void logout(String userId) {
-        redisUtil.del("TOKEN:" + userId, ACCESS_TOKEN + userId, REFRESH_TOKEN + userId);
+        redisUtil.del("TOKEN:" + userId, ACCESS_TOKEN + userId, REFRESH_TOKEN + userId, USER_INFO + userId);
     }
 
     @Override

@@ -9,7 +9,9 @@ import sast.evento.common.enums.ErrorEnum;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.interceptor.HttpInterceptor;
 import sast.evento.model.UserProFile;
+import sast.evento.response.GlobalResponse;
 import sast.evento.service.LoginService;
+import sast.sastlink.sdk.exception.SastLinkException;
 
 import java.util.Map;
 
@@ -63,5 +65,12 @@ public class LoginController {
         return "ok";
     }
 
+    @ExceptionHandler(SastLinkException.class)
+    public <T> GlobalResponse<T> sastLinkException(SastLinkException e) {
+        if (e == null || e.getMessage().isEmpty()) {
+            return GlobalResponse.failure();
+        }
+        return GlobalResponse.failure("sast-link error, "+e.getMessage());
+    }
 
 }
