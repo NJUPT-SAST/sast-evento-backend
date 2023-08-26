@@ -33,7 +33,11 @@ public class LoginController {
         if (code == null || code.isEmpty()) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid code");
         }
-        return loginService.linkLogin(code);
+        try {
+            return loginService.linkLogin(code);
+        } catch (SastLinkException e) {
+            throw new LocalRunTimeException(ErrorEnum.SAST_LINK_SERVICE_ERROR,e.getMessage());
+        }
     }
 
     @OperateLog("微信登录")
@@ -53,7 +57,11 @@ public class LoginController {
         if (openId.isEmpty()){
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid openId");
         }
-        return loginService.wxLogin(email, password, codeChallenge, codeChallengeMethod,openId);
+        try {
+            return loginService.wxLogin(email, password, codeChallenge, codeChallengeMethod,openId);
+        } catch (SastLinkException e) {
+            throw new LocalRunTimeException(ErrorEnum.SAST_LINK_SERVICE_ERROR,e.getMessage());
+        }
     }
 
     @OperateLog("登出")
@@ -61,16 +69,12 @@ public class LoginController {
     @DefaultActionState(ActionState.LOGIN)
     public String logout() {
         UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        loginService.logout(userProFile.getUserId());
-        return "ok";
-    }
-
-    @ExceptionHandler(SastLinkException.class)
-    public <T> GlobalResponse<T> sastLinkException(SastLinkException e) {
-        if (e == null || e.getMessage().isEmpty()) {
-            return GlobalResponse.failure();
+        try {
+            loginService.logout(userProFile.getUserId());
+        } catch (SastLinkException e) {
+            throw new LocalRunTimeException(ErrorEnum.SAST_LINK_SERVICE_ERROR,e.getMessage());
         }
-        return GlobalResponse.failure("sast-link error, "+e.getMessage());
+        return "ok";
     }
 
 }

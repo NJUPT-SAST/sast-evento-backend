@@ -9,6 +9,7 @@ import sast.evento.service.LoginService;
 import sast.evento.utils.JsonUtil;
 import sast.evento.utils.JwtUtil;
 import sast.evento.utils.RedisUtil;
+import sast.sastlink.sdk.exception.SastLinkException;
 import sast.sastlink.sdk.model.UserInfo;
 import sast.sastlink.sdk.model.response.AccessTokenResponse;
 import sast.sastlink.sdk.model.response.RefreshResponse;
@@ -42,7 +43,7 @@ public class LoginServiceImpl implements LoginService {
     private static final long USER_INFO_EXPIRE = 1000;
 
     @Override
-    public Map<String, Object> linkLogin(String code) {
+    public Map<String, Object> linkLogin(String code) throws SastLinkException {
         Map<String, Object> data = login(code);
         UserInfo userInfo = (UserInfo) data.get("userInfo");
         userMapper.ignoreInsertUser(userInfo.getUserId(), null, userInfo.getWechatId(), userInfo.getEmail());
@@ -50,7 +51,7 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
-    public Map<String, Object> wxLogin(String email, String password, String code_challenge, String code_challenge_method, String openId) {
+    public Map<String, Object> wxLogin(String email, String password, String code_challenge, String code_challenge_method, String openId) throws SastLinkException{
         String token = sastLinkService.login(email, password);
         String code = sastLinkService.authorize(token, code_challenge, code_challenge_method);
         sastLinkService.logout(token);
@@ -61,7 +62,7 @@ public class LoginServiceImpl implements LoginService {
         return data;
     }
 
-    private Map<String, Object> login(String code) {
+    private Map<String, Object> login(String code) throws SastLinkException{
         AccessTokenResponse accessTokenResponse = sastLinkService.accessToken(code);
         UserInfo userInfo = sastLinkService.userInfo(accessTokenResponse.getAccess_token());
         String userId = userInfo.getUserId();
@@ -76,22 +77,22 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
-    public Map<String, String> wxRegister(String email) {
+    public Map<String, String> wxRegister(String email) throws SastLinkException{
         return Map.of("register_ticket", sastLinkService.sendCaptcha(email));
     }
 
     @Override
-    public boolean checkCaptcha(String ticket, String captcha, String password) {
+    public boolean checkCaptcha(String ticket, String captcha, String password) throws SastLinkException{
         return sastLinkService.checkCaptchaAndRegister(captcha, ticket, password);
     }
 
     @Override
-    public void logout(String userId) {
+    public void logout(String userId) throws SastLinkException{
         redisUtil.del("TOKEN:" + userId, ACCESS_TOKEN + userId, REFRESH_TOKEN + userId, USER_INFO + userId);
     }
 
     @Override
-    public UserInfo getUserInfo(String userId) {
+    public UserInfo getUserInfo(String userId) throws SastLinkException{
         UserInfo userInfo;
         String userInfoJson = (String) Optional.ofNullable(redisUtil.get(USER_INFO + userId)).orElse("");
         if (!userInfoJson.isEmpty()) {

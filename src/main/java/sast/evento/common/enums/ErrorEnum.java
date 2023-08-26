@@ -30,7 +30,10 @@ public enum ErrorEnum {
     WX_SUBSCRIBE_ERROR(10001, "wx subscribe error"),
     SCHEDULER_ERROR(10002, "scheduler error"),
     QRCODE_ERROR(10003, "qr code generation error"),
-    TIME_ERROR(20001, "时间格式错误");
+    COS_SERVICE_ERROR(10004,"cos service error"),
+    SAST_LINK_SERVICE_ERROR(10005,"sast link service error"),
+    /* 时间格式错误 */
+    TIME_ERROR(20001, "time format error");
     private final Integer errCode;
     private final String errMsg;
 }
