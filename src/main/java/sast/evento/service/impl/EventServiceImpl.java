@@ -1,5 +1,6 @@
 package sast.evento.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import sast.evento.entitiy.Location;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.mapper.EventMapper;
 import sast.evento.mapper.EventModelMapper;
+import sast.evento.mapper.EventTypeMapper;
 import sast.evento.mapper.LocationMapper;
 import sast.evento.model.EventModel;
 import sast.evento.service.EventService;
@@ -33,6 +35,9 @@ public class EventServiceImpl implements EventService {
 
     @Resource
     private EventMapper eventMapper;
+
+    @Resource
+    private EventTypeMapper eventTypeMapper;
 
     @Resource
     private TimeUtil timeUtil;
@@ -106,12 +111,13 @@ public class EventServiceImpl implements EventService {
         /* 检测必需参数是否存在 */
         if (
                 (event.getTitle() == null) ||
-                (event.getGmtEventStart() == null) ||
-                (event.getGmtEventEnd() == null) ||
-                (event.getGmtRegistrationStart() == null) ||
-                (event.getGmtRegistrationEnd() == null)) {
+                        (event.getGmtEventStart() == null) ||
+                        (event.getGmtEventEnd() == null) ||
+                        (event.getGmtRegistrationStart() == null) ||
+                        (event.getGmtRegistrationEnd() == null)) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "title or time should be null.");
         }
+        /* 时间检查 */
         if (!timeCheck(event)) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid time.");
         }
@@ -120,13 +126,21 @@ public class EventServiceImpl implements EventService {
             event.setDescription("");
         }
         if (event.getLocationId() == null) {
-            event.setLocationId(0);
+            event.setLocationId(1);
         }
         if (event.getTypeId() == null) {
-            event.setTypeId(0);
+            event.setTypeId(1);
         }
         if (event.getTag() == null) {
             event.setTag("");
+        }
+        /* 地点检查 */
+        if (!locationCheck(event)) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "location not exist.");
+        }
+        /* 冲突判断 */
+        if (!conflictCheck(event)) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "conflict with other event.");
         }
         /* 设置为未开始 */
         event.setState(EventState.NOT_STARTED);
@@ -146,11 +160,33 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Boolean updateEvent(Event event) {
-        if (event == null) {
+        if (event == null || event.getId() == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
-        if (!timeCheck(event)) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid time.");
+        // 如果没有修改时间、地点、类型，就不用检测冲突
+        if (event.getGmtEventEnd() == null && event.getGmtEventStart() == null && event.getLocationId() == null && event.getTypeId() == null) {
+            Event originEvent = eventMapper.selectById(event.getId());
+            if (originEvent == null) {
+                throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "event not exist.");
+            }
+            if (event.getGmtEventStart() == null) {
+                event.setGmtEventStart(originEvent.getGmtEventStart());
+            }
+            if (event.getGmtEventEnd() == null) {
+                event.setGmtEventEnd(originEvent.getGmtEventEnd());
+            }
+            if (event.getLocationId() == null) {
+                event.setLocationId(originEvent.getLocationId());
+            }
+            if (event.getTypeId() == null) {
+                event.setTypeId(originEvent.getTypeId());
+            }
+            if (!timeCheck(event)) {
+                throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid time.");
+            }
+            if (!conflictCheck(event)) {
+                throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "conflict with other event.");
+            }
         }
         UpdateWrapper<Event> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("id", event.getId());
@@ -170,8 +206,51 @@ public class EventServiceImpl implements EventService {
     }
 
     private Boolean timeCheck(Event event) {
+        Date now = new Date();
+        if (event.getGmtEventStart().before(now)) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "event start time should be after now.");
+        }
+        if (!event.getGmtEventStart().after(event.getGmtRegistrationEnd())) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "event start time should be after registration end time.");
+        }
         return !event.getGmtEventStart().after(event.getGmtEventEnd()) && !event.getGmtRegistrationStart().after(event.getGmtRegistrationEnd());
     }
+
+    private Boolean locationCheck(Event event) {
+        Integer locationId = event.getLocationId();
+        if (locationId == 1) {
+            return true;
+        }
+        Location location = locationMapper.selectById(locationId);
+        return location != null;
+    }
+
+    private Boolean conflictCheck(Event event) {
+        Integer eventTypeId = event.getTypeId();
+        if (eventTypeId == 1 || eventTypeMapper.selectById(eventTypeId).getAllowConflict() || event.getLocationId() == 1) {
+            return true;
+        }
+        QueryWrapper<Event> eventQueryWrapper = new QueryWrapper<>();
+        // 依据时间判断
+        eventQueryWrapper.between("gmt_event_start", event.getGmtEventStart(), event.getGmtEventEnd())
+                .or()
+                .between("gmt_event_end", event.getGmtEventStart(), event.getGmtEventEnd());
+        List<Event> events = eventMapper.selectList(eventQueryWrapper);
+        for (Event e :
+                events) {
+            if (e.getLocationId().equals(event.getLocationId())) {
+                return false;
+            }
+            if (e.getTypeId().equals(eventTypeId)) {
+                // 暂时不用&&，可能需要修改：冲突优先级问题，如果一个允许冲突，一个不允许冲突，结果是冲突还是不冲突
+                if (!eventTypeMapper.selectById(e.getTypeId()).getAllowConflict()) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     @Override
     public List<EventModel> postForEvents(List<Integer> typeId, List<Integer> departmentId, String time) {
         if (typeId.isEmpty()) {

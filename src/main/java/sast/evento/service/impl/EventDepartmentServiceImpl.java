@@ -46,6 +46,15 @@ public class EventDepartmentServiceImpl implements EventDepartmentService {
 
     @Override
     public Boolean addEventDepartments(Integer eventId, List<Department> departmentIds) {
+        List<Integer> departmentIdList = departmentIds.stream().collect(
+                ArrayList::new,
+                (list, department) -> list.add(department.getId()),
+                ArrayList::addAll);
+        QueryWrapper<Department> departmentQueryWrapper = new QueryWrapper<>();
+        departmentQueryWrapper.in("id", departmentIdList);
+        if (departmentMapper.selectCount(departmentQueryWrapper) != departmentIds.size()) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "departmentId is not exist");
+        }
         List<EventDepartment> eventDepartments = departmentIds.stream().collect(
                 ArrayList::new,
                 (list, department) -> {
