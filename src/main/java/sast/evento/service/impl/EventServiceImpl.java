@@ -9,9 +9,11 @@ import sast.evento.entitiy.Location;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.mapper.*;
 import sast.evento.model.EventModel;
+import sast.evento.model.PageMdoel;
 import sast.evento.model.UserProFile;
 import sast.evento.service.EventService;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -69,7 +71,7 @@ public class EventServiceImpl implements EventService {
 
     // 获取活动列表(分页）
     @Override
-    public List<EventModel> getEvents(Integer page, Integer size) {
+    public PageMdoel<EventModel> getEvents(Integer page, Integer size) {
         if (page == null || page < 0 || size == null || size < 0) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }

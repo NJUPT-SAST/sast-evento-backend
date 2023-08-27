@@ -11,6 +11,7 @@ import sast.evento.entitiy.Event;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.interceptor.HttpInterceptor;
 import sast.evento.model.EventModel;
+import sast.evento.model.PageMdoel;
 import sast.evento.model.UserProFile;
 import sast.evento.service.EventService;
 
@@ -125,8 +126,8 @@ public class EventController {
     @OperateLog("获取活动列表")
     @DefaultActionState(ActionState.PUBLIC)
     @GetMapping("/list")
-    public List<EventModel> getEvents(@RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
-                                      @RequestParam(value = "size", required = false, defaultValue = "10") Integer size) {
+    public PageMdoel<EventModel> getEvents(@RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+                                                 @RequestParam(value = "size", required = false, defaultValue = "10") Integer size) {
         return eventService.getEvents(page, size);
     }
 

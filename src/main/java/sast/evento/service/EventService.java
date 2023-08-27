@@ -1,6 +1,7 @@
 package sast.evento.service;
 
 import sast.evento.model.EventModel;
+import sast.evento.model.PageMdoel;
 import sast.evento.model.UserProFile;
 
 import java.util.List;
@@ -25,7 +26,7 @@ public interface EventService {
     List<EventModel> getNewest();
 
     // 获取活动列表
-    List<EventModel> getEvents(Integer page, Integer size);
+    PageMdoel<EventModel> getEvents(Integer page, Integer size);
 
     // 获取已订阅的活动列表
     List<EventModel> getSubscribed(Integer userId);
