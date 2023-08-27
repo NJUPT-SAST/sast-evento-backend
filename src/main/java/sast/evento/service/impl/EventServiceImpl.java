@@ -4,21 +4,22 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import sast.evento.common.enums.ErrorEnum;
 import sast.evento.common.enums.EventState;
 import sast.evento.entitiy.Event;
 import sast.evento.entitiy.Location;
 import sast.evento.exception.LocalRunTimeException;
-import sast.evento.mapper.EventMapper;
-import sast.evento.mapper.EventModelMapper;
-import sast.evento.mapper.EventTypeMapper;
-import sast.evento.mapper.LocationMapper;
+import sast.evento.mapper.*;
 import sast.evento.model.EventModel;
+import sast.evento.service.EventDepartmentService;
 import sast.evento.service.EventService;
 import sast.evento.service.EventStateScheduleService;
+import sast.evento.service.PermissionService;
 import sast.evento.utils.TimeUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -43,6 +44,12 @@ public class EventServiceImpl implements EventService {
 
     @Resource
     private EventStateScheduleService eventStateScheduleService;
+
+    @Resource
+    private EventDepartmentService eventDepartmentService;
+
+    @Resource
+    private PermissionService permissionService;
 
     @Resource
     private TimeUtil timeUtil;
@@ -108,11 +115,10 @@ public class EventServiceImpl implements EventService {
         return eventModelMapper.getSubscribed(userId);
     }
 
+    @Transactional
     @Override
-    public Integer addEvent(Event event) {
-        if (event == null) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
-        }
+    public Integer addEvent(EventModel eventModel, String userId) {
+        Event event = new Event(eventModel);
         /* 检测必需参数是否存在 */
         if (
                 (event.getTitle() == null) ||
@@ -149,30 +155,41 @@ public class EventServiceImpl implements EventService {
         }
         /* 设置为未开始 */
         event.setState(EventState.NOT_STARTED);
-        if (eventMapper.insert(event) > 0) {
-            addEventStateSchedule(event);
-            return event.getId();
+        if (eventMapper.insert(event) <= 0) {
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR);
         }
-        throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR);
+        addEventStateSchedule(event);
+        if (eventDepartmentService.addEventDepartments(event.getId(), eventModel.getDepartments())) {
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "add eventDepartment failed");
+        }
+        String[] methods = {"addEvent", "putEvent", "patchEvent", "deleteEvent"};
+        List<String> methodNames = new ArrayList<>(Arrays.asList(methods));
+        permissionService.addManager(event.getId(), methodNames, userId, null);
+        return event.getId();
     }
 
+    @Transactional
     @Override
     public Boolean deleteEvent(Integer eventId) {
         if (eventId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
+        if (!eventDepartmentService.deleteEventDepartmentsByEventId(eventId)) {
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "delete eventDepartment failed");
+        }
         boolean isSuccess = eventMapper.deleteById(eventId) > 0;
         if (isSuccess) {
             eventStateScheduleService.removeJobs(eventId);
+        } else {
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "delete event failed");
         }
-        return isSuccess;
+        return true;
     }
 
+    @Transactional
     @Override
-    public Boolean updateEvent(Event event) {
-        if (event == null || event.getId() == null) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
-        }
+    public Boolean updateEvent(EventModel eventModel) {
+        Event event = new Event(eventModel);
 
         // 检查对应的Event是否存在
         Event originEvent = eventMapper.selectById(event.getId());
@@ -242,8 +259,19 @@ public class EventServiceImpl implements EventService {
                 eventStateScheduleService.updateJob(event.getId(), event.getGmtEventEnd(), EventState.ENDED.getState());
             }
         }
+        if (eventModel.getDepartments() != null) {
+            eventDepartmentService.deleteEventDepartmentsByEventId(event.getId());
+            eventDepartmentService.addEventDepartments(event.getId(), eventModel.getDepartments());
+        }
 
         return isSuccess;
+    }
+
+    @Override
+    public void updateEvent(Event event) {
+        UpdateWrapper<Event> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("id", event.getId());
+        eventMapper.update(event, updateWrapper);
     }
 
 

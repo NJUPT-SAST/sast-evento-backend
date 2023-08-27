@@ -31,13 +31,15 @@ public interface EventService {
     List<EventModel> getSubscribed(Integer userId);
 
     // 发起活动（添加活动）
-    Integer addEvent(Event event);
+    Integer addEvent(EventModel eventModel, String userId);
 
     // 删除活动
     Boolean deleteEvent(Integer eventId);
 
     // 修改活动
-    Boolean updateEvent(Event event);
+    Boolean updateEvent(EventModel eventModel);
+
+    void updateEvent(Event event);
 
     // 取消活动（部分修改活动信息）
     Boolean cancelEvent(Integer eventId);
