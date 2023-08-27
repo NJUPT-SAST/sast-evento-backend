@@ -15,6 +15,7 @@ import sast.evento.mapper.EventTypeMapper;
 import sast.evento.mapper.LocationMapper;
 import sast.evento.model.EventModel;
 import sast.evento.service.EventService;
+import sast.evento.service.EventStateScheduleService;
 import sast.evento.utils.TimeUtil;
 
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ import java.util.List;
 public class EventServiceImpl implements EventService {
     @Resource
     private EventModelMapper eventModelMapper;
+
     @Resource
     private LocationMapper locationMapper;
 
@@ -38,6 +40,9 @@ public class EventServiceImpl implements EventService {
 
     @Resource
     private EventTypeMapper eventTypeMapper;
+
+    @Resource
+    private EventStateScheduleService eventStateScheduleService;
 
     @Resource
     private TimeUtil timeUtil;
@@ -145,6 +150,7 @@ public class EventServiceImpl implements EventService {
         /* 设置为未开始 */
         event.setState(EventState.NOT_STARTED);
         if (eventMapper.insert(event) > 0) {
+            addEventStateSchedule(event);
             return event.getId();
         }
         throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR);
@@ -155,7 +161,11 @@ public class EventServiceImpl implements EventService {
         if (eventId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
-        return eventMapper.deleteById(eventId) > 0;
+        boolean isSuccess = eventMapper.deleteById(eventId) > 0;
+        if (isSuccess) {
+            eventStateScheduleService.removeJobs(eventId);
+        }
+        return isSuccess;
     }
 
     @Override
@@ -163,16 +173,36 @@ public class EventServiceImpl implements EventService {
         if (event == null || event.getId() == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
-        // 如果没有修改时间、地点、类型，就不用检测冲突
-        if (event.getGmtEventEnd() == null && event.getGmtEventStart() == null && event.getLocationId() == null && event.getTypeId() == null) {
-            Event originEvent = eventMapper.selectById(event.getId());
-            if (originEvent == null) {
-                throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "event not exist.");
+
+        // 检查对应的Event是否存在
+        Event originEvent = eventMapper.selectById(event.getId());
+        if (originEvent == null) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "event not exist.");
+        }
+
+        // 用于判断是否需要更新定时任务
+        boolean isGmtRegistrationStartUpdated = event.getGmtRegistrationStart() != null;
+        boolean isGmtRegistrationEndUpdated = event.getGmtRegistrationEnd() != null;
+        boolean isGmtEventStartUpdated = event.getGmtEventStart() != null;
+        boolean isGmtEventEndUpdated = event.getGmtEventEnd() != null;
+
+        // 用于判断是否需要重新检查时间、地点、类型是否合法
+        boolean isTimeUpdated = isGmtRegistrationStartUpdated || isGmtRegistrationEndUpdated || isGmtEventStartUpdated || isGmtEventEndUpdated;
+        boolean isLocationUpdated = event.getLocationId() != null;
+        boolean isTypeUpdated = event.getTypeId() != null;
+
+        // 如果更新了时间、地点、类型，需要重新检查时间、地点、类型是否合法
+        if (isTimeUpdated || isLocationUpdated || isTypeUpdated) {
+            if (!isGmtRegistrationStartUpdated) {
+                event.setGmtRegistrationStart(originEvent.getGmtRegistrationStart());
             }
-            if (event.getGmtEventStart() == null) {
+            if (!isGmtRegistrationEndUpdated) {
+                event.setGmtRegistrationEnd(originEvent.getGmtRegistrationEnd());
+            }
+            if (!isGmtEventStartUpdated) {
                 event.setGmtEventStart(originEvent.getGmtEventStart());
             }
-            if (event.getGmtEventEnd() == null) {
+            if (!isGmtEventEndUpdated) {
                 event.setGmtEventEnd(originEvent.getGmtEventEnd());
             }
             if (event.getLocationId() == null) {
@@ -184,13 +214,36 @@ public class EventServiceImpl implements EventService {
             if (!timeCheck(event)) {
                 throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid time.");
             }
+            if (!locationCheck(event)) {
+                throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "location not exist.");
+            }
             if (!conflictCheck(event)) {
                 throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "conflict with other event.");
             }
         }
+
+        // 更新数据库
         UpdateWrapper<Event> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("id", event.getId());
-        return eventMapper.update(event, updateWrapper) > 0;
+        boolean isSuccess =  eventMapper.update(event, updateWrapper) > 0;
+
+        // 添加更新任务
+        if (isSuccess && isTimeUpdated) {
+            if (isGmtRegistrationStartUpdated) {
+                eventStateScheduleService.updateJob(event.getId(), event.getGmtRegistrationStart(), EventState.CHECKING_IN.getState());
+            }
+            if (isGmtRegistrationEndUpdated) {
+                eventStateScheduleService.updateJob(event.getId(), event.getGmtRegistrationEnd(), EventState.NOT_STARTED.getState());
+            }
+            if (isGmtEventStartUpdated) {
+                eventStateScheduleService.updateJob(event.getId(), event.getGmtEventStart(), EventState.IN_PROGRESS.getState());
+            }
+            if (isGmtEventEndUpdated) {
+                eventStateScheduleService.updateJob(event.getId(), event.getGmtEventEnd(), EventState.ENDED.getState());
+            }
+        }
+
+        return isSuccess;
     }
 
 
@@ -202,7 +255,11 @@ public class EventServiceImpl implements EventService {
         Event event = new Event();
         event.setId(eventId);
         event.setState(EventState.CANCELED);
-        return eventMapper.updateById(event) > 0;
+        boolean isSuccess = eventMapper.updateById(event) > 0;
+        if (isSuccess) {
+            eventStateScheduleService.removeJobs(eventId);
+        }
+        return isSuccess;
     }
 
     private Boolean timeCheck(Event event) {
@@ -249,6 +306,13 @@ public class EventServiceImpl implements EventService {
             }
         }
         return true;
+    }
+
+    private void addEventStateSchedule(Event event) {
+        eventStateScheduleService.scheduleJob(event.getId(), event.getGmtRegistrationStart(), EventState.CHECKING_IN.getState());
+        eventStateScheduleService.scheduleJob(event.getId(), event.getGmtRegistrationEnd(), EventState.NOT_STARTED.getState());
+        eventStateScheduleService.scheduleJob(event.getId(), event.getGmtEventStart(), EventState.IN_PROGRESS.getState());
+        eventStateScheduleService.scheduleJob(event.getId(), event.getGmtEventEnd(), EventState.ENDED.getState());
     }
 
     @Override

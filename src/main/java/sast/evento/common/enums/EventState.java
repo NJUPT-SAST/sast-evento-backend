@@ -18,7 +18,7 @@ public enum EventState {
         this.description = description;
     }
 
-    public static EventState getEventState(int state) {
+    public static EventState getEventState(Integer state) {
         return Arrays.stream(EventState.values())
                 .filter(EventState -> EventState.getState().equals(state))
                 .findAny()

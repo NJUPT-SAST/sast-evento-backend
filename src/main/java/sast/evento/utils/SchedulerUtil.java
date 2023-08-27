@@ -118,10 +118,19 @@ public class SchedulerUtil {
 
     public static void removeJob(String jobName, String jobGroupName, String triggerName, String triggerGroupName) throws SchedulerException {
         Scheduler scheduler = getScheduler();
+        if (!isJobExist(jobName, jobGroupName, triggerName, triggerGroupName)) {
+            log.info("Job: {} is not exist.", jobName);
+            return;
+        }
         TriggerKey triggerKey = new TriggerKey(triggerName, triggerGroupName);
         scheduler.pauseTrigger(triggerKey);
         scheduler.unscheduleJob(triggerKey);
         scheduler.deleteJob(new JobKey(jobName, jobGroupName));
+    }
+
+    public static Boolean isJobExist(String jobName, String jobGroupName, String triggerName, String triggerGroupName) throws SchedulerException {
+        Scheduler scheduler = getScheduler();
+        return scheduler.checkExists(new JobKey(jobName, jobGroupName)) && scheduler.checkExists(new TriggerKey(triggerName, triggerGroupName));
     }
 
     public static void shutdownScheduler() throws SchedulerException {
