@@ -16,7 +16,7 @@ public class EventTypeServiceImpl implements EventTypeService {
     @Resource
     private EventTypeMapper eventTypeMapper;
     @Override
-    public Boolean addEventType(EventType eventType) {
+    public Integer addEventType(EventType eventType) {
         if (eventType == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
@@ -26,7 +26,11 @@ public class EventTypeServiceImpl implements EventTypeService {
         if (eventType.getAllowConflict() == null) {
             eventType.setAllowConflict(true);
         }
-        return eventTypeMapper.insert(eventType) > 0;
+        boolean isSuccess = eventTypeMapper.insert(eventType) > 0;
+        if (!isSuccess) {
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "add eventType failed");
+        }
+        return eventType.getId();
     }
 
     @Override
@@ -34,7 +38,11 @@ public class EventTypeServiceImpl implements EventTypeService {
         if (id == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
-        return eventTypeMapper.deleteById(id) > 0;
+        boolean isSuccess = eventTypeMapper.deleteById(id) > 0;
+        if (!isSuccess) {
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "delete eventType failed");
+        }
+        return true;
     }
 
     @Override

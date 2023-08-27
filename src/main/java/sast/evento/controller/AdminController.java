@@ -23,6 +23,11 @@ public class AdminController {
     @Resource
     private LocationService locationService;
 
+    /**
+     * 添加活动地点
+     * @param location 活动地点
+     * @return 活动地点id
+     */
     @OperateLog("添加活动地点")
     @DefaultActionState(ActionState.ADMIN)
     @PostMapping("/location")
@@ -31,17 +36,22 @@ public class AdminController {
         return locationService.addLocation(location).toString();
     }
 
+    /**
+     * 删除活动地点
+     * @param locationId 活动地点id
+     * @return 是否成功
+     */
     @OperateLog("删除活动地点")
     @DefaultActionState(ActionState.ADMIN)
     @DeleteMapping("/location")
     public String deleteLocation(@RequestParam Integer locationId) {
-        if (!locationService.deleteLocation(locationId)) {
-            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "delete failed");
-        } else {
-            return "success";
-        }
+        return locationService.deleteLocation(locationId).toString();
     }
 
+    /**
+     * 获取活动地点
+     * @return 活动地点列表
+     */
     @OperateLog("获取活动地点")
     @DefaultActionState(ActionState.ADMIN)
     @GetMapping("/locations")
@@ -50,6 +60,12 @@ public class AdminController {
         return locationService.getLocations();
     }
 
+    /**
+     * 修改活动地点
+     * @param locationId 活动地点id
+     * @param location 活动地点
+     * @return 是否成功
+     */
     @OperateLog("修改活动地点")
     @DefaultActionState(ActionState.ADMIN)
     @PutMapping("/location")
@@ -61,6 +77,11 @@ public class AdminController {
 
     }
 
+    /**
+     * 添加活动类型
+     * @param type 活动类型
+     * @return 活动类型id
+     */
     @OperateLog("添加活动类型")
     @DefaultActionState(ActionState.ADMIN)
     @PostMapping("/type")
@@ -69,6 +90,11 @@ public class AdminController {
         return eventTypeService.addEventType(type).toString();
     }
 
+    /**
+     * 删除活动类型
+     * @param typeId 活动类型id
+     * @return 是否成功
+     */
     @OperateLog("删除活动类型")
     @DefaultActionState(ActionState.ADMIN)
     @DeleteMapping("/type")
@@ -76,6 +102,10 @@ public class AdminController {
         return eventTypeService.deleteEventType(typeId).toString();
     }
 
+    /**
+     * 获取活动类型
+     * @return 活动类型列表
+     */
     @OperateLog("获取活动类型")
     @DefaultActionState(ActionState.ADMIN)
     @GetMapping("/types")
@@ -83,6 +113,12 @@ public class AdminController {
         return eventTypeService.getAllEventType();
     }
 
+    /**
+     * 修改活动类型
+     * @param typeId 活动类型id
+     * @param type 活动类型
+     * @return 是否成功
+     */
     @OperateLog("修改活动类型")
     @DefaultActionState(ActionState.ADMIN)
     @PutMapping("/type")

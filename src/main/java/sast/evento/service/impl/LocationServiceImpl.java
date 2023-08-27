@@ -20,17 +20,25 @@ public class LocationServiceImpl implements LocationService {
     @Resource
     private LocationMapper locationMapper;
     @Override
-    public Boolean addLocation(Location location) {
+    public Integer addLocation(Location location) {
         if (location == null || location.getLocationName() == null || location.getParentId() == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
         checkParentId(location);
-        return locationMapper.insert(location) > 0;
+        boolean isSuccess = locationMapper.insert(location) > 0;
+        if (!isSuccess) {
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "add location failed");
+        }
+        return location.getId();
     }
 
     @Override
     public Boolean deleteLocation(Integer id) {
-        return locationMapper.deleteById(id) > 0;
+        boolean isSuccess = locationMapper.deleteById(id) > 0;
+        if (!isSuccess) {
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "delete location failed");
+        }
+        return true;
     }
 
     @Override
@@ -41,7 +49,10 @@ public class LocationServiceImpl implements LocationService {
         checkParentId(location);
         UpdateWrapper<Location> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("id", location.getId());
-        return locationMapper.update(location, updateWrapper) > 0;
+        if (!(locationMapper.update(location, updateWrapper) > 0)) {
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "delete failed");
+        }
+        return true;
     }
 
     @Override

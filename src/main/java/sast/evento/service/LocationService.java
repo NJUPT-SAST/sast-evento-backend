@@ -6,7 +6,7 @@ import sast.evento.model.treeDataNodeDTO.TreeDataNode;
 import java.util.List;
 
 public interface LocationService {
-    Boolean addLocation(Location location);
+    Integer addLocation(Location location);
     Boolean deleteLocation(Integer id);
     Boolean updateLocation(Location location);
     List<TreeDataNode> getLocations();
