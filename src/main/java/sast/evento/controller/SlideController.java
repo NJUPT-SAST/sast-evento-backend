@@ -7,6 +7,7 @@ import sast.evento.annotation.EventId;
 import sast.evento.annotation.OperateLog;
 import sast.evento.common.enums.ActionState;
 import sast.evento.entitiy.Slide;
+import sast.evento.model.SlidePageModel;
 import sast.evento.service.SlideService;
 
 import java.util.List;
@@ -28,9 +29,10 @@ public class SlideController {
     @OperateLog("获取首页幻灯片列表")
     @DefaultActionState(ActionState.PUBLIC)
     @GetMapping("/home/list")
-    public List<Slide> getHomeSlides(@RequestParam(defaultValue = "3", required = false) Integer size) {
+    public SlidePageModel getHomeSlides(@RequestParam(defaultValue = "1", required = false) Integer current,
+                                        @RequestParam(defaultValue = "3", required = false) Integer size) {
         /* 获取最新幻灯片，按id降序排列 */
-        return slideService.getHomeSlides(size);
+        return slideService.getHomeSlides(current, size);
     }
 
     @OperateLog("添加活动幻灯片")

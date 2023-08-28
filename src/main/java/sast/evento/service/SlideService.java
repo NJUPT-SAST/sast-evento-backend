@@ -1,6 +1,7 @@
 package sast.evento.service;
 
 import sast.evento.entitiy.Slide;
+import sast.evento.model.SlidePageModel;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ public interface SlideService {
     void patchEventSlide(Integer eventId, Integer slideId, String url, String link, String title);
 
     /* home */
-    List<Slide> getHomeSlides(Integer size);
+    SlidePageModel getHomeSlides(Integer current, Integer size);
 
     Integer addHomeSlide(String url, String link, String title);
 
