@@ -16,8 +16,8 @@ import java.util.List;
  */
 @Mapper
 @Repository
-public interface EventModelMapper extends BaseMapper<EventModel> {
-
+public interface EventModelMapper {
+    // 获取活动详情
     EventModel getById(@Param("eventId") Integer eventId);
 
     // 正在进行的活动列表
@@ -98,5 +98,8 @@ public interface EventModelMapper extends BaseMapper<EventModel> {
                                         @Param("monday") Date monday,
                                         @Param("next_monday") Date nextMonday);
 
+
+    // 获取已订阅的活动列表
+    List<EventModel> getSubscribed(@Param("userId") Integer userId);
 
 }

@@ -1,5 +1,6 @@
 package sast.evento.controller;
 
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 import sast.evento.annotation.DefaultActionState;
 import sast.evento.annotation.OperateLog;
@@ -8,37 +9,63 @@ import sast.evento.common.enums.ErrorEnum;
 import sast.evento.entitiy.EventType;
 import sast.evento.entitiy.Location;
 import sast.evento.exception.LocalRunTimeException;
+import sast.evento.model.treeDataNodeDTO.TreeDataNode;
+import sast.evento.service.EventTypeService;
+import sast.evento.service.LocationService;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
+    @Resource
+    private EventTypeService eventTypeService;
+    @Resource
+    private LocationService locationService;
 
+    /**
+     * 添加活动地点
+     * @param location 活动地点
+     * @return 活动地点id
+     */
     @OperateLog("添加活动地点")
     @DefaultActionState(ActionState.ADMIN)
     @PostMapping("/location")
     public String addLocation(@RequestBody Location location) {
         if (location.getId() != null) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "id should be null.");
-        return null;
+        return locationService.addLocation(location).toString();
     }
 
+    /**
+     * 删除活动地点
+     * @param locationId 活动地点id
+     * @return 是否成功
+     */
     @OperateLog("删除活动地点")
     @DefaultActionState(ActionState.ADMIN)
     @DeleteMapping("/location")
     public String deleteLocation(@RequestParam Integer locationId) {
-        return null;
+        return locationService.deleteLocation(locationId).toString();
     }
 
+    /**
+     * 获取活动地点
+     * @return 活动地点列表
+     */
     @OperateLog("获取活动地点")
     @DefaultActionState(ActionState.ADMIN)
     @GetMapping("/locations")
-    public Object getLocations(@RequestParam Integer locationId) {
-        /* 请和前端协商后决定传参方式如:0-0-1 */
-        /* 以树状结构返回，和前端商讨参数和返回格式 */
-        return null;
+    public List<TreeDataNode> getLocations() {
+        /* 以树状结构返回 */
+        return locationService.getLocations();
     }
 
+    /**
+     * 修改活动地点
+     * @param locationId 活动地点id
+     * @param location 活动地点
+     * @return 是否成功
+     */
     @OperateLog("修改活动地点")
     @DefaultActionState(ActionState.ADMIN)
     @PutMapping("/location")
@@ -46,40 +73,59 @@ public class AdminController {
                                  @RequestBody Location location) {
         if (!location.getId().equals(locationId)) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid id");
         /* 比较复杂，谨慎修改 */
-        return null;
+        return locationService.updateLocation(location).toString();
 
     }
 
+    /**
+     * 添加活动类型
+     * @param type 活动类型
+     * @return 活动类型id
+     */
     @OperateLog("添加活动类型")
     @DefaultActionState(ActionState.ADMIN)
     @PostMapping("/type")
     public String addType(@RequestBody EventType type) {
         if (type.getId() != null) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "id should be null");
-        return null;
+        return eventTypeService.addEventType(type).toString();
     }
 
+    /**
+     * 删除活动类型
+     * @param typeId 活动类型id
+     * @return 是否成功
+     */
     @OperateLog("删除活动类型")
     @DefaultActionState(ActionState.ADMIN)
     @DeleteMapping("/type")
     public String deleteType(@RequestParam Integer typeId) {
-        return null;
+        return eventTypeService.deleteEventType(typeId).toString();
     }
 
+    /**
+     * 获取活动类型
+     * @return 活动类型列表
+     */
     @OperateLog("获取活动类型")
     @DefaultActionState(ActionState.ADMIN)
     @GetMapping("/types")
-    public List<EventType> getTypes(@RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
-                                    @RequestParam(value = "size", required = false, defaultValue = "10") Integer size) {
-        return null;
+    public List<EventType> getTypes() {
+        return eventTypeService.getAllEventType();
     }
 
+    /**
+     * 修改活动类型
+     * @param typeId 活动类型id
+     * @param type 活动类型
+     * @return 是否成功
+     */
     @OperateLog("修改活动类型")
     @DefaultActionState(ActionState.ADMIN)
     @PutMapping("/type")
     public String updateType(@RequestParam Integer typeId,
                              @RequestBody EventType type) {
         if (!type.getId().equals(typeId)) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid id");
-        return null;
+        return eventTypeService.editEventType(type).toString();
     }
 
 }

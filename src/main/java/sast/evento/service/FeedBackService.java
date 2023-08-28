@@ -17,16 +17,17 @@ public interface FeedBackService {
     FeedbacksDTO getFeedback(Integer eventId);
 
     // 用户添加反馈
-    String addFeedback(String content, Integer score, Integer eventId);
+    String addFeedback(Integer userId, String content, Double score, Integer eventId);
 
     // 用户获取反馈列表
-    List<FeedbackModel> getFeedbacks();
+    List<FeedbackModel> getFeedbacks(Integer userId);
 
     // 用户修改反馈
-    String patchFeedback(String content, Integer score, Integer feedbackId);
+
+    String patchFeedback(Integer userId, Integer feedbackId, String content, Double score);
 
     // 用户删除反馈
-    String deleteFeedback(Integer feedbackId);
+    String deleteFeedback(Integer userId, Integer feedbackId);
 
     // 管理端获取活动及其反馈数量列表
     List<Map<String, Integer>> getFeedbackEvents(Integer page, Integer size);

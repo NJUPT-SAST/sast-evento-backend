@@ -50,4 +50,16 @@
         WHERE e.id = #{event_id}
     </select>
 
+    <insert id="addFeedback">
+        INSERT INTO feedback (score, content, participate_id, user_id)
+        SELECT #{score}, #{content}, p.id, #{userId}
+        FROM participate AS p
+            LEFT JOIN feedback AS f
+            ON p.id = f.participate_id AND f.user_id = #{userId}
+        WHERE
+            p.user_id = #{userId}
+          AND p.event_id = #{eventId}
+          AND f.participate_id IS NULL
+    </insert>
+
 </mapper>
