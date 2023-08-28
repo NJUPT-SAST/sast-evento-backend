@@ -11,6 +11,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ErrorEnum {
+    /* 内部服务器异常 */
+    INTERNAL_SERVER_ERROR(500,"HTTP Status 500 – Internal Server Error"),
     /* 错误 */
     COMMON_ERROR(1000, "error"),
     /* 鉴权错误 */

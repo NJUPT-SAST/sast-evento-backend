@@ -24,6 +24,9 @@ public class LocalExceptionHandler {
         }
         ErrorEnum errorEnum = e.getErrorEnum();
         if (!e.getMessage().isEmpty()) {
+            if (errorEnum != null) {
+                return GlobalResponse.failure(errorEnum, e.getMessage());
+            }
             return GlobalResponse.failure(e.getMessage());
         }
         return GlobalResponse.failure(errorEnum);

@@ -53,4 +53,14 @@ public class GlobalResponse<T> {
         response.setData(null);
         return response;
     }
+
+    public static <T> GlobalResponse<T> failure(ErrorEnum errorEnum,String message) {
+        GlobalResponse<T> response = new GlobalResponse<>();
+        response.setSuccess(false);
+        response.setErrCode(errorEnum.getErrCode());
+        response.setErrMsg(message);
+        response.setData(null);
+        return response;
+    }
+
 }

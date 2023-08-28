@@ -53,6 +53,7 @@ public class HttpInterceptor implements HandlerInterceptor {
         }
         Method method = ((HandlerMethod) handler).getMethod();
         String token = request.getHeader("TOKEN");
+        if(method.getName().equals("error")) throw new LocalRunTimeException(ErrorEnum.INTERNAL_SERVER_ERROR);
         Action action = Optional.ofNullable(actionService.getAction(method.getName()))
                 .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.METHOD_NOT_EXIST, "unsupported service"));
         String userId = null;
