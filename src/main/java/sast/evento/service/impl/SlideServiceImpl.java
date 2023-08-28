@@ -49,7 +49,9 @@ public class SlideServiceImpl implements SlideService {
         return slideMapper.selectList(new LambdaQueryWrapper<Slide>()
                 .eq(Slide::getEventId, 0)
                 .orderByDesc(Slide::getId)
-                .last("limit " + size));
+                .last("limit " + size)).stream()
+                .peek(slide -> slide.setEventId(null))
+                .toList();
     }
 
     @Override
