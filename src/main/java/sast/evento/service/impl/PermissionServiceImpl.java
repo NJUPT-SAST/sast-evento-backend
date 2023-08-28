@@ -38,7 +38,9 @@ public class PermissionServiceImpl implements PermissionService {
             "getUserManagerPermissions", "getUserManagerPermissAsList");
     public static final List<String> defaultAdminPermission = List.of(
             "getUserAdminPermissions", "getAllAdminPermissions",
-            "getAllAdminPermissionsAsTree", "getUserAdminPermissAsList");
+            "getAllAdminPermissionsAsTree", "getUserAdminPermissAsList",
+            "getFeedback", "getStates", "getActionList", "getTypes",
+            "getDepartments", "getLocations", "getAdmins");
 
     @Override
     public List<Action> getAllAdminPermissions() {
