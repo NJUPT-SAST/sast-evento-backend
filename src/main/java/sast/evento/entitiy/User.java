@@ -19,16 +19,8 @@ public class User {
     @TableId(value = "id")
     private String userId;
 
-    private String studentId;
-
     private String openId;
 
     private String email;
-
-//    private String nickName;
-//
-//    private String name;
-//
-//    private String phoneNumber;
 
 }

@@ -46,7 +46,7 @@ public class LoginServiceImpl implements LoginService {
     public Map<String, Object> linkLogin(String code) throws SastLinkException {
         Map<String, Object> data = login(code);
         UserInfo userInfo = (UserInfo) data.get("userInfo");
-        userMapper.ignoreInsertUser(userInfo.getUserId(), null, userInfo.getWechatId(), userInfo.getEmail());
+        userMapper.ignoreInsertUser(userInfo.getUserId(), userInfo.getWechatId(), userInfo.getEmail());
         return data;
     }
 
@@ -58,7 +58,7 @@ public class LoginServiceImpl implements LoginService {
         /* 临时登录一下，登完就退 */
         Map<String, Object> data = login(code);
         UserInfo userInfo = (UserInfo) data.get("userInfo");
-        userMapper.ignoreInsertUser(userInfo.getUserId(), null, openId, userInfo.getEmail());
+        userMapper.ignoreInsertUser(userInfo.getUserId(), openId, userInfo.getEmail());
         return data;
     }
 

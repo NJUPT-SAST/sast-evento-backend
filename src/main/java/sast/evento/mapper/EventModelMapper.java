@@ -1,15 +1,13 @@
 package sast.evento.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 import sast.evento.model.EventModel;
-import sast.evento.model.PageMdoel;
+import sast.evento.model.PageModel;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @projectName: sast-evento-backend
@@ -33,7 +31,9 @@ public interface EventModelMapper {
 
     // 获取活动列表(分页）
 //    List<EventModel> getEvents(@Param("index") Integer index, @Param("size") Integer size);
-    PageMdoel<EventModel> getEvents(@Param("index") Integer index, @Param("size") Integer size);
+    PageModel<EventModel> getEvents(@Param("index") Integer index, @Param("size") Integer size);
+
+    List<EventModel> getEventList();
 
     /**
      * @param monday     Date

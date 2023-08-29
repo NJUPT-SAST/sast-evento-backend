@@ -8,8 +8,6 @@ public interface UserService {
 
     User getUserById(String userId);
 
-    User getUserByStudentId(String studentId);
-
     Integer updateUser(User user);
 
     Integer addUser(User user);//增加默认权限喵

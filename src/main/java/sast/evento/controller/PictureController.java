@@ -50,7 +50,7 @@ public class PictureController {
     }
 
     @OperateLog("添加图片")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(ActionState.LOGIN)
     @PostMapping("/info")
     public String addPicture(MultipartFile picture,
                              @RequestParam(defaultValue = "") String dir) {
@@ -67,7 +67,7 @@ public class PictureController {
     }
 
     @OperateLog("删除图片")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(ActionState.LOGIN)
     @DeleteMapping("/info")
     public String deletePicture(@RequestParam String url) {
         if (url.isEmpty()) {

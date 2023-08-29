@@ -6,14 +6,12 @@ import sast.evento.annotation.DefaultActionState;
 import sast.evento.annotation.EventId;
 import sast.evento.annotation.OperateLog;
 import sast.evento.common.enums.ActionState;
+import sast.evento.entitiy.User;
 import sast.evento.interceptor.HttpInterceptor;
-import sast.evento.mapper.FeedbackModelMapper;
 import sast.evento.model.FeedbackModel;
 import sast.evento.model.FeedbacksDTO;
-import sast.evento.model.UserProFile;
 import sast.evento.service.FeedBackService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -54,14 +52,10 @@ public class FeedbackController {
     @DefaultActionState(ActionState.LOGIN)
     @PostMapping("/info")
     public String addFeedback(@RequestParam(required = false) String content,
-                              @RequestParam Integer score,
+                              @RequestParam Double score,
                               @RequestParam Integer eventId) {
-        UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        if (userProFile == null) {
-            return null;
-        }
-
-        String userIdStr = userProFile.getUserId();
+        User user = HttpInterceptor.userHolder.get();
+        String userIdStr = user.getUserId();
         Integer userIdInt = Integer.valueOf(userIdStr);
         return feedBackService.addFeedback(userIdInt, content, score, eventId);
     }
@@ -70,12 +64,8 @@ public class FeedbackController {
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/user/list")
     public List<FeedbackModel> getListByUserId() {
-        UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        if (userProFile == null) {
-            return null;
-        }
-
-        String userIdStr = userProFile.getUserId();
+        User user = HttpInterceptor.userHolder.get();
+        String userIdStr = user.getUserId();
         Integer userIdInt = Integer.valueOf(userIdStr);
         return feedBackService.getListByUserId(userIdInt);
     }
@@ -84,13 +74,9 @@ public class FeedbackController {
     @OperateLog("用户获取自己写的某活动的反馈详情（可判断是否反馈）")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/user/info")
-    public FeedbackModel getFeedback(@RequestParam Integer eventId) {
-        UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        if (userProFile == null) {
-            return null;
-        }
-
-        String userIdStr = userProFile.getUserId();
+    public FeedbackModel getUserFeedback(@RequestParam Integer eventId) {
+        User user = HttpInterceptor.userHolder.get();
+        String userIdStr = user.getUserId();
         Integer userIdInt = Integer.valueOf(userIdStr);
         return feedBackService.getFeedback(userIdInt, eventId);
     }
@@ -101,13 +87,10 @@ public class FeedbackController {
     @DefaultActionState(ActionState.LOGIN)
     @PatchMapping("/info")
     public String patchFeedback(@RequestParam(required = false) String content,
-                                @RequestParam(required = false) Integer score,
+                                @RequestParam(required = false) Double score,
                                 @RequestParam Integer feedbackId) {
-        UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        if (userProFile == null) {
-            return null;
-        }
-        String userIdStr = userProFile.getUserId();
+        User user = HttpInterceptor.userHolder.get();
+        String userIdStr = user.getUserId();
         Integer userIdInt = Integer.valueOf(userIdStr);
         return feedBackService.patchFeedback(userIdInt, feedbackId, content, score);
     }
@@ -116,11 +99,8 @@ public class FeedbackController {
     @DefaultActionState(ActionState.LOGIN)
     @DeleteMapping("/info")
     public String deleteFeedback(@RequestParam Integer feedbackId) {
-        UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        if (userProFile == null) {
-            return null;
-        }
-        String userIdStr = userProFile.getUserId();
+        User user = HttpInterceptor.userHolder.get();
+        String userIdStr = user.getUserId();
         Integer userIdInt = Integer.valueOf(userIdStr);
         return feedBackService.deleteFeedback(userIdInt, feedbackId);
     }

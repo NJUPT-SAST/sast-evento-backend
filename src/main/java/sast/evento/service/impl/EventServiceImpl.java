@@ -5,14 +5,18 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import sast.evento.common.enums.ActionState;
 import sast.evento.common.enums.ErrorEnum;
 import sast.evento.common.enums.EventState;
+import sast.evento.config.ActionRegister;
 import sast.evento.entitiy.Event;
 import sast.evento.entitiy.EventType;
 import sast.evento.entitiy.Location;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.mapper.*;
+import sast.evento.model.Action;
 import sast.evento.model.EventModel;
+import sast.evento.model.PageModel;
 import sast.evento.service.EventDepartmentService;
 import sast.evento.service.EventService;
 import sast.evento.service.EventStateScheduleService;
@@ -98,7 +102,7 @@ public class EventServiceImpl implements EventService {
 
     // 获取活动列表(分页）
     @Override
-    public PageMdoel<EventModel> getEvents(Integer page, Integer size) {
+    public PageModel<EventModel> getEvents(Integer page, Integer size) {
         if (page == null || page < 0 || size == null || size < 0) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
@@ -163,9 +167,11 @@ public class EventServiceImpl implements EventService {
         if (eventDepartmentService.addEventDepartments(event.getId(), eventModel.getDepartments())) {
             throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "add eventDepartment failed");
         }
-        String[] methods = {"addEvent", "putEvent", "patchEvent", "deleteEvent"};
-        List<String> methodNames = new ArrayList<>(Arrays.asList(methods));
-        permissionService.addManager(event.getId(), methodNames, userId, null);
+        List<String> methodNames = ActionRegister.actionName2action.values().stream()
+                .filter(action -> action.getActionState().equals(ActionState.MANAGER))
+                .map(Action::getMethodName)
+                .toList();
+        permissionService.addManager(event.getId(), methodNames, userId);
         return event.getId();
     }
 
@@ -349,7 +355,7 @@ public class EventServiceImpl implements EventService {
         if (typeId.isEmpty()) {
             if (departmentId.isEmpty()) {
                 if (time.isEmpty()) {
-                    return getEvents(1, 10);
+                    return eventModelMapper.getEventList();
                 }
                 List<Date> date = timeUtil.getDateOfMonday(time);
                 return eventModelMapper.getEventByTime(date.get(0), date.get(1));

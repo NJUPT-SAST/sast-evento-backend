@@ -14,7 +14,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PageMdoel<T> {
+public class PageModel<T> {
 
     private Integer total;
 

@@ -6,10 +6,9 @@ import sast.evento.annotation.DefaultActionState;
 import sast.evento.annotation.OperateLog;
 import sast.evento.common.enums.ActionState;
 import sast.evento.common.enums.ErrorEnum;
+import sast.evento.entitiy.User;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.interceptor.HttpInterceptor;
-import sast.evento.model.UserProFile;
-import sast.evento.response.GlobalResponse;
 import sast.evento.service.LoginService;
 import sast.sastlink.sdk.exception.SastLinkException;
 
@@ -36,7 +35,7 @@ public class LoginController {
         try {
             return loginService.linkLogin(code);
         } catch (SastLinkException e) {
-            throw new LocalRunTimeException(ErrorEnum.SAST_LINK_SERVICE_ERROR,e.getMessage());
+            throw new LocalRunTimeException(ErrorEnum.SAST_LINK_SERVICE_ERROR, e.getMessage());
         }
     }
 
@@ -54,13 +53,13 @@ public class LoginController {
         if (password.isEmpty()) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid password");
         }
-        if (openId.isEmpty()){
+        if (openId.isEmpty()) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid openId");
         }
         try {
-            return loginService.wxLogin(email, password, codeChallenge, codeChallengeMethod,openId);
+            return loginService.wxLogin(email, password, codeChallenge, codeChallengeMethod, openId);
         } catch (SastLinkException e) {
-            throw new LocalRunTimeException(ErrorEnum.SAST_LINK_SERVICE_ERROR,e.getMessage());
+            throw new LocalRunTimeException(ErrorEnum.SAST_LINK_SERVICE_ERROR, e.getMessage());
         }
     }
 
@@ -68,11 +67,11 @@ public class LoginController {
     @GetMapping("/logout")
     @DefaultActionState(ActionState.LOGIN)
     public String logout() {
-        UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
+        User user = HttpInterceptor.userHolder.get();
         try {
-            loginService.logout(userProFile.getUserId());
+            loginService.logout(user.getUserId());
         } catch (SastLinkException e) {
-            throw new LocalRunTimeException(ErrorEnum.SAST_LINK_SERVICE_ERROR,e.getMessage());
+            throw new LocalRunTimeException(ErrorEnum.SAST_LINK_SERVICE_ERROR, e.getMessage());
         }
         return "ok";
     }

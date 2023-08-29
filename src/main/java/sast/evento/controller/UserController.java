@@ -7,9 +7,9 @@ import sast.evento.annotation.OperateLog;
 import sast.evento.common.enums.ActionState;
 import sast.evento.common.enums.ErrorEnum;
 import sast.evento.entitiy.Participate;
+import sast.evento.entitiy.User;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.interceptor.HttpInterceptor;
-import sast.evento.model.Action;
 import sast.evento.model.EventModel;
 import sast.evento.model.UserProFile;
 import sast.evento.service.EventService;
@@ -49,12 +49,8 @@ public class UserController {
     @GetMapping("/subscribe")
     public String subscribe(@RequestParam Integer eventId,
                             @RequestParam Boolean isSubscribe) {
-        UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        if (userProFile == null) {
-            return null;
-        }
-
-        String userIdStr = userProFile.getUserId();
+        User user = HttpInterceptor.userHolder.get();
+        String userIdStr = user.getUserId();
         Integer userIdInt = Integer.valueOf(userIdStr);
         return participateService.subscribe(userIdInt, eventId, isSubscribe);
     }
@@ -63,11 +59,8 @@ public class UserController {
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/subscribed")
     public List<EventModel> getSubscribed() {
-        UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        if (userProFile == null) {
-            return null;
-        }
-        String userIdStr = userProFile.getUserId();
+        User user = HttpInterceptor.userHolder.get();
+        String userIdStr = user.getUserId();
         Integer userIdInt = Integer.valueOf(userIdStr);
         return eventService.getSubscribed(userIdInt);
     }
@@ -77,12 +70,8 @@ public class UserController {
     @GetMapping("/register")
     public String register(@RequestParam Integer eventId,
                            @RequestParam Boolean isRegister) {
-        UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        if (userProFile == null) {
-            return null;
-        }
-
-        String userIdStr = userProFile.getUserId();
+        User user = HttpInterceptor.userHolder.get();
+        String userIdStr = user.getUserId();
         Integer userIdInt = Integer.valueOf(userIdStr);
         return participateService.register(userIdInt, eventId, isRegister);
     }
@@ -91,12 +80,8 @@ public class UserController {
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/registered")
     public List<EventModel> getRegistered() {
-        UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        if (userProFile == null) {
-            return null;
-        }
-
-        String userIdStr = userProFile.getUserId();
+        User user = HttpInterceptor.userHolder.get();
+        String userIdStr = user.getUserId();
         Integer userIdInt = Integer.valueOf(userIdStr);
         return eventService.getRegistered(userIdInt);
     }
@@ -107,43 +92,10 @@ public class UserController {
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/participate")
     public Participate getParticipation(@RequestParam Integer eventId) {
-        UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        if (userProFile == null) {
-            return null;
-        }
-
-        String userIdStr = userProFile.getUserId();
+        User user = HttpInterceptor.userHolder.get();
+        String userIdStr = user.getUserId();
         Integer userIdInt = Integer.valueOf(userIdStr);
         return participateService.getParticipation(userIdInt, eventId);
     }
-
-    @OperateLog("获取查看个人全部可用接口")
-    @DefaultActionState(ActionState.LOGIN)
-    @GetMapping("/action")
-    public List<Action> getAllPermissions() {
-        return null;
-    }
-
-    @OperateLog("获取查看个人admin权限")
-    @DefaultActionState(ActionState.LOGIN)
-    @GetMapping("/admin")
-    public List<Action> getAdminPermissions() {
-        return null;
-    }
-
-    @OperateLog("获取查看个人某event权限")
-    @DefaultActionState(ActionState.LOGIN)
-    @GetMapping("/manager")
-    public List<Action> getManagePermissions(@RequestParam Integer eventId) {
-        return null;
-    }
-
-    @OperateLog("获取个人可管理的活动")
-    @DefaultActionState(ActionState.LOGIN)
-    @GetMapping("/manager/events")
-    public List<Action> getManageEvents() {
-        return null;
-    }
-
 
 }

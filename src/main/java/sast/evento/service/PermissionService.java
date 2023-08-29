@@ -16,31 +16,31 @@ public interface PermissionService {
 
     List<TreeDataNode> getAllManagerPermissionsAsTree();
 
-    void addAdmin(List<String> methodNames, String userId, String studentId);
+    void addAdmin(List<String> methodNames, String userId);
 
-    void deleteAdmin(String userId, String studentId);
+    void deleteAdmin(String userId);
 
     List<User> getAdmins();
 
-    void updateAdminPermission(List<String> methodNames, String userId, String studentId);
+    void updateAdminPermission(List<String> methodNames, String userId);
 
-    List<Action> getUserAdminPermissions(String userId, String studentId);
+    List<Action> getUserAdminPermissions(String userId);
 
-    List<String> getUserAdminPermissAsList(String userId, String studentId);
+    List<String> getUserAdminPermissAsList(String userId);
 
-    void addManager(Integer eventId, List<String> methodNames, String userId, String studentId);
+    void addManager(Integer eventId, List<String> methodNames, String userId);
 
-    void deleteManager(Integer eventId, String userId, String studentId);
+    void deleteManager(Integer eventId, String userId);
 
     List<User> getManagers(Integer eventId);
 
-    void updateManagerPermission(Integer eventId, List<String> methodNames, String userId, String studentId);
+    void updateManagerPermission(Integer eventId, List<String> methodNames, String userId);
 
-    List<Action> getUserManagerPermissions(Integer eventId, String userId, String studentId);
+    List<Action> getUserManagerPermissions(Integer eventId, String userId);
 
-    List<String> getUserManagerPermissAsList(Integer eventId, String userId, String studentId);
+    List<String> getUserManagerPermissAsList(Integer eventId, String userId);
 
-    List<Integer> getManageEvent(String userId, String studentId);
+    List<Integer> getManageEvent(String userId);
 
     List<Action> getPublicActions();
 

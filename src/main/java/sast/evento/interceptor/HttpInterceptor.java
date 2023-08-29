@@ -12,12 +12,12 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 import sast.evento.annotation.EventId;
 import sast.evento.common.enums.ErrorEnum;
+import sast.evento.entitiy.User;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.model.Action;
-import sast.evento.model.UserProFile;
 import sast.evento.service.ActionService;
-import sast.evento.service.PermissionService;
 import sast.evento.service.LoginService;
+import sast.evento.service.PermissionService;
 import sast.evento.utils.JwtUtil;
 import sast.sastlink.sdk.model.UserInfo;
 
@@ -36,7 +36,8 @@ import java.util.Optional;
  */
 @Component
 public class HttpInterceptor implements HandlerInterceptor {
-    public static ThreadLocal<UserProFile> userProFileHolder = new ThreadLocal<>();
+    public static ThreadLocal<User> userHolder = new ThreadLocal<>();
+
     @Resource
     private ActionService actionService;
     @Resource
@@ -53,7 +54,7 @@ public class HttpInterceptor implements HandlerInterceptor {
         }
         Method method = ((HandlerMethod) handler).getMethod();
         String token = request.getHeader("TOKEN");
-        if(method.getName().equals("error")) throw new LocalRunTimeException(ErrorEnum.INTERNAL_SERVER_ERROR);
+        if (method.getName().equals("error")) throw new LocalRunTimeException(ErrorEnum.INTERNAL_SERVER_ERROR);
         Action action = Optional.ofNullable(actionService.getAction(method.getName()))
                 .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.METHOD_NOT_EXIST, "unsupported service"));
         String userId = null;
@@ -90,16 +91,13 @@ public class HttpInterceptor implements HandlerInterceptor {
             }
         }
         UserInfo userInfo = loginService.getUserInfo(userId);
-        UserProFile userProFile = new UserProFile();
-        userProFile.setUserId(userInfo.getUserId());
-        userProFile.setEmail(userInfo.getUserId());
-        userProFileHolder.set(userProFile);
+        userHolder.set(new User(userInfo.getUserId(), userInfo.getWechatId(), userInfo.getEmail()));
         return true;
     }
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response,
                                 Object handler, @Nullable Exception ex) {
-        userProFileHolder.remove();
+        userHolder.remove();
     }
 }

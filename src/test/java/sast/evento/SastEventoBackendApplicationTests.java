@@ -16,6 +16,7 @@ import sast.evento.model.treeDataNodeDTO.TreeDataNode;
 import sast.evento.model.wxServiceDTO.AccessTokenRequest;
 import sast.evento.model.wxServiceDTO.WxSubscribeRequest;
 import sast.evento.service.CodeService;
+import sast.evento.service.LocationService;
 import sast.evento.service.LoginService;
 import sast.evento.service.QrCodeCheckInService;
 import sast.evento.utils.*;
@@ -40,6 +41,9 @@ class SastEventoBackendApplicationTests {
     private LoginService loginService;
     @Resource
     private RedisUtil redisUtil;
+
+    @Resource
+    private LocationService locationService;
     @Resource
     private RestTemplateSastLinkService sastLinkService;
 
@@ -105,6 +109,7 @@ class SastEventoBackendApplicationTests {
 
     @Test
     void RedisTest() {
+        System.out.println(JsonUtil.toJson(locationService.getLocations()));
     }
 
     @Test
