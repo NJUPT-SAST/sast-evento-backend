@@ -25,8 +25,6 @@ public class UserController {
     @Resource
     private ParticipateService participateService;
 
-    /**
-     */
     @OperateLog("获取个人信息")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/info")
@@ -35,8 +33,6 @@ public class UserController {
         return null;
     }
 
-    /**
-     */
     @OperateLog("更改个人信息")
     @DefaultActionState(ActionState.LOGIN)
     @PutMapping("/info")
@@ -48,8 +44,6 @@ public class UserController {
         return null;
     }
 
-    /**
-     */
     @OperateLog("订阅活动 / 取消订阅")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/subscribe")
@@ -59,13 +53,12 @@ public class UserController {
         if (userProFile == null) {
             return null;
         }
+
         String userIdStr = userProFile.getUserId();
         Integer userIdInt = Integer.valueOf(userIdStr);
         return participateService.subscribe(userIdInt, eventId, isSubscribe);
     }
 
-    /**
-     */
     @OperateLog("获取已订阅的活动列表")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/subscribed")
@@ -74,28 +67,27 @@ public class UserController {
         if (userProFile == null) {
             return null;
         }
+
         String userIdStr = userProFile.getUserId();
         Integer userIdInt = Integer.valueOf(userIdStr);
         return eventService.getSubscribed(userIdInt);
     }
 
-    /**
-     */
     @OperateLog("报名活动")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/register")
-    public String register(@RequestParam Integer eventId) {
+    public String register(@RequestParam Integer eventId,
+                           @RequestParam Boolean isRegister) {
         UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
         if (userProFile == null) {
             return null;
         }
+
         String userIdStr = userProFile.getUserId();
         Integer userIdInt = Integer.valueOf(userIdStr);
-        return participateService.register(userIdInt, eventId);
+        return participateService.register(userIdInt, eventId, isRegister);
     }
 
-    /**
-     */
     @OperateLog("获取已报名的活动列表")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/registered")
@@ -104,13 +96,12 @@ public class UserController {
         if (userProFile == null) {
             return null;
         }
+
         String userIdStr = userProFile.getUserId();
         Integer userIdInt = Integer.valueOf(userIdStr);
         return eventService.getRegistered(userIdInt);
     }
 
-    /**
-     */
     // 查询用户自己是否报名、订阅、参加（即签到）活动
     // 若无结果，则表示用户没有报名、没有订阅、更没有签到。
     @OperateLog("获取个人的活动的状态")
@@ -121,6 +112,7 @@ public class UserController {
         if (userProFile == null) {
             return null;
         }
+
         String userIdStr = userProFile.getUserId();
         Integer userIdInt = Integer.valueOf(userIdStr);
         return participateService.getParticipation(userIdInt, eventId);

@@ -38,8 +38,6 @@ public class FeedbackController {
         return null;
     }
 
-    /**
-     */
     @OperateLog("用户添加反馈")
     @DefaultActionState(ActionState.LOGIN)
     @PostMapping("/info")
@@ -50,13 +48,12 @@ public class FeedbackController {
         if (userProFile == null) {
             return null;
         }
+
         String userIdStr = userProFile.getUserId();
         Integer userIdInt = Integer.valueOf(userIdStr);
         return feedbackService.addFeedback(userIdInt, content, score, eventId);
     }
 
-    /**
-     */
     @OperateLog("用户获取自己的反馈列表")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/user/list")
@@ -65,13 +62,12 @@ public class FeedbackController {
         if (userProFile == null) {
             return null;
         }
+
         String userIdStr = userProFile.getUserId();
         Integer userIdInt = Integer.valueOf(userIdStr);
         return feedbackService.getListByUserId(userIdInt);
     }
 
-    /**
-     */
     // 如果返回的是 null，那么表示用户没有反馈这个活动。
     @OperateLog("用户获取自己写的某活动的反馈详情（可判断是否反馈）")
     @DefaultActionState(ActionState.LOGIN)
@@ -81,13 +77,12 @@ public class FeedbackController {
         if (userProFile == null) {
             return null;
         }
+
         String userIdStr = userProFile.getUserId();
         Integer userIdInt = Integer.valueOf(userIdStr);
         return feedbackService.getFeedback(userIdInt, eventId);
     }
 
-    /**
-     */
     // 如果传进来的 content 为空，则清空数据库的 content 字段。（考虑到有人可能想清空反馈内容，所以这样设计）
     // score 为五分制，一位小数。如果传进来的为空，则不做修改。
     @OperateLog("用户修改反馈")
@@ -100,13 +95,12 @@ public class FeedbackController {
         if (userProFile == null) {
             return null;
         }
+
         String userIdStr = userProFile.getUserId();
         Integer userIdInt = Integer.valueOf(userIdStr);
         return feedbackService.patchFeedback(userIdInt, feedbackId, content, score);
     }
 
-    /**
-     */
     @OperateLog("用户删除反馈")
     @DefaultActionState(ActionState.LOGIN)
     @DeleteMapping("/info")
@@ -115,13 +109,12 @@ public class FeedbackController {
         if (userProFile == null) {
             return null;
         }
+
         String userIdStr = userProFile.getUserId();
         Integer userIdInt = Integer.valueOf(userIdStr);
         return feedbackService.deleteFeedback(userIdInt, feedbackId);
     }
 
-    /**
-     */
     @OperateLog("获取活动反馈列表（该活动的所有人的反馈）")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/list")

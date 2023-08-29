@@ -1,6 +1,7 @@
 package sast.evento.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import sast.evento.common.enums.ErrorEnum;
@@ -26,22 +27,79 @@ public class ParticipateServiceImpl implements ParticipateService {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
 
-        Integer updateResult = participateMapper.subscribe(userId, eventId, isSubscribe);
-        if (isSubscribe == true) {
-            return updateResult != null && updateResult > 0 ? "订阅成功" : "订阅失败";
+        QueryWrapper<Participate> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", userId);
+        queryWrapper.eq("event_id", eventId);
+        Participate participate = participateMapper.selectOne(queryWrapper);
+
+        if (participate != null) {
+            UpdateWrapper<Participate> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.eq("user_id", userId);
+            updateWrapper.eq("event_id", eventId);
+            updateWrapper.set("is_subscribe", isSubscribe);
+
+            int updateResult = participateMapper.update(null, updateWrapper);
+            if (isSubscribe) {
+                return updateResult > 0 ? "订阅成功" : "订阅失败";
+            } else {
+                return updateResult > 0 ? "取消订阅成功" : "取消订阅失败";
+            }
         } else {
-            return updateResult != null && updateResult > 0 ? "取消订阅成功": "取消订阅失败";
+            participate = new Participate();
+            participate.setUserId(String.valueOf(userId));
+            participate.setEventId(eventId);
+            participate.setIsRegistration(false);
+            participate.setIsParticipate(false);
+            participate.setIsSubscribe(isSubscribe);
+
+            int insertResult = participateMapper.insert(participate);
+            if (isSubscribe) {
+                return insertResult > 0 ? "订阅成功" : "订阅失败";
+            } else {
+                return insertResult > 0 ? "取消订阅成功" : "取消订阅失败";
+            }
         }
     }
 
-    // 报名活动
+    // 报名活动 / 取消报名
     @Override
-    public String register(Integer userId, Integer eventId) {
-        if (userId == null || eventId == null) {
+    public String register(Integer userId, Integer eventId, Boolean isRegister) {
+        if (userId == null || eventId == null || isRegister == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
-        Integer insertResult = participateMapper.register(userId, eventId);
-        return insertResult != null && insertResult > 0 ? "报名成功" : "报名失败";
+
+        QueryWrapper<Participate> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", userId);
+        queryWrapper.eq("event_id", eventId);
+        Participate participate = participateMapper.selectOne(queryWrapper);
+
+        if (participate != null) {
+            UpdateWrapper<Participate> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.eq("user_id", userId);
+            updateWrapper.eq("event_id", eventId);
+            updateWrapper.set("is_registration", isRegister);
+
+            int updateResult = participateMapper.update(null, updateWrapper);
+            if (isRegister) {
+                return updateResult > 0 ? "报名成功" : "报名失败";
+            } else {
+                return updateResult > 0 ? "取消报名成功" : "取消报名失败";
+            }
+        } else {
+            participate = new Participate();
+            participate.setUserId(String.valueOf(userId));
+            participate.setEventId(eventId);
+            participate.setIsRegistration(isRegister);
+            participate.setIsParticipate(false);
+            participate.setIsSubscribe(false);
+
+            int insertResult = participateMapper.insert(participate);
+            if (isRegister) {
+                return insertResult > 0 ? "报名成功" : "报名失败";
+            } else {
+                return insertResult > 0 ? "取消报名成功" : "取消报名失败";
+            }
+        }
     }
 
     // 获取个人的活动的状态

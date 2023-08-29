@@ -11,19 +11,7 @@
         where event_id = #{event_id}
     </select>
 
-<!--    报名活动-->
-    <insert id="register">
-        INSERT INTO participate (is_registration, is_participate, is_subscribe, event_id, user_id)
-        SELECT true, false, false, #{eventId}, #{userId}
-        FROM dual
-        WHERE NOT EXISTS (
-            SELECT 1
-            FROM participate
-            WHERE event_id = #{eventId} AND user_id = #{userId}
-        )
-    </insert>
-
-<!--    订阅活动 / 取消订阅-->
+    <!--    订阅活动 / 取消订阅-->
     <update id="subscribe">
         UPDATE participate
         SET is_subscribe = #{isSubscribe}

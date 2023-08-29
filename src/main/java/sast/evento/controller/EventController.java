@@ -43,8 +43,6 @@ public class EventController {
         return null;
     }
 
-    /**
-     */
     @OperateLog("查看所有正在进行的活动列表")
     @DefaultActionState(ActionState.PUBLIC)
     @GetMapping("/conducting")
@@ -52,8 +50,6 @@ public class EventController {
         return eventService.getConducting();
     }
 
-    /**
-     */
     @OperateLog("查看最新活动列表（按开始时间正序排列未开始的活动）")
     @DefaultActionState(ActionState.PUBLIC)
     @GetMapping("/newest")
@@ -61,8 +57,6 @@ public class EventController {
         return eventService.getNewest();
     }
 
-    /**
-     */
     @OperateLog("查看用户历史活动列表（参加过已结束）")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/history")
@@ -83,8 +77,6 @@ public class EventController {
         return null;
     }
 
-    /**
-     */
     @OperateLog("获取活动详情")
     @DefaultActionState(ActionState.PUBLIC)/* 这里为public,eventId注解没什么用 */
     @GetMapping("/info")
@@ -121,8 +113,6 @@ public class EventController {
         return null;
     }
 
-    /**
-     */
     @OperateLog("获取活动列表")
     @DefaultActionState(ActionState.PUBLIC)
     @GetMapping("/list")

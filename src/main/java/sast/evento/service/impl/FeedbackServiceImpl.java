@@ -85,8 +85,8 @@ public class FeedbackServiceImpl implements FeedbackService {
         queryWrapper.eq("user_id", userId);
         queryWrapper.eq("id", feedbackId);
 
-        Integer updateResult = feedbackMapper.update(feedback, queryWrapper);
-        return updateResult != null && updateResult > 0 ? "修改反馈成功" : "修改反馈失败";
+        int updateResult = feedbackMapper.update(feedback, queryWrapper);
+        return updateResult > 0 ? "修改反馈成功" : "修改反馈失败";
     }
 
     // 用户删除反馈
@@ -100,8 +100,8 @@ public class FeedbackServiceImpl implements FeedbackService {
         queryWrapper.eq("user_id", userId);
         queryWrapper.eq("id", feedbackId);
 
-        Integer deleteResult = feedbackMapper.delete(queryWrapper);
-        return deleteResult != null && deleteResult > 0 ? "删除反馈成功" : "删除反馈失败";
+        int deleteResult = feedbackMapper.delete(queryWrapper);
+        return deleteResult > 0 ? "删除反馈成功" : "删除反馈失败";
     }
 
     // 获取活动反馈列表（该活动的所有人的反馈）
