@@ -16,6 +16,7 @@ import sast.evento.service.EventDepartmentService;
 import sast.evento.service.EventService;
 
 import java.awt.image.BufferedImage;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -45,9 +46,7 @@ public class EventController {
         return null;
     }
 
-    /**
-     *
-     */
+
     @OperateLog("查看所有正在进行的活动列表")
     @DefaultActionState(ActionState.PUBLIC)
     @GetMapping("/conducting")
@@ -55,9 +54,7 @@ public class EventController {
         return eventService.getConducting();
     }
 
-    /**
-     *
-     */
+
     @OperateLog("查看最新活动列表（按开始时间正序排列未开始的活动）")
     @DefaultActionState(ActionState.PUBLIC)
     @GetMapping("/newest")
@@ -65,9 +62,6 @@ public class EventController {
         return eventService.getNewest();
     }
 
-    /**
-     *
-     */
     @OperateLog("查看用户历史活动列表（参加过已结束）")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/history")
@@ -93,9 +87,7 @@ public class EventController {
         return eventService.deleteEvent(eventId).toString();
     }
 
-    /**
-     *
-     */
+
     @OperateLog("获取活动详情")
     @DefaultActionState(ActionState.PUBLIC)/* 这里为public,eventId注解没什么用 */
     @GetMapping("/info")
@@ -148,14 +140,11 @@ public class EventController {
         return eventService.updateEvent(eventModel).toString();
     }
 
-    /**
-     *
-     */
     @OperateLog("获取活动列表")
     @DefaultActionState(ActionState.PUBLIC)
     @GetMapping("/list")
-    public List<EventModel> getEvents(@RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
-                                      @RequestParam(value = "size", required = false, defaultValue = "10") Integer size) {
+    public PageMdoel<EventModel> getEvents(@RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+                                                 @RequestParam(value = "size", required = false, defaultValue = "10") Integer size) {
         return eventService.getEvents(page, size);
     }
 

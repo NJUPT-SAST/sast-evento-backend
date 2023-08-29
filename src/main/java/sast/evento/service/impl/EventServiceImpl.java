@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import sast.evento.common.enums.ErrorEnum;
 import sast.evento.common.enums.EventState;
 import sast.evento.entitiy.Event;
+import sast.evento.entitiy.EventType;
 import sast.evento.entitiy.Location;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.mapper.*;
@@ -97,7 +98,7 @@ public class EventServiceImpl implements EventService {
 
     // 获取活动列表(分页）
     @Override
-    public List<EventModel> getEvents(Integer page, Integer size) {
+    public PageMdoel<EventModel> getEvents(Integer page, Integer size) {
         if (page == null || page < 0 || size == null || size < 0) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
@@ -406,4 +407,12 @@ public class EventServiceImpl implements EventService {
         }
         return resultEvents;
     }
+    @Override
+    public List<EventModel> getRegistered(Integer userId) {
+        if (userId == null) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
+        }
+        return eventModelMapper.getRegistered(userId);
+    }
+
 }

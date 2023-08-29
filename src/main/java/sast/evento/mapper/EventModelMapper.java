@@ -5,9 +5,11 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 import sast.evento.model.EventModel;
+import sast.evento.model.PageMdoel;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @projectName: sast-evento-backend
@@ -30,7 +32,8 @@ public interface EventModelMapper {
     List<EventModel> getNewest();
 
     // 获取活动列表(分页）
-    List<EventModel> getEvents(@Param("index") Integer index, @Param("size") Integer size);
+//    List<EventModel> getEvents(@Param("index") Integer index, @Param("size") Integer size);
+    PageMdoel<EventModel> getEvents(@Param("index") Integer index, @Param("size") Integer size);
 
     /**
      * @param monday     Date
@@ -101,5 +104,8 @@ public interface EventModelMapper {
 
     // 获取已订阅的活动列表
     List<EventModel> getSubscribed(@Param("userId") Integer userId);
+
+    // 获取已报名的活动列表
+    List<EventModel> getRegistered(@Param("userId") Integer userId);
 
 }
