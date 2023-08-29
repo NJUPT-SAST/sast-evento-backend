@@ -23,10 +23,9 @@ public class Feedback {
 
     private String content;
 
-    private Double score;
+    private Integer score;
 
     private Integer participateId;
 
     private String userId;
-
 }

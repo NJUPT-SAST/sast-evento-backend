@@ -277,4 +277,5 @@
         AND
         <include refid="byDepartmentId"/>
     </select>
+    <select id="getSubscribed" resultType="sast.evento.model.EventModel"></select>
 </mapper>

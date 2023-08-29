@@ -12,6 +12,7 @@ import sast.evento.exception.LocalRunTimeException;
 import sast.evento.interceptor.HttpInterceptor;
 import sast.evento.model.EventModel;
 import sast.evento.model.UserProFile;
+import sast.evento.service.EventDepartmentService;
 import sast.evento.service.EventService;
 
 import java.awt.image.BufferedImage;
@@ -23,6 +24,9 @@ public class EventController {
 
     @Resource
     private EventService eventService;
+
+    @Resource
+    private EventDepartmentService eventDepartmentService;
 
     /* 由后端生成部分信息置于二维码，userId需要前端填充 */
     @OperateLog("签到")
@@ -77,11 +81,16 @@ public class EventController {
         return eventService.getHistory(userIdInt);
     }
 
+    /**
+     * 删除活动
+     * @param eventId 活动id
+     * @return 是否成功
+     */
     @OperateLog("删除活动")
     @DefaultActionState(ActionState.MANAGER)
     @DeleteMapping("/info")
     public String deleteEvent(@RequestParam @EventId Integer eventId) {
-        return null;
+        return eventService.deleteEvent(eventId).toString();
     }
 
     /**
@@ -94,33 +103,49 @@ public class EventController {
         return eventService.getEvent(eventId);
     }
 
-    @OperateLog("取消活动（部分修改活动信息）")
+    /**
+     * 取消活动
+     * @param eventId 活动id
+     * @param event 活动信息
+     * @return 是否成功
+     */
+    @OperateLog("取消活动")
     @DefaultActionState(ActionState.MANAGER)
     @PatchMapping("/info")
     public String patchEvent(@RequestParam @EventId Integer eventId,
                              @RequestBody Event event) {
         if (!event.getId().equals(eventId)) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid id.");
-        return null;
+        return eventService.cancelEvent(eventId).toString();
     }
 
+    /**
+     * 发起活动（添加活动）
+     * @param eventModel 活动信息
+     * @return 活动id
+     */
     @OperateLog("发起活动（添加活动）")
     @DefaultActionState(ActionState.ADMIN)
     @PostMapping("/info")
-    public Integer addEvent(@RequestBody Event event) {
-        if (event.getId() != null) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "id should be null.");
+    public String addEvent(@RequestBody EventModel eventModel) {
+        if (eventModel.getId() != null) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "id should be null.");
         UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        /* 记得给自己加活动权限鸭喵 */
-        /* 检测内容不为null的部分添加 */
-        return null;
+        Integer eventId = eventService.addEvent(eventModel, userProFile.getUserId());
+        return eventId.toString();
     }
 
+    /**
+     * 修改活动
+     * @param eventId 活动id
+     * @param eventModel 活动信息
+     * @return 是否成功
+     */
     @OperateLog("修改活动")
     @DefaultActionState(ActionState.MANAGER)
     @PutMapping("/info")
     public String putEvent(@RequestParam @EventId Integer eventId,
-                           @RequestBody Event event) {
-        if (!event.getId().equals(eventId)) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid id.");
-        return null;
+                           @RequestBody EventModel eventModel) {
+        if (!eventModel.getId().equals(eventId)) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid id.");
+        return eventService.updateEvent(eventModel).toString();
     }
 
     /**
