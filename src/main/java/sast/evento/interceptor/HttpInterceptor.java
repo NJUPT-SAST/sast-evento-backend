@@ -5,6 +5,7 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
@@ -48,7 +49,7 @@ public class HttpInterceptor implements HandlerInterceptor {
     private JwtUtil jwtUtil;
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(@NonNull HttpServletRequest request,@NonNull  HttpServletResponse response,@NonNull  Object handler) {
         if (handler instanceof ResourceHttpRequestHandler) {
             return true;
         }
@@ -97,8 +98,8 @@ public class HttpInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response,
-                                Object handler, @Nullable Exception ex) {
+    public void afterCompletion(@NonNull HttpServletRequest request,@NonNull  HttpServletResponse response,
+                                @NonNull Object handler, @Nullable Exception ex) {
         userHolder.remove();
     }
 }

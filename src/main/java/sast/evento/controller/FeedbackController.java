@@ -55,9 +55,7 @@ public class FeedbackController {
                               @RequestParam Double score,
                               @RequestParam Integer eventId) {
         User user = HttpInterceptor.userHolder.get();
-        String userIdStr = user.getUserId();
-        Integer userIdInt = Integer.valueOf(userIdStr);
-        return feedBackService.addFeedback(userIdInt, content, score, eventId);
+        return feedBackService.addFeedback(user.getUserId(), content, score, eventId);
     }
 
     @OperateLog("用户自己的获取反馈列表")
@@ -65,9 +63,7 @@ public class FeedbackController {
     @GetMapping("/user/list")
     public List<FeedbackModel> getListByUserId() {
         User user = HttpInterceptor.userHolder.get();
-        String userIdStr = user.getUserId();
-        Integer userIdInt = Integer.valueOf(userIdStr);
-        return feedBackService.getListByUserId(userIdInt);
+        return feedBackService.getListByUserId(user.getUserId());
     }
 
     // 如果返回的是 null，那么表示用户没有反馈这个活动。
@@ -76,9 +72,7 @@ public class FeedbackController {
     @GetMapping("/user/info")
     public FeedbackModel getUserFeedback(@RequestParam Integer eventId) {
         User user = HttpInterceptor.userHolder.get();
-        String userIdStr = user.getUserId();
-        Integer userIdInt = Integer.valueOf(userIdStr);
-        return feedBackService.getFeedback(userIdInt, eventId);
+        return feedBackService.getFeedback(user.getUserId(), eventId);
     }
 
     // 如果传进来的 content 为空，则清空数据库的 content 字段。（考虑到有人可能想清空反馈内容，所以这样设计）
@@ -90,9 +84,7 @@ public class FeedbackController {
                                 @RequestParam(required = false) Double score,
                                 @RequestParam Integer feedbackId) {
         User user = HttpInterceptor.userHolder.get();
-        String userIdStr = user.getUserId();
-        Integer userIdInt = Integer.valueOf(userIdStr);
-        return feedBackService.patchFeedback(userIdInt, feedbackId, content, score);
+        return feedBackService.patchFeedback(user.getUserId(), feedbackId, content, score);
     }
 
     @OperateLog("用户删除反馈")
@@ -100,9 +92,7 @@ public class FeedbackController {
     @DeleteMapping("/info")
     public String deleteFeedback(@RequestParam Integer feedbackId) {
         User user = HttpInterceptor.userHolder.get();
-        String userIdStr = user.getUserId();
-        Integer userIdInt = Integer.valueOf(userIdStr);
-        return feedBackService.deleteFeedback(userIdInt, feedbackId);
+        return feedBackService.deleteFeedback(user.getUserId(), feedbackId);
     }
 
     @OperateLog("获取活动反馈列表（该活动的所有人的反馈）")

@@ -10,12 +10,12 @@ import sast.evento.entitiy.Participate;
 public interface ParticipateService {
 
     // 订阅活动 / 取消订阅
-    String subscribe(Integer userId, Integer eventId, Boolean isSubscribe);
+    String subscribe(String userId, Integer eventId, Boolean isSubscribe);
 
     // 报名活动 / 取消报名
-    String register(Integer userId, Integer eventId, Boolean isRegister);
+    String register(String userId, Integer eventId, Boolean isRegister);
 
     // 获取个人的活动的状态
-    Participate getParticipation(Integer userId, Integer eventId);
+    Participate getParticipation(String userId, Integer eventId);
 
 }

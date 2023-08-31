@@ -37,7 +37,7 @@ public class FeedBackServiceImpl implements FeedBackService {
 
     // 用户添加反馈
     @Override
-    public String addFeedback(Integer userId, String content, Double scoreDou, Integer eventId) {
+    public String addFeedback(String userId, String content, Double scoreDou, Integer eventId) {
         if (userId == null || eventId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
@@ -53,7 +53,7 @@ public class FeedBackServiceImpl implements FeedBackService {
 
     // 用户获取自己的反馈列表
     @Override
-    public List<FeedbackModel> getListByUserId(Integer userId) {
+    public List<FeedbackModel> getListByUserId(String userId) {
         if (userId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
@@ -62,7 +62,7 @@ public class FeedBackServiceImpl implements FeedBackService {
 
     // 用户获取自己的对于某活动的反馈详情（可判断是否反馈）
     @Override
-    public FeedbackModel getFeedback(Integer userId, Integer eventId) {
+    public FeedbackModel getFeedback(String userId, Integer eventId) {
         if (userId == null || eventId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
@@ -75,7 +75,7 @@ public class FeedBackServiceImpl implements FeedBackService {
      * score 为五分制，一位小数。如果传进来的为空，则不做修改。
      */
     @Override
-    public String patchFeedback(Integer userId, Integer feedbackId, String content, Double scoreDou) {
+    public String patchFeedback(String userId, Integer feedbackId, String content, Double scoreDou) {
         if (userId == null || feedbackId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
@@ -101,7 +101,7 @@ public class FeedBackServiceImpl implements FeedBackService {
 
     // 用户删除反馈
     @Override
-    public String deleteFeedback(Integer userId, Integer feedbackId) {
+    public String deleteFeedback(String userId, Integer feedbackId) {
         if (userId == null || feedbackId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }

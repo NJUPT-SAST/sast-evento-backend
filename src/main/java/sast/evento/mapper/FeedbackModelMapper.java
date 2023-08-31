@@ -18,12 +18,12 @@ import java.util.List;
 public interface FeedbackModelMapper {
 
     // 用户获取自己的反馈列表
-    List<FeedbackModel> getListByUserId(@Param("userId") Integer userId);
+    List<FeedbackModel> getListByUserId(@Param("userId") String userId);
 
     // 获取活动反馈列表（该活动的所有人的反馈）
     List<FeedbackModel> getListByEventId(@Param("eventId") Integer eventId);
 
     // 用户获取自己的对于某活动的反馈详情（可判断是否反馈）
-    FeedbackModel getFeedback(@Param("userId") Integer userId, @Param("eventId") Integer eventId);
+    FeedbackModel getFeedback(@Param("userId") String userId, @Param("eventId") Integer eventId);
 
 }

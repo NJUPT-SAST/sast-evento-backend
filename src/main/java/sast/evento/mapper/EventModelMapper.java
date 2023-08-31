@@ -24,7 +24,7 @@ public interface EventModelMapper {
     List<EventModel> getConducting();
 
     // 查看用户历史活动列表（参加过已结束）
-    List<EventModel> getHistory(@Param("userId") Integer userId);
+    List<EventModel> getHistory(@Param("userId") String userId);
 
     // 最新的活动列表（按开始时间正序排列未开始的活动）
     List<EventModel> getNewest();
@@ -103,9 +103,9 @@ public interface EventModelMapper {
 
 
     // 获取已订阅的活动列表
-    List<EventModel> getSubscribed(@Param("userId") Integer userId);
+    List<EventModel> getSubscribed(@Param("userId") String userId);
 
     // 获取已报名的活动列表
-    List<EventModel> getRegistered(@Param("userId") Integer userId);
+    List<EventModel> getRegistered(@Param("userId") String userId);
 
 }

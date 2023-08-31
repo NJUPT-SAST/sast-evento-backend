@@ -17,7 +17,7 @@ public interface EventService {
     EventModel getEvent(Integer eventId);
 
     // 查看用户历史活动列表（参加过已结束）
-    List<EventModel> getHistory(Integer userId);
+    List<EventModel> getHistory(String userId);
 
     // 查看所有正在进行的活动列表
     List<EventModel> getConducting();
@@ -29,10 +29,10 @@ public interface EventService {
     PageModel<EventModel> getEvents(Integer page, Integer size);
 
     // 获取已订阅的活动列表
-    List<EventModel> getSubscribed(Integer userId);
+    List<EventModel> getSubscribed(String userId);
 
     // 获取已报名的活动列表
-    List<EventModel> getRegistered(Integer userId);
+    List<EventModel> getRegistered(String userId);
 
     // 发起活动（添加活动）
     Integer addEvent(EventModel eventModel, String userId);

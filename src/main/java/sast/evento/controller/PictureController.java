@@ -54,7 +54,7 @@ public class PictureController {
     @PostMapping("/info")
     public String addPicture(MultipartFile picture,
                              @RequestParam(defaultValue = "") String dir) {
-        if (picture.isEmpty()) {
+        if (picture == null || picture.isEmpty()) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "picture file should not be empty");
         }
         try {

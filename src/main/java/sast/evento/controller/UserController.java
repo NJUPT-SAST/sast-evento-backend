@@ -50,9 +50,7 @@ public class UserController {
     public String subscribe(@RequestParam Integer eventId,
                             @RequestParam Boolean isSubscribe) {
         User user = HttpInterceptor.userHolder.get();
-        String userIdStr = user.getUserId();
-        Integer userIdInt = Integer.valueOf(userIdStr);
-        return participateService.subscribe(userIdInt, eventId, isSubscribe);
+        return participateService.subscribe(user.getUserId(), eventId, isSubscribe);
     }
 
     @OperateLog("获取已订阅的活动列表")
@@ -60,9 +58,7 @@ public class UserController {
     @GetMapping("/subscribed")
     public List<EventModel> getSubscribed() {
         User user = HttpInterceptor.userHolder.get();
-        String userIdStr = user.getUserId();
-        Integer userIdInt = Integer.valueOf(userIdStr);
-        return eventService.getSubscribed(userIdInt);
+        return eventService.getSubscribed(user.getUserId());
     }
 
     @OperateLog("报名活动")
@@ -71,9 +67,7 @@ public class UserController {
     public String register(@RequestParam Integer eventId,
                            @RequestParam Boolean isRegister) {
         User user = HttpInterceptor.userHolder.get();
-        String userIdStr = user.getUserId();
-        Integer userIdInt = Integer.valueOf(userIdStr);
-        return participateService.register(userIdInt, eventId, isRegister);
+        return participateService.register(user.getUserId(), eventId, isRegister);
     }
 
     @OperateLog("获取已报名的活动列表")
@@ -81,9 +75,7 @@ public class UserController {
     @GetMapping("/registered")
     public List<EventModel> getRegistered() {
         User user = HttpInterceptor.userHolder.get();
-        String userIdStr = user.getUserId();
-        Integer userIdInt = Integer.valueOf(userIdStr);
-        return eventService.getRegistered(userIdInt);
+        return eventService.getRegistered(user.getUserId());
     }
 
     // 查询用户自己是否报名、订阅、参加（即签到）活动
@@ -93,9 +85,7 @@ public class UserController {
     @GetMapping("/participate")
     public Participate getParticipation(@RequestParam Integer eventId) {
         User user = HttpInterceptor.userHolder.get();
-        String userIdStr = user.getUserId();
-        Integer userIdInt = Integer.valueOf(userIdStr);
-        return participateService.getParticipation(userIdInt, eventId);
+        return participateService.getParticipation(user.getUserId(), eventId);
     }
 
 }

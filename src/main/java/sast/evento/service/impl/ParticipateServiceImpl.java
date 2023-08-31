@@ -1,5 +1,6 @@
 package sast.evento.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import jakarta.annotation.Resource;
@@ -22,7 +23,7 @@ public class ParticipateServiceImpl implements ParticipateService {
 
     // 订阅活动 / 取消订阅
     @Override
-    public String subscribe(Integer userId, Integer eventId, Boolean isSubscribe) {
+    public String subscribe(String userId, Integer eventId, Boolean isSubscribe) {
         if (userId == null || eventId == null || isSubscribe == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
@@ -46,7 +47,7 @@ public class ParticipateServiceImpl implements ParticipateService {
             }
         } else {
             participate = new Participate();
-            participate.setUserId(String.valueOf(userId));
+            participate.setUserId(userId);
             participate.setEventId(eventId);
             participate.setIsRegistration(false);
             participate.setIsParticipate(false);
@@ -63,7 +64,7 @@ public class ParticipateServiceImpl implements ParticipateService {
 
     // 报名活动 / 取消报名
     @Override
-    public String register(Integer userId, Integer eventId, Boolean isRegister) {
+    public String register(String userId, Integer eventId, Boolean isRegister) {
         if (userId == null || eventId == null || isRegister == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
@@ -87,7 +88,7 @@ public class ParticipateServiceImpl implements ParticipateService {
             }
         } else {
             participate = new Participate();
-            participate.setUserId(String.valueOf(userId));
+            participate.setUserId(userId);
             participate.setEventId(eventId);
             participate.setIsRegistration(isRegister);
             participate.setIsParticipate(false);
@@ -105,14 +106,12 @@ public class ParticipateServiceImpl implements ParticipateService {
     // 获取个人的活动的状态
     // 若无结果，则表示用户没有报名、没有订阅、更没有签到。
     @Override
-    public Participate getParticipation(Integer userId, Integer eventId) {
+    public Participate getParticipation(String userId, Integer eventId) {
         if (userId == null || eventId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
-
-        System.out.println(userId);
-        System.out.println(eventId);
-        QueryWrapper<Participate> queryWrapper = new QueryWrapper<>();
-        return participateMapper.selectOne(queryWrapper);
+        return participateMapper.selectOne(new LambdaQueryWrapper<Participate>()
+                .eq(Participate::getUserId,userId)
+                .and(wrapper -> wrapper.eq(Participate::getEventId,eventId)));
     }
 }

@@ -67,9 +67,7 @@ public class EventController {
     @GetMapping("/history")
     public List<EventModel> getHistory() {
         User user = HttpInterceptor.userHolder.get();
-        String userIdStr = user.getUserId();
-        Integer userIdInt = Integer.valueOf(userIdStr);
-        return eventService.getHistory(userIdInt);
+        return eventService.getHistory(user.getUserId());
     }
 
     /**
