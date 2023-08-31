@@ -67,6 +67,7 @@ public class HttpInterceptor implements HandlerInterceptor {
             case LOGIN -> {
                 Map<String, Claim> map = jwtUtil.getClaims(token);
                 userId = map.get("user_id").asString();
+                loginService.checkLoginState(userId,token);
             }
             case MANAGER -> {
                 Map<String, Claim> map = jwtUtil.getClaims(token);

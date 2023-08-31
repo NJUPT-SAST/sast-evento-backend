@@ -51,7 +51,7 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
-    public Map<String, Object> wxLogin(String email, String password, String code_challenge, String code_challenge_method, String openId) throws SastLinkException{
+    public Map<String, Object> wxLogin(String email, String password, String code_challenge, String code_challenge_method, String openId) throws SastLinkException {
         String token = sastLinkService.login(email, password);
         String code = sastLinkService.authorize(token, code_challenge, code_challenge_method);
         sastLinkService.logout(token);
@@ -62,7 +62,7 @@ public class LoginServiceImpl implements LoginService {
         return data;
     }
 
-    private Map<String, Object> login(String code) throws SastLinkException{
+    private Map<String, Object> login(String code) throws SastLinkException {
         AccessTokenResponse accessTokenResponse = sastLinkService.accessToken(code);
         UserInfo userInfo = sastLinkService.userInfo(accessTokenResponse.getAccess_token());
         String userId = userInfo.getUserId();
@@ -77,22 +77,22 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
-    public Map<String, String> wxRegister(String email) throws SastLinkException{
+    public Map<String, String> wxRegister(String email) throws SastLinkException {
         return Map.of("register_ticket", sastLinkService.sendCaptcha(email));
     }
 
     @Override
-    public boolean checkCaptcha(String ticket, String captcha, String password) throws SastLinkException{
+    public boolean checkCaptcha(String ticket, String captcha, String password) throws SastLinkException {
         return sastLinkService.checkCaptchaAndRegister(captcha, ticket, password);
     }
 
     @Override
-    public void logout(String userId) throws SastLinkException{
+    public void logout(String userId) throws SastLinkException {
         redisUtil.del("TOKEN:" + userId, ACCESS_TOKEN + userId, REFRESH_TOKEN + userId, USER_INFO + userId);
     }
 
     @Override
-    public UserInfo getUserInfo(String userId) throws SastLinkException{
+    public UserInfo getUserInfo(String userId) throws SastLinkException {
         UserInfo userInfo;
         String userInfoJson = (String) Optional.ofNullable(redisUtil.get(USER_INFO + userId)).orElse("");
         if (!userInfoJson.isEmpty()) {
@@ -113,5 +113,11 @@ public class LoginServiceImpl implements LoginService {
         return userInfo;
     }
 
-
+    @Override
+    public void checkLoginState(String userId, String token) {
+        String localToken = String.valueOf(redisUtil.get("TOKEN:" + userId));
+        if (!token.equals(localToken)) {
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "login has expired, please login first");
+        }
+    }
 }

@@ -18,5 +18,7 @@ public interface LoginService {
 
     UserInfo getUserInfo(String userId) throws SastLinkException;
 
+    void checkLoginState(String userId, String token);
+
 
 }
