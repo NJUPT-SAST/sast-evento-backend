@@ -1,14 +1,11 @@
 package sast.evento.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import sast.evento.common.enums.ActionState;
-import sast.evento.common.enums.ErrorEnum;
 import sast.evento.config.ActionRegister;
 import sast.evento.entitiy.Permission;
 import sast.evento.entitiy.User;
-import sast.evento.exception.LocalRunTimeException;
 import sast.evento.mapper.PermissionMapper;
 import sast.evento.mapper.UserMapper;
 import sast.evento.model.Action;
@@ -17,7 +14,10 @@ import sast.evento.model.treeDataNodeDTO.TreeDataNode;
 import sast.evento.service.PermissionService;
 import sast.evento.service.PermissionServiceCacheAble;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @projectName: sast-evento-backend
@@ -71,7 +71,7 @@ public class PermissionServiceImpl implements PermissionService {
     @Override
     public void addAdmin(List<String> methodNames, String userId) {
         methodNames.addAll(defaultAdminPermission);
-        Permission permission = new Permission(null,0,userId,methodNames,null);
+        Permission permission = new Permission(null, 0, userId, methodNames, null);
         permissionServiceCacheAble.addPermission(permission);
     }
 
@@ -88,7 +88,7 @@ public class PermissionServiceImpl implements PermissionService {
     @Override
     public void updateAdminPermission(List<String> methodNames, String userId) {
         methodNames.addAll(defaultAdminPermission);
-        Permission permission = new Permission(null,0,userId,methodNames,null);
+        Permission permission = new Permission(null, 0, userId, methodNames, null);
         permissionServiceCacheAble.updatePermission(permission);
     }
 
@@ -110,7 +110,7 @@ public class PermissionServiceImpl implements PermissionService {
     @Override
     public void addManager(Integer eventId, List<String> methodNames, String userId) {
         methodNames.addAll(defaultManagerPermission);
-        Permission permission = new Permission(null,eventId,userId,methodNames,null);
+        Permission permission = new Permission(null, eventId, userId, methodNames, null);
         permissionServiceCacheAble.addPermission(permission);
     }
 
@@ -127,7 +127,7 @@ public class PermissionServiceImpl implements PermissionService {
     @Override
     public void updateManagerPermission(Integer eventId, List<String> methodNames, String userId) {
         methodNames.addAll(defaultManagerPermission);
-        Permission permission = new Permission(null,eventId,userId,methodNames,null);
+        Permission permission = new Permission(null, eventId, userId, methodNames, null);
         permissionServiceCacheAble.updatePermission(permission);
     }
 

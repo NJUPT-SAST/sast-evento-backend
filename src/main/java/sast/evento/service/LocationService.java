@@ -9,5 +9,6 @@ public interface LocationService {
     Integer addLocation(Location location);
     Boolean deleteLocation(Integer id);
     Boolean updateLocation(Location location);
+    void updateLocationName(Integer id,String locationName);
     List<TreeDataNode> getLocations();
 }

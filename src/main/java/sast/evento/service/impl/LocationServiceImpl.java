@@ -36,6 +36,9 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public Boolean deleteLocation(Integer id) {
+        if (id.equals(0)) {
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "can not delete root location");
+        }
         boolean isSuccess = locationMapper.deleteById(id) > 0;
         if (!isSuccess) {
             throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "delete location failed");
@@ -55,6 +58,11 @@ public class LocationServiceImpl implements LocationService {
             throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "delete failed");
         }
         return true;
+    }
+
+    @Override
+    public void updateLocationName(Integer id, String locationName) {
+        locationMapper.updateLocationName(id, locationName);
     }
 
     @Override

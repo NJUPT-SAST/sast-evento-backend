@@ -78,6 +78,22 @@ public class AdminController {
     }
 
     /**
+     * 修改活动地点名称
+     *
+     * @param id           活动地点id
+     * @param locationName 活动名称
+     * @return ok
+     */
+    @OperateLog("修改活动地点名称")
+    @DefaultActionState(ActionState.ADMIN)
+    @PatchMapping("/location")
+    public String updateLocationName(@RequestParam Integer id,
+                                     @RequestParam String locationName) {
+        locationService.updateLocationName(id, locationName);
+        return "ok";
+    }
+
+    /**
      * 添加活动类型
      * @param type 活动类型
      * @return 活动类型id
