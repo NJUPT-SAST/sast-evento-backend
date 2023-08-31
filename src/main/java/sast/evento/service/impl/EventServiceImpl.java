@@ -23,10 +23,7 @@ import sast.evento.service.EventStateScheduleService;
 import sast.evento.service.PermissionService;
 import sast.evento.utils.TimeUtil;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @projectName: sast-evento-backend
@@ -69,11 +66,9 @@ public class EventServiceImpl implements EventService {
         if (eventModel == null) {
             return null;
         }
-
-        String locationIdStr = eventModel.getLocation();
-        if (locationIdStr != null && !"".equals(locationIdStr.trim())) {
-            Integer locationIdInt = Integer.valueOf(locationIdStr);
-            String locationName = locationMapper.getLocationName(locationIdInt);
+        Integer locationId = eventModel.getLocationId();
+        if(locationId != null){
+            String locationName = locationMapper.getLocationName(locationId);
             eventModel.setLocation(locationName);
         }
         return eventModel;
@@ -81,10 +76,11 @@ public class EventServiceImpl implements EventService {
 
     // 查看用户历史活动列表（参加过已结束）
     @Override
-    public List<EventModel> getHistory(Integer userId) {
+    public List<EventModel> getHistory(String userId) {
         if (userId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
+
         return eventModelMapper.getHistory(userId);
     }
 
@@ -113,7 +109,7 @@ public class EventServiceImpl implements EventService {
 
     // 获取已订阅的活动列表
     @Override
-    public List<EventModel> getSubscribed(Integer userId) {
+    public List<EventModel> getSubscribed(String userId) {
         if (userId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
@@ -414,7 +410,7 @@ public class EventServiceImpl implements EventService {
         return resultEvents;
     }
     @Override
-    public List<EventModel> getRegistered(Integer userId) {
+    public List<EventModel> getRegistered(String userId) {
         if (userId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }

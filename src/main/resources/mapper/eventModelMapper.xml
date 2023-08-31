@@ -12,7 +12,7 @@
         <result property="gmtEventEnd" column="gmt_event_end"/>
         <result property="gmtRegistrationStart" column="gmt_registration_start"/>
         <result property="gmtRegistrationEnd" column="gmt_registration_end"/>
-        <result property="location" column="location_id"/>
+        <result property="locationId" column="location_id"/>
         <result property="tag" column="tag"/>
         <result property="state" column="state" javaType="sast.evento.common.enums.EventState"
                 typeHandler="sast.evento.common.enums.EventStateTypeHandler"/>
