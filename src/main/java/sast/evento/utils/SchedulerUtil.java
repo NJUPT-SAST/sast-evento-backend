@@ -17,7 +17,6 @@ import java.util.Date;
  * @date: 2023/7/26 22:35
  */
 @Slf4j
-@Component
 public class SchedulerUtil {
     public static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("ss mm HH dd MM ? yyyy");
     private static final StdSchedulerFactory schedulerFactory = new StdSchedulerFactory();

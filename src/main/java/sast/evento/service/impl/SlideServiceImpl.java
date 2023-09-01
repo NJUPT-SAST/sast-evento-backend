@@ -1,10 +1,13 @@
 package sast.evento.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import sast.evento.entitiy.Slide;
 import sast.evento.mapper.SlideMapper;
+import sast.evento.model.SlidePageModel;
 import sast.evento.service.SlideService;
 
 import java.util.List;
@@ -45,11 +48,12 @@ public class SlideServiceImpl implements SlideService {
     }
 
     @Override
-    public List<Slide> getHomeSlides(Integer size) {
-        return slideMapper.selectList(new LambdaQueryWrapper<Slide>()
-                .eq(Slide::getEventId, 0)
-                .orderByDesc(Slide::getId)
-                .last("limit " + size));
+    public SlidePageModel getHomeSlides(Integer current ,Integer size) {
+        Page<Slide> slidePage = slideMapper.selectPage(new Page<>(current,size), new LambdaQueryWrapper<Slide>()
+                .eq(Slide::getEventId,0)
+                .orderByDesc(Slide::getId));
+        slidePage.getRecords().forEach(slide -> slide.setEventId(null));
+        return new SlidePageModel(slidePage.getRecords(),(int) slidePage.getTotal());
     }
 
     @Override

@@ -25,4 +25,8 @@
         WHERE parent_id = 0
     </select>
 
+    <update id="updateLocationName">
+        update location set location_name=#{location_name} where id=#{id}
+    </update>
+
 </mapper>

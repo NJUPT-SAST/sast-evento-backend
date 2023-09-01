@@ -23,21 +23,21 @@ public class ActionController {
 
     @GetMapping("/list")
     @OperateLog("获取接口列表")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(ActionState.INVISIBLE)
     public List<Action> getActionList() {
         return ActionRegister.actionName2action.values().stream().toList();
     }
 
     @GetMapping("/states")
     @OperateLog("获取所有可用的活动状态")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(ActionState.INVISIBLE)
     public List<ActionState> getStates() {
         return Arrays.stream(ActionState.values()).toList();
     }
 
     @PatchMapping("/info")
     @OperateLog("编辑接口状态,分组")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(ActionState.INVISIBLE)
     public String updateAction(@RequestParam String methodName,
                                @RequestParam(required = false) String actionState,
                                @RequestParam(required = false) String group) {

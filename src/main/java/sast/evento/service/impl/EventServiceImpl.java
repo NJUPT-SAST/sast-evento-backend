@@ -5,23 +5,25 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import sast.evento.common.enums.ActionState;
 import sast.evento.common.enums.ErrorEnum;
 import sast.evento.common.enums.EventState;
+import sast.evento.config.ActionRegister;
 import sast.evento.entitiy.Event;
+import sast.evento.entitiy.EventType;
 import sast.evento.entitiy.Location;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.mapper.*;
+import sast.evento.model.Action;
 import sast.evento.model.EventModel;
+import sast.evento.model.PageModel;
 import sast.evento.service.EventDepartmentService;
 import sast.evento.service.EventService;
 import sast.evento.service.EventStateScheduleService;
 import sast.evento.service.PermissionService;
 import sast.evento.utils.TimeUtil;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @projectName: sast-evento-backend
@@ -64,11 +66,9 @@ public class EventServiceImpl implements EventService {
         if (eventModel == null) {
             return null;
         }
-
-        String locationIdStr = eventModel.getLocation();
-        if (locationIdStr != null && !"".equals(locationIdStr.trim())) {
-            Integer locationIdInt = Integer.valueOf(locationIdStr);
-            String locationName = locationMapper.getLocationName(locationIdInt);
+        Integer locationId = eventModel.getLocationId();
+        if(locationId != null){
+            String locationName = locationMapper.getLocationName(locationId);
             eventModel.setLocation(locationName);
         }
         return eventModel;
@@ -76,10 +76,11 @@ public class EventServiceImpl implements EventService {
 
     // 查看用户历史活动列表（参加过已结束）
     @Override
-    public List<EventModel> getHistory(Integer userId) {
+    public List<EventModel> getHistory(String userId) {
         if (userId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
+
         return eventModelMapper.getHistory(userId);
     }
 
@@ -97,7 +98,7 @@ public class EventServiceImpl implements EventService {
 
     // 获取活动列表(分页）
     @Override
-    public List<EventModel> getEvents(Integer page, Integer size) {
+    public PageModel<EventModel> getEvents(Integer page, Integer size) {
         if (page == null || page < 0 || size == null || size < 0) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
@@ -108,7 +109,7 @@ public class EventServiceImpl implements EventService {
 
     // 获取已订阅的活动列表
     @Override
-    public List<EventModel> getSubscribed(Integer userId) {
+    public List<EventModel> getSubscribed(String userId) {
         if (userId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
@@ -162,9 +163,11 @@ public class EventServiceImpl implements EventService {
         if (eventDepartmentService.addEventDepartments(event.getId(), eventModel.getDepartments())) {
             throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "add eventDepartment failed");
         }
-        String[] methods = {"addEvent", "putEvent", "patchEvent", "deleteEvent"};
-        List<String> methodNames = new ArrayList<>(Arrays.asList(methods));
-        permissionService.addManager(event.getId(), methodNames, userId, null);
+        List<String> methodNames = ActionRegister.actionName2action.values().stream()
+                .filter(action -> action.getActionState().equals(ActionState.MANAGER))
+                .map(Action::getMethodName)
+                .toList();
+        permissionService.addManager(event.getId(), methodNames, userId);
         return event.getId();
     }
 
@@ -348,7 +351,7 @@ public class EventServiceImpl implements EventService {
         if (typeId.isEmpty()) {
             if (departmentId.isEmpty()) {
                 if (time.isEmpty()) {
-                    return getEvents(1, 10);
+                    return eventModelMapper.getEventList();
                 }
                 List<Date> date = timeUtil.getDateOfMonday(time);
                 return eventModelMapper.getEventByTime(date.get(0), date.get(1));
@@ -406,4 +409,12 @@ public class EventServiceImpl implements EventService {
         }
         return resultEvents;
     }
+    @Override
+    public List<EventModel> getRegistered(String userId) {
+        if (userId == null) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
+        }
+        return eventModelMapper.getRegistered(userId);
+    }
+
 }

@@ -27,13 +27,6 @@ public class UserServiceImpl implements UserService {
     public User getUserById(String userId) {
         return userMapper.selectById(userId);
     }
-
-    @Override
-    public User getUserByStudentId(String studentId) {
-        return userMapper.selectOne(new LambdaQueryWrapper<User>()
-                .eq(User::getStudentId, studentId));
-    }
-
     @Override
     public Integer updateUser(User user) {
         return userMapper.updateById(user);

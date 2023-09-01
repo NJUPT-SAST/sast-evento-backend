@@ -37,7 +37,7 @@ public class FeedBackServiceImpl implements FeedBackService {
 
     // 用户添加反馈
     @Override
-    public String addFeedback(Integer userId, String content, Double scoreDou, Integer eventId) {
+    public String addFeedback(String userId, String content, Double scoreDou, Integer eventId) {
         if (userId == null || eventId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
@@ -47,18 +47,26 @@ public class FeedBackServiceImpl implements FeedBackService {
 
         // 将 score 扩大十倍并转化为 Integer 存入数据库
         Integer scoreInt = (int) (scoreDou * 10);
-        Integer addResult = feedbackMapper.addFeedback(userId, content, scoreInt, eventId);
-        System.out.println(addResult);
-        return addResult != null && addResult > 0 ? "添加反馈成功" : "添加反馈失败";
+        Integer insertResult = feedbackMapper.addFeedback(userId, content, scoreInt, eventId);
+        return insertResult != null && insertResult > 0 ? "添加反馈成功" : "添加反馈失败";
     }
 
-    // 用户获取反馈列表
+    // 用户获取自己的反馈列表
     @Override
-    public List<FeedbackModel> getFeedbacks(Integer userId) {
+    public List<FeedbackModel> getListByUserId(String userId) {
         if (userId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
-        return feedbackModelMapper.getFeedbacks(userId);
+        return feedbackModelMapper.getListByUserId(userId);
+    }
+
+    // 用户获取自己的对于某活动的反馈详情（可判断是否反馈）
+    @Override
+    public FeedbackModel getFeedback(String userId, Integer eventId) {
+        if (userId == null || eventId == null) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
+        }
+        return feedbackModelMapper.getFeedback(userId, eventId);
     }
 
     /*
@@ -67,7 +75,7 @@ public class FeedBackServiceImpl implements FeedBackService {
      * score 为五分制，一位小数。如果传进来的为空，则不做修改。
      */
     @Override
-    public String patchFeedback(Integer userId, Integer feedbackId, String content, Double scoreDou) {
+    public String patchFeedback(String userId, Integer feedbackId, String content, Double scoreDou) {
         if (userId == null || feedbackId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
@@ -87,13 +95,13 @@ public class FeedBackServiceImpl implements FeedBackService {
         queryWrapper.eq("user_id", userId);
         queryWrapper.eq("id", feedbackId);
 
-        Integer updateResult = feedbackMapper.update(feedback, queryWrapper);
-        return updateResult != null && updateResult > 0 ? "修改反馈成功" : "修改反馈失败";
+        int updateResult = feedbackMapper.update(feedback, queryWrapper);
+        return updateResult > 0 ? "修改反馈成功" : "修改反馈失败";
     }
 
     // 用户删除反馈
     @Override
-    public String deleteFeedback(Integer userId, Integer feedbackId) {
+    public String deleteFeedback(String userId, Integer feedbackId) {
         if (userId == null || feedbackId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
@@ -102,8 +110,17 @@ public class FeedBackServiceImpl implements FeedBackService {
         queryWrapper.eq("user_id", userId);
         queryWrapper.eq("id", feedbackId);
 
-        Integer deleteResult = feedbackMapper.delete(queryWrapper);
-        return deleteResult != null && deleteResult > 0 ? "删除反馈成功" : "删除反馈失败";
+        int deleteResult = feedbackMapper.delete(queryWrapper);
+        return deleteResult > 0 ? "删除反馈成功" : "删除反馈失败";
+    }
+
+    // 获取活动反馈列表（该活动的所有人的反馈）
+    @Override
+    public List<FeedbackModel> getListByEventId(Integer eventId) {
+        if (eventId == null) {
+            return null;
+        }
+        return feedbackModelMapper.getListByEventId(eventId);
     }
 
     // 管理端获取活动及其反馈数量列表

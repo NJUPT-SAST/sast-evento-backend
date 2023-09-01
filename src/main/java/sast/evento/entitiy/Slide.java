@@ -3,6 +3,7 @@ package sast.evento.entitiy;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,7 +26,7 @@ public class Slide {
     private String link;
 
     private String url;
-
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer eventId;
 
 }

@@ -23,7 +23,7 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String secret;
     @Value("${jwt.expiration}")
-    private Integer expiration;
+    public Integer expiration;
 
     public JwtUtil(RedisUtil redisUtil) {
         this.redisUtil = redisUtil;

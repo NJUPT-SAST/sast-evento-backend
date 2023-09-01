@@ -1,8 +1,10 @@
 package sast.evento;
 
+import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import org.springframework.stereotype.Component;
 import sast.evento.common.enums.ActionState;
 import sast.evento.common.enums.ErrorEnum;
 import sast.evento.config.ActionRegister;
@@ -14,11 +16,15 @@ import sast.evento.model.treeDataNodeDTO.TreeDataNode;
 import sast.evento.model.wxServiceDTO.AccessTokenRequest;
 import sast.evento.model.wxServiceDTO.WxSubscribeRequest;
 import sast.evento.service.CodeService;
+import sast.evento.service.LocationService;
+import sast.evento.service.LoginService;
 import sast.evento.service.QrCodeCheckInService;
-import sast.evento.utils.JsonUtil;
-import sast.evento.utils.JwtUtil;
-import sast.evento.utils.QRCodeUtil;
-import sast.evento.utils.SpringContextUtil;
+import sast.evento.utils.*;
+import sast.sastlink.sdk.model.UserInfo;
+import sast.sastlink.sdk.model.response.AccessTokenResponse;
+import sast.sastlink.sdk.model.response.RefreshResponse;
+import sast.sastlink.sdk.service.SastLinkService;
+import sast.sastlink.sdk.service.impl.RestTemplateSastLinkService;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -26,8 +32,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static sast.sastlink.sdk.enums.GrantType.REFRESH_TOKEN;
+import static sast.sastlink.sdk.enums.SastLinkApi.ACCESS_TOKEN;
+
 @SpringBootTest
 class SastEventoBackendApplicationTests {
+    @Resource
+    private LoginService loginService;
+    @Resource
+    private RedisUtil redisUtil;
+
+    @Resource
+    private LocationService locationService;
+    @Resource
+    private RestTemplateSastLinkService sastLinkService;
 
     @Test
     void genereateToken() {
@@ -90,11 +108,13 @@ class SastEventoBackendApplicationTests {
     }
 
     @Test
-    void CosUtilTest() {
+    void RedisTest() {
+        System.out.println(JsonUtil.toJson(locationService.getLocations()));
     }
 
     @Test
-    void TreeJsonTest() {
+    void SastLinkTest() {
+        sastLinkService.login("","");
     }
 
 

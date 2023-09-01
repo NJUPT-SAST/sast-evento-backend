@@ -11,7 +11,6 @@ import sast.evento.entitiy.User;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.interceptor.HttpInterceptor;
 import sast.evento.model.Action;
-import sast.evento.model.UserProFile;
 import sast.evento.model.treeDataNodeDTO.TreeDataNode;
 import sast.evento.service.PermissionService;
 
@@ -56,12 +55,11 @@ public class PermissionController {
     @OperateLog("删除后台管理者")
     @DefaultActionState(ActionState.ADMIN)
     @DeleteMapping("/admin")
-    public String deleteAdmin(@RequestParam(required = false) String studentId,
-                              @RequestParam(required = false) String userId) {
-        if (userId.isEmpty() && studentId.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one");
+    public String deleteAdmin(@RequestParam String userId) {
+        if (userId.isEmpty()) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId is required, and at least one");
         }
-        permissionService.deleteAdmin(userId, studentId);
+        permissionService.deleteAdmin(userId);
         return "ok";
     }
 
@@ -76,12 +74,11 @@ public class PermissionController {
     @DefaultActionState(ActionState.ADMIN)
     @PostMapping("/admin")
     public String addAdmin(@RequestParam List<String> methodNames,
-                           @RequestParam(required = false) String studentId,
-                           @RequestParam(required = false) String userId) {
-        if (userId.isEmpty() && studentId.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one");
+                           @RequestParam String userId) {
+        if (userId.isEmpty()) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId is required, and at least one");
         }
-        permissionService.addAdmin(methodNames, userId, studentId);
+        permissionService.addAdmin(methodNames, userId);
         return "ok";
     }
 
@@ -89,71 +86,65 @@ public class PermissionController {
     @DefaultActionState(ActionState.ADMIN)
     @PutMapping("/admin")
     public String putAdmin(@RequestParam List<String> methodNames,
-                           @RequestParam(required = false) String studentId,
-                           @RequestParam(required = false) String userId) {
-        if (userId.isEmpty() && studentId.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one");
+                           @RequestParam String userId) {
+        if (userId.isEmpty()) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId is required, and at least one");
         }
-        permissionService.updateAdminPermission(methodNames, userId, studentId);
+        permissionService.updateAdminPermission(methodNames, userId);
         return "ok";
     }
 
     @OperateLog("获取用户具有admin权限")
     @DefaultActionState(ActionState.ADMIN)
     @GetMapping("/admin/user")
-    public List<Action> getUserAdminPermissions(@RequestParam(required = false) String studentId,
-                                                @RequestParam(required = false) String userId) {
-        if (userId.isEmpty() && studentId.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one");
+    public List<Action> getUserAdminPermissions(@RequestParam String userId) {
+        if (userId.isEmpty()) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId is required, and at least one");
         }
-        return permissionService.getUserAdminPermissions(userId, studentId);
+        return permissionService.getUserAdminPermissions(userId);
     }
 
     @OperateLog("获取用户具有的admin权限(字符串)")
     @DefaultActionState(ActionState.ADMIN)
     @GetMapping("/admin/user/list")
-    public List<String> getUserAdminPermissAsList(@RequestParam(required = false) String studentId,
-                                                  @RequestParam(required = false) String userId) {
-        if (userId.isEmpty() && studentId.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one");
+    public List<String> getUserAdminPermissAsList(@RequestParam String userId) {
+        if (userId.isEmpty()) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId is required, and at least one");
         }
-        return permissionService.getUserAdminPermissAsList(userId, studentId);
+        return permissionService.getUserAdminPermissAsList(userId);
     }
 
     @OperateLog("获取用户对某活动manager权限")
     @DefaultActionState(ActionState.MANAGER)
     @GetMapping("/event/manager/user")
     public List<Action> getUserManagerPermissions(@RequestParam @EventId Integer eventId,
-                                                  @RequestParam(required = false) String studentId,
-                                                  @RequestParam(required = false) String userId) {
-        if (userId.isEmpty() && studentId.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one");
+                                                  @RequestParam String userId) {
+        if (userId.isEmpty()) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId is required, and at least one");
         }
-        return permissionService.getUserManagerPermissions(eventId, userId, studentId);
+        return permissionService.getUserManagerPermissions(eventId, userId);
     }
 
     @OperateLog("获取用户对某活动manager的权限(字符串)")
     @DefaultActionState(ActionState.MANAGER)
     @GetMapping("/event/manager/user/list")
     public List<String> getUserManagerPermissAsList(@RequestParam @EventId Integer eventId,
-                                                    @RequestParam(required = false) String studentId,
-                                                    @RequestParam(required = false) String userId) {
-        if (userId.isEmpty() && studentId.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one");
+                                                    @RequestParam String userId) {
+        if (userId.isEmpty()) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId is required, and at least one");
         }
-        return permissionService.getUserManagerPermissAsList(eventId, userId, studentId);
+        return permissionService.getUserManagerPermissAsList(eventId, userId);
     }
 
     @OperateLog("删除活动管理者")
     @DefaultActionState(ActionState.MANAGER)
     @DeleteMapping(value = "/event/manager")
     public String deleteManager(@RequestParam @EventId Integer eventId,
-                                @RequestParam(required = false) String studentId,
-                                @RequestParam(required = false) String userId) {
-        if (userId.isEmpty() && studentId.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one");
+                                @RequestParam String userId) {
+        if (userId.isEmpty()) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId is required, and at least one");
         }
-        permissionService.deleteManager(eventId, userId, studentId);
+        permissionService.deleteManager(eventId, userId);
         return "ok";
     }
 
@@ -162,12 +153,11 @@ public class PermissionController {
     @PutMapping(value = "/event/manager")
     public String putManager(@RequestParam List<String> methodNames,
                              @RequestParam @EventId Integer eventId,
-                             @RequestParam(required = false) String studentId,
-                             @RequestParam(required = false) String userId) {
-        if (userId.isEmpty() && studentId.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one");
+                             @RequestParam String userId) {
+        if (userId.isEmpty()) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId is required, and at least one");
         }
-        permissionService.updateManagerPermission(eventId, methodNames, userId, studentId);
+        permissionService.updateManagerPermission(eventId, methodNames, userId);
         return "ok";
     }
 
@@ -176,12 +166,11 @@ public class PermissionController {
     @PostMapping(value = "/event/manager")
     public String addManager(@RequestParam List<String> methodNames,
                              @RequestParam @EventId Integer eventId,
-                             @RequestParam(required = false) String studentId,
-                             @RequestParam(required = false) String userId) {
-        if (userId.isEmpty() && studentId.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one");
+                             @RequestParam String userId) {
+        if (userId.isEmpty()) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId is required, and at least one");
         }
-        permissionService.addManager(eventId, methodNames, userId, studentId);
+        permissionService.addManager(eventId, methodNames, userId);
         return "ok";
     }
 
@@ -195,28 +184,27 @@ public class PermissionController {
     @OperateLog("获取用户具有哪些活动的管理权限")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping(value = "/manager/events")
-    public List<Integer> getManageEvent(@RequestParam(required = false) String studentId,
-                                        @RequestParam(required = false) String userId) {
-        if (userId.isEmpty() && studentId.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId or studentId is required, and at least one");
+    public List<Integer> getManageEvent(@RequestParam String userId) {
+        if (userId.isEmpty()) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "parameter userId is required, and at least one");
         }
-        return permissionService.getManageEvent(userId, studentId);
+        return permissionService.getManageEvent(userId);
     }
 
     @OperateLog("获取用户自身admin权限用于条件渲染")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping(value = "/admin/self")
     public List<String> getSelfAdminPermission() {
-        UserProFile proFile = HttpInterceptor.userProFileHolder.get();
-        return permissionService.getUserAdminPermissAsList(proFile.getUserId(), null);
+        User user = HttpInterceptor.userHolder.get();
+        return permissionService.getUserAdminPermissAsList(user.getUserId());
     }
 
     @OperateLog("获取用户自身manager权限用于条件渲染")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping(value = "/event/manager/self")
     public List<String> getSelfManagerPermission(@RequestParam @EventId Integer eventId) {
-        UserProFile proFile = HttpInterceptor.userProFileHolder.get();
-        return permissionService.getUserManagerPermissAsList(eventId, proFile.getUserId(), null);
+        User user = HttpInterceptor.userHolder.get();
+        return permissionService.getUserManagerPermissAsList(eventId, user.getUserId());
     }
 
 }
