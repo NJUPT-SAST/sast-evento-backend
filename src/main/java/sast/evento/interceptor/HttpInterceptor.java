@@ -49,7 +49,7 @@ public class HttpInterceptor implements HandlerInterceptor {
     private JwtUtil jwtUtil;
 
     @Override
-    public boolean preHandle(@NonNull HttpServletRequest request,@NonNull  HttpServletResponse response,@NonNull  Object handler) {
+    public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) {
         if (handler instanceof ResourceHttpRequestHandler) {
             return true;
         }
@@ -68,25 +68,33 @@ public class HttpInterceptor implements HandlerInterceptor {
             case LOGIN -> {
                 Map<String, Claim> map = jwtUtil.getClaims(token);
                 userId = map.get("user_id").asString();
-                loginService.checkLoginState(userId,token);
+                loginService.checkLoginState(userId, token);
             }
             case MANAGER -> {
                 Map<String, Claim> map = jwtUtil.getClaims(token);
                 userId = map.get("user_id").asString();
+                loginService.checkLoginState(userId, token);
                 EventId eventAnno = Arrays.stream(Optional.ofNullable(method.getParameters()).orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "eventId param is needed")))
                         .filter(param -> AnnotatedElementUtils.hasAnnotation(param, EventId.class))
                         .findAny()
                         .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "annotation EventId on requestParam is needed"))
                         .getAnnotation(EventId.class);
-                String eventId = Optional.ofNullable(request.getParameter(eventAnno.name()))
-                        .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "eventId in requestParam should not be null"));
-                if (!permissionService.checkPermission(userId, Integer.parseInt(eventId), action.getMethodName())) {
+                int eventId;
+                try {
+                    String stringEventId = Optional.ofNullable(request.getParameter(eventAnno.name()))
+                            .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "eventId in requestParam should not be null"));
+                    eventId = Integer.parseInt(stringEventId);
+                } catch (NumberFormatException e) {
+                    throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid eventId");
+                }
+                if (!permissionService.checkPermission(userId, eventId, action.getMethodName())) {
                     throw new LocalRunTimeException(ErrorEnum.PERMISSION_ERROR);
                 }
             }
             case ADMIN -> {
                 Map<String, Claim> map = jwtUtil.getClaims(token);
                 userId = map.get("user_id").asString();
+                loginService.checkLoginState(userId, token);
                 if (!permissionService.checkPermission(userId, 0, action.getMethodName())) {
                     throw new LocalRunTimeException(ErrorEnum.PERMISSION_ERROR);
                 }
@@ -98,7 +106,7 @@ public class HttpInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public void afterCompletion(@NonNull HttpServletRequest request,@NonNull  HttpServletResponse response,
+    public void afterCompletion(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
                                 @NonNull Object handler, @Nullable Exception ex) {
         userHolder.remove();
     }
