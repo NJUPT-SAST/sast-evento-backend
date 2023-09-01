@@ -6,10 +6,12 @@ import sast.evento.annotation.DefaultActionState;
 import sast.evento.annotation.OperateLog;
 import sast.evento.common.enums.ActionState;
 import sast.evento.common.enums.ErrorEnum;
+import sast.evento.entitiy.Department;
 import sast.evento.entitiy.EventType;
 import sast.evento.entitiy.Location;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.model.treeDataNodeDTO.TreeDataNode;
+import sast.evento.service.DepartmentService;
 import sast.evento.service.EventTypeService;
 import sast.evento.service.LocationService;
 
@@ -22,6 +24,8 @@ public class AdminController {
     private EventTypeService eventTypeService;
     @Resource
     private LocationService locationService;
+    @Resource
+    private DepartmentService departmentService;
 
     /**
      * 添加活动地点
@@ -67,7 +71,7 @@ public class AdminController {
      * @return 是否成功
      */
     @OperateLog("修改活动地点")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(ActionState.INVISIBLE)
     @PutMapping("/location")
     public String updateLocation(@RequestParam Integer locationId,
                                  @RequestBody Location location) {
@@ -143,5 +147,35 @@ public class AdminController {
         if (!type.getId().equals(typeId)) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid id");
         return eventTypeService.editEventType(type).toString();
     }
+
+    @OperateLog("添加组织部门")
+    @DefaultActionState(ActionState.ADMIN)
+    @PostMapping("/department")
+    public Integer addDepartment(@RequestParam String departmentName){
+        return departmentService.addDepartment(departmentName);
+    }
+
+    @OperateLog("删除部门")
+    @DefaultActionState(ActionState.ADMIN)
+    @DeleteMapping("/department")
+    public void deleteDepartment(@RequestParam Integer departmentId){
+        departmentService.deleteDepartment(departmentId);
+    }
+
+    @OperateLog("获取全部组织部门")
+    @DefaultActionState(ActionState.ADMIN)
+    @GetMapping("/departments")
+    public List<Department> getDepartments(){
+        return departmentService.getDepartments();
+    }
+
+    @OperateLog("修改组织部门名称")
+    @DefaultActionState(ActionState.ADMIN)
+    @PutMapping("/department")
+    public void putDepartment(@RequestParam Integer departmentId,
+                              @RequestParam String departmentName){
+        departmentService.putDepartment(departmentId,departmentName);
+    }
+
 
 }

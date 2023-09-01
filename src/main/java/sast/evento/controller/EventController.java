@@ -13,10 +13,8 @@ import sast.evento.exception.LocalRunTimeException;
 import sast.evento.interceptor.HttpInterceptor;
 import sast.evento.model.EventModel;
 import sast.evento.model.PageModel;
-import sast.evento.service.EventDepartmentService;
 import sast.evento.service.EventService;
 
-import java.awt.image.BufferedImage;
 import java.util.List;
 
 @RestController
@@ -25,27 +23,6 @@ public class EventController {
 
     @Resource
     private EventService eventService;
-
-    @Resource
-    private EventDepartmentService eventDepartmentService;
-
-    /* 由后端生成部分信息置于二维码，userId需要前端填充 */
-    @OperateLog("签到")
-    @DefaultActionState(ActionState.LOGIN)/* 这里为public,eventId注解没什么用 */
-    @GetMapping("/checkIn")
-    public String CheckIn(@RequestParam @EventId Integer eventId,
-                          @RequestParam String userId,
-                          @RequestParam String code) {
-        return null;
-    }
-
-    @OperateLog("获取活动签到二维码")
-    @DefaultActionState(ActionState.ADMIN)/* 这里为admin,eventId注解没什么用 */
-    @GetMapping("/qrcode")
-    public BufferedImage eventQrcodeGet(@RequestParam @EventId Integer eventId) {
-        return null;
-    }
-
 
     @OperateLog("查看所有正在进行的活动列表")
     @DefaultActionState(ActionState.PUBLIC)
