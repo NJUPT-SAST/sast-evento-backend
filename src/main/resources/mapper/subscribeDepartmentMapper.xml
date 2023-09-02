@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="sast.evento.mapper.SubscribeDepartmentMapper">
+    <resultMap id="user" type="sast.evento.entitiy.UserDepartmentSubscribe" autoMapping="true">
+        <result property="userId" column="id"/>
+        <result property="departmentId" column="department_id"/>
+    </resultMap>
+    <select id="selectSubscribeDepartmentUser" parameterType="integer" resultMap="user">
+        select u.id,open_id,email,s.department_id from user as u right join user_department_subscribe as s on u.id = s.user_id
+            where department_id in
+                <foreach collection="departmentIds" index="index" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+    </select>
+
+    <select id="selectSubscribeDepartment" parameterType="String" resultType="sast.evento.entitiy.Department">
+        select d.id, department_name from department d right join user_department_subscribe s on d.id = s.department_id
+        where user_id = #{userId}
+    </select>
+</mapper>
