@@ -51,8 +51,8 @@ public class ActionRegister implements ApplicationListener<ContextRefreshedEvent
     public void onApplicationEvent(ContextRefreshedEvent event) {
         parseAll(getAllClass(PACKAGE_PATH));
         actionNameSet = actionName2action.keySet();
-        log.info("Scan of action is over. Final actionName2action map is:{}", actionName2action);
-        log.info("and final actionName set is:{} total action num:{}", actionNameSet, actionNameSet.size());
+//        log.info("Scan of action is over. Final actionName2action map is:{}", actionName2action);
+        log.info("Scan of action is over. Final actionName set is:{} total action num:{}", actionNameSet, actionNameSet.size());
     }
 
     @SneakyThrows
