@@ -159,7 +159,7 @@ public class EventServiceImpl implements EventService {
             throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR);
         }
         addEventStateSchedule(event);
-        if (eventDepartmentService.addEventDepartments(event.getId(), eventModel.getDepartments())) {
+        if (!eventDepartmentService.addEventDepartments(event.getId(), eventModel.getDepartments())) {
             throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "add eventDepartment failed");
         }
         String[] methods = {"addEvent", "putEvent", "patchEvent", "deleteEvent"};
