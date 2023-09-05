@@ -40,7 +40,8 @@ public class PermissionServiceImpl implements PermissionService {
             "getUserAdminPermissions", "getAllAdminPermissions",
             "getAllAdminPermissionsAsTree", "getUserAdminPermissAsList",
             "getFeedback", "getStates", "getActionList", "getTypes",
-            "getDepartments", "getLocations", "getAdmins");
+            "getDepartments", "getLocations", "getAdmins", "getDir",
+            "getUrls");
 
     @Override
     public List<Action> getAllAdminPermissions() {
