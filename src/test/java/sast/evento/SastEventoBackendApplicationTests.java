@@ -9,6 +9,8 @@ import sast.evento.common.enums.ActionState;
 import sast.evento.common.enums.ErrorEnum;
 import sast.evento.config.ActionRegister;
 import sast.evento.exception.LocalRunTimeException;
+import sast.evento.mapper.DepartmentMapper;
+import sast.evento.mapper.SubscribeDepartmentMapper;
 import sast.evento.model.Action;
 import sast.evento.model.treeDataNodeDTO.AntDesignTreeDataNode;
 import sast.evento.model.treeDataNodeDTO.SemiTreeDataNode;
@@ -46,6 +48,9 @@ class SastEventoBackendApplicationTests {
     private LocationService locationService;
     @Resource
     private RestTemplateSastLinkService sastLinkService;
+
+    @Resource
+    private SubscribeDepartmentMapper subscribeDepartmentMapper;
 
     @Test
     void genereateToken() {
@@ -115,6 +120,10 @@ class SastEventoBackendApplicationTests {
     @Test
     void SastLinkTest() {
         sastLinkService.login("","");
+    }
+    @Test
+    void subscribeDepartmentMapperTest(){
+        System.out.println(subscribeDepartmentMapper.selectSubscribeDepartmentUser(List.of(1,10,2,3,4)));
     }
 
 

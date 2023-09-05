@@ -6,12 +6,14 @@ import sast.evento.annotation.DefaultActionState;
 import sast.evento.annotation.OperateLog;
 import sast.evento.common.enums.ActionState;
 import sast.evento.common.enums.ErrorEnum;
+import sast.evento.entitiy.Department;
 import sast.evento.entitiy.Participate;
 import sast.evento.entitiy.User;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.interceptor.HttpInterceptor;
 import sast.evento.model.EventModel;
 import sast.evento.model.UserProFile;
+import sast.evento.service.DepartmentService;
 import sast.evento.service.EventService;
 import sast.evento.service.ParticipateService;
 
@@ -24,6 +26,8 @@ public class UserController {
     private EventService eventService;
     @Resource
     private ParticipateService participateService;
+    @Resource
+    private DepartmentService departmentService;
 
     @OperateLog("获取个人信息")
     @DefaultActionState(ActionState.LOGIN)
@@ -86,6 +90,24 @@ public class UserController {
     public Participate getParticipation(@RequestParam Integer eventId) {
         User user = HttpInterceptor.userHolder.get();
         return participateService.getParticipation(user.getUserId(), eventId);
+    }
+
+    @OperateLog("订阅组别 / 取消订阅")
+    @DefaultActionState(ActionState.LOGIN)
+    @GetMapping("/subscribe/department")
+    public String subscribeDepartment(@RequestParam Integer departmentId,
+                                      @RequestParam Boolean isSubscribe) {
+        User user = HttpInterceptor.userHolder.get();
+        departmentService.subscribeDepartment(user.getUserId(), departmentId, isSubscribe);
+        return "ok";
+    }
+
+    @OperateLog("获取个人订阅的组别")
+    @DefaultActionState(ActionState.LOGIN)
+    @GetMapping("/subscribe/departments")
+    public List<Department> getSubscribeDepartment() {
+        User user = HttpInterceptor.userHolder.get();
+        return departmentService.getSubscribeDepartment(user.getUserId());
     }
 
 }

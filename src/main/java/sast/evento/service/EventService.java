@@ -25,7 +25,7 @@ public interface EventService {
     // 查看最新活动列表
     List<EventModel> getNewest();
 
-    // 获取活动列表 TODO userId是String
+    // 获取活动列表
     PageModel<EventModel> getEvents(Integer page, Integer size);
 
     // 获取已订阅的活动列表
