@@ -24,7 +24,7 @@ public class EventController {
     @Resource
     private EventService eventService;
 
-    @OperateLog("查看所有正在进行的活动列表")
+    @OperateLog("查看正在进行活动列表")
     @DefaultActionState(ActionState.PUBLIC)
     @GetMapping("/conducting")
     public List<EventModel> getConducting() {
@@ -32,14 +32,14 @@ public class EventController {
     }
 
 
-    @OperateLog("查看最新活动列表（按开始时间正序排列未开始的活动）")
+    @OperateLog("查看最新活动列表")
     @DefaultActionState(ActionState.PUBLIC)
     @GetMapping("/newest")
     public List<EventModel> getNewest() {
         return eventService.getNewest();
     }
 
-    @OperateLog("查看用户历史活动列表（参加过已结束）")
+    @OperateLog("查看用户历史活动列表")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/history")
     public List<EventModel> getHistory() {
@@ -90,7 +90,7 @@ public class EventController {
      * @param eventModel 活动信息
      * @return 活动id
      */
-    @OperateLog("发起活动（添加活动）")
+    @OperateLog("发起活动")
     @DefaultActionState(ActionState.ADMIN)
     @PostMapping("/info")
     public String addEvent(@RequestBody EventModel eventModel) {
@@ -124,7 +124,7 @@ public class EventController {
         return eventService.getEvents(page, size);
     }
 
-    @OperateLog("获取活动列表(筛选)")
+    @OperateLog("筛选获取课表")
     @DefaultActionState(ActionState.PUBLIC)
     @PostMapping("/list")
     public List<EventModel> postForEvents(@RequestParam(required = false) List<Integer> typeId,

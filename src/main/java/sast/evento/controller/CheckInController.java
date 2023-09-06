@@ -6,6 +6,8 @@ import sast.evento.annotation.DefaultActionState;
 import sast.evento.annotation.EventId;
 import sast.evento.annotation.OperateLog;
 import sast.evento.common.enums.ActionState;
+import sast.evento.common.enums.ErrorEnum;
+import sast.evento.exception.LocalRunTimeException;
 
 import java.awt.image.BufferedImage;
 
@@ -22,7 +24,7 @@ public class CheckInController {
     public String CheckIn(@RequestParam @EventId Integer eventId,
                           @RequestParam String userId,
                           @RequestParam String code) {
-        return null;
+        throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"not finish");
     }
 
     @OperateLog("获取活动签到二维码")
@@ -30,7 +32,7 @@ public class CheckInController {
     @GetMapping("/qrcode")
     @ResponseBody
     public BufferedImage eventQrcodeGet(@RequestParam @EventId Integer eventId) {
-        return null;
+        throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"not finish");
     }
 
 

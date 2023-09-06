@@ -158,8 +158,9 @@ public class AdminController {
     @OperateLog("删除部门")
     @DefaultActionState(ActionState.ADMIN)
     @DeleteMapping("/department")
-    public void deleteDepartment(@RequestParam Integer departmentId){
+    public String deleteDepartment(@RequestParam Integer departmentId){
         departmentService.deleteDepartment(departmentId);
+        return "ok";
     }
 
     @OperateLog("获取全部组织部门")
