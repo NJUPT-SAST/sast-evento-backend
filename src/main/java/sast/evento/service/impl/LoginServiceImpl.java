@@ -36,11 +36,10 @@ public class LoginServiceImpl implements LoginService {
     @Resource
     private RedisUtil redisUtil;
     private static final String ACCESS_TOKEN = "access_token:";
-    private static final long ACCESS_EXPIRE = 10000;
     private static final String REFRESH_TOKEN = "refresh_token:";
     private static final long REFRESH_EXPIRE = 20000;
     private static final String USER_INFO = "user_info:";
-    private static final long USER_INFO_EXPIRE = 1000;
+    private static final long USER_INFO_EXPIRE = 6000;
 
     @Override
     public Map<String, Object> linkLogin(String code) throws SastLinkException {
@@ -53,6 +52,7 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public Map<String, Object> wxLogin(String email, String password, String code_challenge, String code_challenge_method, String openId) throws SastLinkException {
         String token = sastLinkService.login(email, password);
+        System.out.println(token);
         String code = sastLinkService.authorize(token, code_challenge, code_challenge_method);
         sastLinkService.logout(token);
         /* 临时登录一下，登完就退 */
@@ -69,7 +69,7 @@ public class LoginServiceImpl implements LoginService {
         Map<String, String> payload = new HashMap<>();
         payload.put("user_id", userId);
         String token = jwtUtil.generateToken(payload);
-        redisUtil.set(ACCESS_TOKEN + userId, accessTokenResponse.getAccess_token(), ACCESS_EXPIRE);
+        redisUtil.set(ACCESS_TOKEN + userId, accessTokenResponse.getAccess_token(), accessTokenResponse.getExpires_in());
         redisUtil.set(REFRESH_TOKEN + userId, accessTokenResponse.getRefresh_token(), REFRESH_EXPIRE);
         redisUtil.set("TOKEN:" + userId, token, jwtUtil.expiration);
         redisUtil.set(USER_INFO + userId, JsonUtil.toJson(userInfo), USER_INFO_EXPIRE);
@@ -105,7 +105,7 @@ public class LoginServiceImpl implements LoginService {
             String refreshToken = (String) Optional.ofNullable(redisUtil.get(REFRESH_TOKEN + userId))
                     .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "login has expired, please login first"));
             RefreshResponse refreshResponse = sastLinkService.refresh(refreshToken);
-            redisUtil.set(ACCESS_TOKEN + userId, refreshResponse.getAccessToken(), ACCESS_EXPIRE);
+            redisUtil.set(ACCESS_TOKEN + userId, refreshResponse.getAccessToken(), refreshResponse.getExpiresIn());
             redisUtil.set(REFRESH_TOKEN + userId, refreshResponse.getRefreshToken(), REFRESH_EXPIRE);
         }
         userInfo = sastLinkService.userInfo(accessToken);

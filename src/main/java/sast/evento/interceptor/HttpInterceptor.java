@@ -13,10 +13,10 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 import sast.evento.annotation.EventId;
 import sast.evento.common.enums.ErrorEnum;
+import sast.evento.config.ActionRegister;
 import sast.evento.entitiy.User;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.model.Action;
-import sast.evento.service.ActionService;
 import sast.evento.service.LoginService;
 import sast.evento.service.PermissionService;
 import sast.evento.utils.JwtUtil;
@@ -38,9 +38,6 @@ import java.util.Optional;
 @Component
 public class HttpInterceptor implements HandlerInterceptor {
     public static ThreadLocal<User> userHolder = new ThreadLocal<>();
-
-    @Resource
-    private ActionService actionService;
     @Resource
     private LoginService loginService;
     @Resource
@@ -56,7 +53,7 @@ public class HttpInterceptor implements HandlerInterceptor {
         Method method = ((HandlerMethod) handler).getMethod();
         String token = request.getHeader("TOKEN");
         if (method.getName().equals("error")) throw new LocalRunTimeException(ErrorEnum.INTERNAL_SERVER_ERROR);
-        Action action = Optional.ofNullable(actionService.getAction(method.getName()))
+        Action action = Optional.ofNullable(ActionRegister.actionName2action.get(method.getName()))
                 .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.METHOD_NOT_EXIST, "unsupported service"));
         String userId = null;
         switch (action.getActionState()) {

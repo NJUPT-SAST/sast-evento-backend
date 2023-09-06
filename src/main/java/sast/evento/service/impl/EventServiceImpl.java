@@ -24,6 +24,7 @@ import sast.evento.service.PermissionService;
 import sast.evento.utils.TimeUtil;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @projectName: sast-evento-backend
@@ -116,7 +117,7 @@ public class EventServiceImpl implements EventService {
         return eventModelMapper.getSubscribed(userId);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Integer addEvent(EventModel eventModel, String userId) {
         Event event = new Event(eventModel);
@@ -138,7 +139,8 @@ public class EventServiceImpl implements EventService {
             event.setDescription("");
         }
         if (event.getLocationId() == null) {
-            event.setLocationId(1);
+            /* 修改默认地点为root */
+            event.setLocationId(0);
         }
         if (event.getTypeId() == null) {
             event.setTypeId(1);
@@ -160,18 +162,19 @@ public class EventServiceImpl implements EventService {
             throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR);
         }
         addEventStateSchedule(event);
-        if (eventDepartmentService.addEventDepartments(event.getId(), eventModel.getDepartments())) {
+        if (!eventDepartmentService.addEventDepartments(event.getId(), eventModel.getDepartments())) {
             throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "add eventDepartment failed");
         }
+        /* 为创建者添加活动全部权限 */
         List<String> methodNames = ActionRegister.actionName2action.values().stream()
                 .filter(action -> action.getActionState().equals(ActionState.MANAGER))
                 .map(Action::getMethodName)
-                .toList();
+                .collect(Collectors.toList());
         permissionService.addManager(event.getId(), methodNames, userId);
         return event.getId();
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Boolean deleteEvent(Integer eventId) {
         if (eventId == null) {
@@ -189,7 +192,7 @@ public class EventServiceImpl implements EventService {
         return true;
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Boolean updateEvent(EventModel eventModel) {
         Event event = new Event(eventModel);

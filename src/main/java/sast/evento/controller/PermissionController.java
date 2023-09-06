@@ -23,29 +23,29 @@ public class PermissionController {
     @Resource
     private PermissionService permissionService;
 
-    @OperateLog("获取所有admin权限")
-    @DefaultActionState(ActionState.ADMIN)
+    @OperateLog("获取所有后台管理权限")
+    @DefaultActionState(ActionState.INVISIBLE)
     @GetMapping("/admin/all")
     public List<Action> getAllAdminPermissions() {
         return permissionService.getAllAdminPermissions();
     }
 
 
-    @OperateLog("以树结构获取所有admin权限")
+    @OperateLog("获取所有后台管理权限")
     @DefaultActionState(ActionState.ADMIN)
     @GetMapping("/admin/treeData")
     public List<TreeDataNode> getAllAdminPermissionsAsTree() {
         return permissionService.getAllAdminPermissionsAsTree();
     }
 
-    @OperateLog("获取所有manager权限")
-    @DefaultActionState(ActionState.MANAGER)
+    @OperateLog("获取所有活动管理权限")
+    @DefaultActionState(ActionState.INVISIBLE)
     @GetMapping("/manager/all")
     public List<Action> getAllManagerPermissions(@RequestParam @EventId Integer eventId) {
         return permissionService.getAllManagerPermissions();
     }
 
-    @OperateLog("以树结构获取所有manager权限")
+    @OperateLog("获取所有活动管理权限")
     @DefaultActionState(ActionState.MANAGER)
     @GetMapping("/manager/treeData")
     public List<TreeDataNode> getAllManagerPermissionsAsTree(@RequestParam @EventId Integer eventId) {
@@ -94,8 +94,8 @@ public class PermissionController {
         return "ok";
     }
 
-    @OperateLog("获取用户具有admin权限")
-    @DefaultActionState(ActionState.ADMIN)
+    @OperateLog("获取用户具有后台管理权限")
+    @DefaultActionState(ActionState.INVISIBLE)
     @GetMapping("/admin/user")
     public List<Action> getUserAdminPermissions(@RequestParam String userId) {
         if (userId.isEmpty()) {
@@ -104,7 +104,7 @@ public class PermissionController {
         return permissionService.getUserAdminPermissions(userId);
     }
 
-    @OperateLog("获取用户具有的admin权限(字符串)")
+    @OperateLog("获取用户具有的后台管理权限")
     @DefaultActionState(ActionState.ADMIN)
     @GetMapping("/admin/user/list")
     public List<String> getUserAdminPermissAsList(@RequestParam String userId) {
@@ -114,8 +114,8 @@ public class PermissionController {
         return permissionService.getUserAdminPermissAsList(userId);
     }
 
-    @OperateLog("获取用户对某活动manager权限")
-    @DefaultActionState(ActionState.MANAGER)
+    @OperateLog("获取用户对某活动管理权限")
+    @DefaultActionState(ActionState.INVISIBLE)
     @GetMapping("/event/manager/user")
     public List<Action> getUserManagerPermissions(@RequestParam @EventId Integer eventId,
                                                   @RequestParam String userId) {
@@ -125,7 +125,7 @@ public class PermissionController {
         return permissionService.getUserManagerPermissions(eventId, userId);
     }
 
-    @OperateLog("获取用户对某活动manager的权限(字符串)")
+    @OperateLog("获取用户对某活动管理的权限")
     @DefaultActionState(ActionState.MANAGER)
     @GetMapping("/event/manager/user/list")
     public List<String> getUserManagerPermissAsList(@RequestParam @EventId Integer eventId,
@@ -191,7 +191,7 @@ public class PermissionController {
         return permissionService.getManageEvent(userId);
     }
 
-    @OperateLog("获取用户自身admin权限用于条件渲染")
+    @OperateLog("获取用户自身后台管理权限用于条件渲染")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping(value = "/admin/self")
     public List<String> getSelfAdminPermission() {
@@ -199,7 +199,7 @@ public class PermissionController {
         return permissionService.getUserAdminPermissAsList(user.getUserId());
     }
 
-    @OperateLog("获取用户自身manager权限用于条件渲染")
+    @OperateLog("获取用户自身活动管理权限用于条件渲染")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping(value = "/event/manager/self")
     public List<String> getSelfManagerPermission(@RequestParam @EventId Integer eventId) {

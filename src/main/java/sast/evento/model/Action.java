@@ -13,17 +13,12 @@ import sast.evento.common.enums.ActionState;
 @AllArgsConstructor
 public class Action {
 
-    private final String description;
-
     private final String methodName;//作为获取action唯一标准
 
-    private final String method;
+    private final String group;
 
-    private final String url;
+    private final ActionState actionState;
 
-    private String group;
-
-    private ActionState actionState;
-
+    private final String description;
 
 }
