@@ -78,7 +78,7 @@ public class EventController {
     @OperateLog("取消活动")
     @DefaultActionState(ActionState.MANAGER)
     @PatchMapping("/info")
-    public String patchEvent(@RequestParam @EventId Integer eventId,
+    public String cancelEvent(@RequestParam @EventId Integer eventId,
                              @RequestBody Event event) {
         if (!event.getId().equals(eventId)) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid id.");
         return eventService.cancelEvent(eventId).toString();
