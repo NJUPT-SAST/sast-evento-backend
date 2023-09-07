@@ -27,7 +27,7 @@ public class FeedbackController {
      * @author Aiden
      */
     @OperateLog("获取某活动反馈详情")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(value = ActionState.ADMIN,group = "feedback")
     @GetMapping("/event")
     public FeedbacksDTO getFeedback(@RequestParam @EventId Integer eventId) {
         return feedBackService.getFeedback(eventId);
@@ -40,7 +40,7 @@ public class FeedbackController {
      * @author Aiden
      */
     @OperateLog("获取活动及其反馈数量列表")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(value = ActionState.ADMIN,group = "feedback")
     @GetMapping("/num")
     public List<Map<String, Integer>> getFeedbackEvents(
             @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,

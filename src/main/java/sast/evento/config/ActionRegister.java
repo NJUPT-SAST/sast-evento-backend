@@ -31,9 +31,7 @@ import java.util.*;
 @Slf4j
 @Component
 public class ActionRegister implements ApplicationListener<ContextRefreshedEvent> {
-
     private static final String PACKAGE_PATH = "classpath*:sast/evento/controller";
-    private static final String defaultGroupName = "default";
     public static Map<String, Action> actionName2action = new HashMap<>();
     public static Set<String> actionNameSet;
 
@@ -61,7 +59,7 @@ public class ActionRegister implements ApplicationListener<ContextRefreshedEvent
                     throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "run failed,the annotation defaultActionState is needed on Mapping method");
                 }
                 String methodName = m.getName();
-                actionName2action.put(methodName, new Action(m.getName(), defaultGroupName, d.value(),ano.value()));
+                actionName2action.put(methodName, new Action(m.getName(), d.group(), d.value(),ano.value()));
             }
         }
     }
