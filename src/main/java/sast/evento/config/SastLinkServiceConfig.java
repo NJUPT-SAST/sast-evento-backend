@@ -31,10 +31,6 @@ public class SastLinkServiceConfig {
     private String clientId_web;
     @Value("${sast-link-web.client-secret-web}")
     private String clientSecret_web;
-    @Value("${sast-link-web.code-verifier-web}")
-    private String codeVerifier_web;
-    @Value("${sast-link-web.link-path-web}")
-    private String linkPath_web;
 
     @Bean
     public SastLinkService sastLinkService() {
@@ -53,8 +49,8 @@ public class SastLinkServiceConfig {
                 .setRedirectUri(redirectUri_web)
                 .setClientId(clientId_web)
                 .setClientSecret(clientSecret_web)
-                .setCodeVerifier(codeVerifier_web)
-                .setHostName(linkPath_web)
+                .setCodeVerifier(codeVerifier)
+                .setHostName(linkPath)
                 .build();
     }
 }
