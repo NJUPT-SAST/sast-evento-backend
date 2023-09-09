@@ -32,20 +32,19 @@ public class EventStateScheduleServiceImpl implements EventStateScheduleService 
     @SneakyThrows
     public void scheduleJob(Integer eventId, Date startTime, Integer state) {
         log.info("scheduleJob: eventId: {}, startTime: {}, state: {}", eventId, startTime, state);
-        String cron = SchedulerUtil.simpleDateFormat.format(startTime);
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("eventId", eventId);
         String stringEventId = String.valueOf(eventId);
         jobDataMap.put("state", state);
         switch (state) {
             case 1 ->
-                    SchedulerUtil.addJob(stringEventId, notStartStateJobGroupName, stringEventId, notStartStateTriggerGroupName, EventStateUpdateJob.class, jobDataMap, cron);
+                    SchedulerUtil.addOneTimeJob(stringEventId, notStartStateJobGroupName, stringEventId, notStartStateTriggerGroupName, EventStateUpdateJob.class, jobDataMap, startTime);
             case 2 ->
-                    SchedulerUtil.addJob(stringEventId, checkingInStateJobGroupName, stringEventId, checkingInStateTriggerGroupName, EventStateUpdateJob.class, jobDataMap, cron);
+                    SchedulerUtil.addOneTimeJob(stringEventId, checkingInStateJobGroupName, stringEventId, checkingInStateTriggerGroupName, EventStateUpdateJob.class, jobDataMap, startTime);
             case 3 ->
-                    SchedulerUtil.addJob(stringEventId, inProgressStateJobGroupName, stringEventId, inProgressStateTriggerGroupName, EventStateUpdateJob.class, jobDataMap, cron);
+                    SchedulerUtil.addOneTimeJob(stringEventId, inProgressStateJobGroupName, stringEventId, inProgressStateTriggerGroupName, EventStateUpdateJob.class, jobDataMap, startTime);
             case 5 ->
-                    SchedulerUtil.addJob(stringEventId, endedStateJobGroupName, stringEventId, endedStateTriggerGroupName, EventStateUpdateJob.class, jobDataMap, cron);
+                    SchedulerUtil.addOneTimeJob(stringEventId, endedStateJobGroupName, stringEventId, endedStateTriggerGroupName, EventStateUpdateJob.class, jobDataMap, startTime);
             default -> throw new LocalRunTimeException(ErrorEnum.SCHEDULER_ERROR);
         }
     }
@@ -77,17 +76,16 @@ public class EventStateScheduleServiceImpl implements EventStateScheduleService 
 
     @SneakyThrows
     public void updateJob(Integer eventId, Date startTime, Integer state) {
-        String cron = SchedulerUtil.simpleDateFormat.format(startTime);
         String stringEventId = String.valueOf(eventId);
         switch (state) {
             case 1 ->
-                    SchedulerUtil.resetJobCron(stringEventId, notStartStateTriggerGroupName, cron);
+                    SchedulerUtil.resetJobSimpleTrigger(stringEventId, notStartStateTriggerGroupName, startTime);
             case 2 ->
-                    SchedulerUtil.resetJobCron(stringEventId, checkingInStateTriggerGroupName, cron);
+                    SchedulerUtil.resetJobSimpleTrigger(stringEventId, checkingInStateTriggerGroupName, startTime);
             case 3 ->
-                    SchedulerUtil.resetJobCron(stringEventId, inProgressStateTriggerGroupName, cron);
+                    SchedulerUtil.resetJobSimpleTrigger(stringEventId, inProgressStateTriggerGroupName, startTime);
             case 5 ->
-                    SchedulerUtil.resetJobCron(stringEventId, endedStateTriggerGroupName, cron);
+                    SchedulerUtil.resetJobSimpleTrigger(stringEventId, endedStateTriggerGroupName, startTime);
             default -> throw new LocalRunTimeException(ErrorEnum.SCHEDULER_ERROR);
         }
     }

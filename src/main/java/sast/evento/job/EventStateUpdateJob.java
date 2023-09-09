@@ -19,13 +19,16 @@ public class EventStateUpdateJob implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         log.info("Event state update task start");
+
         Integer eventId = jobExecutionContext.getMergedJobDataMap().getInt("eventId");
         int state = jobExecutionContext.getMergedJobDataMap().getInt("state");
+
         Event event = new Event();
         event.setId(eventId);
         event.setState(EventState.getEventState(state));
         EventService eventService = SpringContextUtil.getBean(EventServiceImpl.class);
         eventService.updateEvent(event);
+
         log.info("Event state update task end");
     }
 }
