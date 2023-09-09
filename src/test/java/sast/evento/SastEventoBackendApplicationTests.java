@@ -1,12 +1,17 @@
 package sast.evento;
 
+import jakarta.annotation.Resource;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
+import org.quartz.*;
+import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import sast.evento.common.enums.ActionState;
 import sast.evento.common.enums.ErrorEnum;
 import sast.evento.config.ActionRegister;
 import sast.evento.exception.LocalRunTimeException;
+import sast.evento.job.EventStateUpdateJob;
 import sast.evento.model.Action;
 import sast.evento.model.treeDataNodeDTO.AntDesignTreeDataNode;
 import sast.evento.model.treeDataNodeDTO.SemiTreeDataNode;
@@ -14,88 +19,123 @@ import sast.evento.model.treeDataNodeDTO.TreeDataNode;
 import sast.evento.model.wxServiceDTO.AccessTokenRequest;
 import sast.evento.model.wxServiceDTO.WxSubscribeRequest;
 import sast.evento.service.CodeService;
+import sast.evento.service.EventStateScheduleService;
 import sast.evento.service.QrCodeCheckInService;
-import sast.evento.utils.JsonUtil;
-import sast.evento.utils.JwtUtil;
-import sast.evento.utils.QRCodeUtil;
-import sast.evento.utils.SpringContextUtil;
+import sast.evento.utils.*;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @SpringBootTest
 class SastEventoBackendApplicationTests {
 
-    @Test
-    void genereateToken() {
-        JwtUtil jwtUtil = SpringContextUtil.getBean(JwtUtil.class);
-        HashMap<String, String> map = new HashMap<>();
-        map.put("user_id", "1");
-        String token = jwtUtil.generateToken(map);
-        System.out.println(token);
-    }
+    @Resource
+    private EventStateScheduleService eventStateScheduleService;
 
+    @SneakyThrows
     @Test
-    void getAllMethodNameByJson() {
-        List<String> adminMethods = ActionRegister.actionName2action.values().stream()
-                .filter(action -> action.getActionState().equals(ActionState.ADMIN))
-                .map(Action::getMethodName).toList();
-        List<String> managerMethods = ActionRegister.actionName2action.values().stream()
-                .filter(action -> action.getActionState().equals(ActionState.MANAGER))
-                .map(Action::getMethodName).toList();
-        String adminJson = JsonUtil.toJson(adminMethods);
-        System.out.println("admin json: " + adminJson);
-        System.out.println("admin max length: " + adminJson.length());
-        String managerJson = JsonUtil.toJson(managerMethods);
-        System.out.println("manager json: " + managerJson);
-        System.out.println("manager max length: " + managerJson.length());
-    }
-
-    @Test
-    void generateQrCode() {
+    void eventSSTest() {
+        String dateStr = "2023-09-05 22:25:59";
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
-            BufferedImage image = QRCodeUtil.generateQrCode("");
-        } catch (Exception e) {
-            throw new LocalRunTimeException(ErrorEnum.QRCODE_ERROR);
+            SchedulerUtil.startScheduler();
+            eventStateScheduleService.scheduleJob(47, dateFormat.parse(dateStr), 2);
+            Thread.sleep(1000);
+            eventStateScheduleService.scheduleJob(46, dateFormat.parse(dateStr), 3);
+            Thread.sleep(60000);
+        } catch (ParseException | InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
     @Test
-    void wxSubscribe() {
-        Map<String, String> dataMap = new HashMap<>();
-        dataMap.put("key1", "");
-        dataMap.put("key2", String.valueOf(111));
-        dataMap.put("key3", String.valueOf(111));
-        WxSubscribeRequest wxSubscribeRequest = new WxSubscribeRequest();
-        wxSubscribeRequest.setData(WxSubscribeRequest.getData(dataMap));
-        System.out.println(JsonUtil.toJson(wxSubscribeRequest));
-        System.out.println(JsonUtil.toJson(new AccessTokenRequest()));
+    void cronTest() {
+        String dateStr = "2023-09-04 12:16:10";
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            System.out.println(SchedulerUtil.simpleDateFormat.format(dateFormat.parse(dateStr)));
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
-    void refreshJobTest() {
-        Integer eventId = 1000000;
-        QrCodeCheckInService service = SpringContextUtil.getBean(QrCodeCheckInService.class);
-        service.getCheckInQrCode(eventId);
-        CodeService codeService = SpringContextUtil.getBean(CodeService.class);
-        String code = codeService.getCode(eventId);
-        System.out.println("code: " + code);
-        System.out.println("check: " + service.checkCode(eventId, code));
-        codeService.refreshCode(eventId);
-        System.out.println("check: " + service.checkCode(eventId, code));
-        service.close(eventId);
+    void oneTimeJobTest() throws SchedulerException {
+        Date date = new Date();
+        date.setTime(date.getTime() + 5000);
+        JobDataMap jobDataMapForUtil = new JobDataMap();
+        jobDataMapForUtil.put("eventId", 44);
+        jobDataMapForUtil.put("state", 3);
+        SchedulerUtil.startScheduler();
+        SchedulerUtil.addOneTimeJob("44", "update_not_start_state_job_group", "44", "update_not_start_state_trigger_group", EventStateUpdateJob.class, jobDataMapForUtil, date);
+        try {
+            Thread.sleep(7000);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
-    void CosUtilTest() {
+    void oneTimeJobDirectAddingTest() throws SchedulerException {
+        Date date = new Date();
+        date.setTime(date.getTime() + 5000);
+        JobDataMap jobDataMapForDirect = new JobDataMap();
+        jobDataMapForDirect.put("eventId", 37);
+        jobDataMapForDirect.put("state", 2);
+        Scheduler scheduler = new StdSchedulerFactory().getScheduler();
+        scheduler.start();
+//        Scheduler scheduler = SchedulerUtil.getScheduler();
+//        scheduler.start();
+        JobDetail jobDetail = JobBuilder.newJob(EventStateUpdateJob.class)
+                .withIdentity("44", "update_not_start_state_job_group")
+                .setJobData(jobDataMapForDirect)
+                .build();
+        SimpleTrigger simpleTrigger = (SimpleTrigger) TriggerBuilder.newTrigger()
+                .withIdentity("44", "update_not_start_state_trigger_group")
+                .startAt(date)
+                .build();
+        scheduler.scheduleJob(jobDetail, simpleTrigger);
+        try {
+            Thread.sleep(6000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
-    void TreeJsonTest() {
+    void combineTest() throws SchedulerException {
+        Date date = new Date();
+        date.setTime(date.getTime() + 5000);
+        JobDataMap jobDataMapForUtil = new JobDataMap();
+        jobDataMapForUtil.put("eventId", 56);
+        jobDataMapForUtil.put("state", 3);
+//        SchedulerUtil.startScheduler();
+        SchedulerUtil.addOneTimeJob("44", "update_not_start_state_job_group", "44", "update_not_start_state_trigger_group", EventStateUpdateJob.class, jobDataMapForUtil, date);
+        JobDataMap jobDataMapForDirect = new JobDataMap();
+        jobDataMapForDirect.put("eventId", 57);
+        jobDataMapForDirect.put("state", 2);
+        System.out.println("Util HashCode: " + SchedulerUtil.getScheduler().hashCode());
+        Scheduler scheduler = new StdSchedulerFactory().getScheduler();
+        System.out.println("Direct HashCode: " + scheduler.hashCode());
+        scheduler.start();
+//        Scheduler scheduler = SchedulerUtil.getScheduler();
+//        scheduler.start();
+        JobDetail jobDetail = JobBuilder.newJob(EventStateUpdateJob.class)
+                .withIdentity("37", "update_not_start_state_job_group")
+                .setJobData(jobDataMapForDirect)
+                .build();
+        SimpleTrigger simpleTrigger = (SimpleTrigger) TriggerBuilder.newTrigger()
+                .withIdentity("37", "update_not_start_state_trigger_group")
+                .startAt(date)
+                .build();
+        scheduler.scheduleJob(jobDetail, simpleTrigger);
+        try {
+            Thread.sleep(6000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
-
-
 }
