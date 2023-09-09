@@ -2,6 +2,7 @@ package sast.evento.entitiy;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,17 +19,9 @@ import lombok.NoArgsConstructor;
 public class User {
     @TableId(value = "id")
     private String userId;
+    @JsonIgnore
+    private String openId;//openId属于隐私信息，不得随意当成返回
 
-    private String studentId;
-
-    private String openId;
-
-//    private String email;
-//
-//    private String nickName;
-//
-//    private String name;
-//
-//    private String phoneNumber;
+    private String email;
 
 }

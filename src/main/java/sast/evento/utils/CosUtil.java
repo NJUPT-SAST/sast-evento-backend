@@ -11,11 +11,12 @@ import com.qcloud.cos.region.Region;
 import com.qcloud.cos.transfer.TransferManager;
 import com.qcloud.cos.transfer.TransferManagerConfiguration;
 import org.springframework.web.multipart.MultipartFile;
-import sast.evento.exception.LocalRunTimeException;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -32,7 +33,7 @@ public class CosUtil {
     private static final COSClient cosClient = createCOSClient();
 
     /* 上传图片，同一张图片同一个名字会覆盖，防止重复上传 */
-    public static String upload(MultipartFile file, String dir) {
+    public static String upload(MultipartFile file, String dir) throws IOException, NoSuchAlgorithmException, CosClientException {
         String dirPrefix = dir.isEmpty() ? "" : (dir + "/");
         if (file.getSize() > 10 * 1024 * 1024) {
             throw new IllegalArgumentException("size of file is out of limit 10M.");
@@ -50,29 +51,20 @@ public class CosUtil {
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(file.getContentType());
         objectMetadata.setContentLength(file.getSize());
-        try {
-            InputStream inputStream = file.getInputStream();
-            key = dirPrefix + prefix + "_" + md5HashCode(inputStream);
-            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, key, file.getInputStream(), objectMetadata);
-            putObjectRequest.setStorageClass(StorageClass.Standard);
-            cosClient.putObject(putObjectRequest);
-        } catch (Exception e) {
-            throw new LocalRunTimeException(e.getMessage());
-        }
+        InputStream inputStream = file.getInputStream();
+        key = dirPrefix + prefix + "_" + md5HashCode(inputStream);
+        PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, key, file.getInputStream(), objectMetadata);
+        putObjectRequest.setStorageClass(StorageClass.Standard);
+        cosClient.putObject(putObjectRequest);
         return "https://" + bucketName + ".cos." + COS_REGION + ".myqcloud.com/" + key;
     }
 
     /* 通过上一次获得的最后一个URL来获取下一个分页 */
-    public static List<String> getURLs(String dir, String lastURL, Integer size) {
+    public static List<String> getURLs(String dir, String lastURL, Integer size) throws CosClientException {
         String dirPrefix = dir.isEmpty() ? "" : (dir + "/");
         String lastKey = lastURL.isEmpty() ? "" : lastURL.substring(lastURL.indexOf("/", 9) + 1);
         ListObjectsRequest request = new ListObjectsRequest(bucketName, dirPrefix, lastKey, "/", size);
-        ObjectListing objectListing = null;
-        try {
-            objectListing = cosClient.listObjects(request);
-        } catch (CosClientException e) {
-            throw new LocalRunTimeException(e.getMessage());
-        }
+        ObjectListing objectListing = cosClient.listObjects(request);
         List<COSObjectSummary> summaryList = objectListing.getObjectSummaries();
         return summaryList.stream()
                 .map(COSObjectSummary::getKey)
@@ -81,28 +73,19 @@ public class CosUtil {
     }
 
     /* 获取当前桶下所有目录 */
-    public static List<String> getDirs(String dir) {
+    public static List<String> getDirs(String dir) throws CosClientException {
         String dirPrefix = dir.isEmpty() ? "" : (dir + "/");
         ListObjectsRequest request = new ListObjectsRequest(bucketName, dirPrefix, "", "/", 1000);
-        ObjectListing objectListing = null;
-        try {
-            objectListing = cosClient.listObjects(request);
-        } catch (CosClientException e) {
-            throw new LocalRunTimeException(e.getMessage());
-        }
+        ObjectListing objectListing = cosClient.listObjects(request);
         return objectListing.getCommonPrefixes().stream()
                 .map(s -> s.substring(0, s.length() - 1))
                 .toList();
     }
 
     /* 根据url删除图片 */
-    public static void delete(String url) {
+    public static void delete(String url) throws CosClientException {
         String key = url.substring(url.indexOf("/", 9) + 1);
-        try {
-            cosClient.deleteObject(bucketName, key);
-        } catch (CosClientException e) {
-            throw new LocalRunTimeException(e.getMessage());
-        }
+        cosClient.deleteObject(bucketName, key);
     }
 
     private static COSClient createCOSClient() {
@@ -127,7 +110,8 @@ public class CosUtil {
         return transferManager;
     }
 
-    private static String md5HashCode(InputStream inputStream) throws Exception {
+
+    private static String md5HashCode(InputStream inputStream) throws IOException, NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("MD5");
         byte[] buffer = new byte[1024];
         int length = -1;

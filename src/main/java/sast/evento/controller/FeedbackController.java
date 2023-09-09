@@ -6,10 +6,10 @@ import sast.evento.annotation.DefaultActionState;
 import sast.evento.annotation.EventId;
 import sast.evento.annotation.OperateLog;
 import sast.evento.common.enums.ActionState;
+import sast.evento.entitiy.User;
 import sast.evento.interceptor.HttpInterceptor;
 import sast.evento.model.FeedbackModel;
 import sast.evento.model.FeedbacksDTO;
-import sast.evento.model.UserProFile;
 import sast.evento.service.FeedBackService;
 
 import java.util.List;
@@ -26,7 +26,7 @@ public class FeedbackController {
      * @return FeedbacksDTO
      * @author Aiden
      */
-    @OperateLog("管理获取活动反馈详情")
+    @OperateLog("获取某活动反馈详情")
     @DefaultActionState(ActionState.ADMIN)
     @GetMapping("/event")
     public FeedbacksDTO getFeedback(@RequestParam @EventId Integer eventId) {
@@ -39,7 +39,7 @@ public class FeedbackController {
      * @return List<Map < String, Integer>>
      * @author Aiden
      */
-    @OperateLog("获取活动及其反馈数量列表（分页查询）")
+    @OperateLog("获取活动及其反馈数量列表")
     @DefaultActionState(ActionState.ADMIN)
     @GetMapping("/num")
     public List<Map<String, Integer>> getFeedbackEvents(
@@ -48,56 +48,58 @@ public class FeedbackController {
         return feedBackService.getFeedbackEvents(page, size);
     }
 
-    /**
-     *
-     */
     @OperateLog("用户添加反馈")
     @DefaultActionState(ActionState.LOGIN)
     @PostMapping("/info")
     public String addFeedback(@RequestParam(required = false) String content,
-                              @RequestParam Integer score,
+                              @RequestParam Double score,
                               @RequestParam Integer eventId) {
-        UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        if (userProFile == null) {
-            return null;
-        }
-        String userIdStr = userProFile.getUserId();
-        Integer userIdInt = Integer.valueOf(userIdStr);
-        return null;
+        User user = HttpInterceptor.userHolder.get();
+        return feedBackService.addFeedback(user.getUserId(), content, score, eventId);
     }
 
-    /**
-     *
-     */
-    @OperateLog("用户获取反馈列表")
+    @OperateLog("用户自己的获取反馈列表")
     @DefaultActionState(ActionState.LOGIN)
-    @GetMapping("/info")
-    public List<FeedbackModel> getFeedbacks() {
-        UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        return null;
+    @GetMapping("/user/list")
+    public List<FeedbackModel> getListByUserId() {
+        User user = HttpInterceptor.userHolder.get();
+        return feedBackService.getListByUserId(user.getUserId());
     }
 
-    /**
-     *
-     */
+    // 如果返回的是 null，那么表示用户没有反馈这个活动。
+    @OperateLog("用户获取自己写的某活动的反馈详情（可判断是否反馈）")
+    @DefaultActionState(ActionState.LOGIN)
+    @GetMapping("/user/info")
+    public FeedbackModel getUserFeedback(@RequestParam Integer eventId) {
+        User user = HttpInterceptor.userHolder.get();
+        return feedBackService.getFeedback(user.getUserId(), eventId);
+    }
+
+    // 如果传进来的 content 为空，则清空数据库的 content 字段。（考虑到有人可能想清空反馈内容，所以这样设计）
+    // score 为五分制，一位小数。如果传进来的为空，则不做修改。
     @OperateLog("用户修改反馈")
     @DefaultActionState(ActionState.LOGIN)
     @PatchMapping("/info")
     public String patchFeedback(@RequestParam(required = false) String content,
-                                @RequestParam(required = false) Integer score,
+                                @RequestParam(required = false) Double score,
                                 @RequestParam Integer feedbackId) {
-        UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        return null;
+        User user = HttpInterceptor.userHolder.get();
+        return feedBackService.patchFeedback(user.getUserId(), feedbackId, content, score);
     }
 
-    /**
-     *
-     */
     @OperateLog("用户删除反馈")
     @DefaultActionState(ActionState.LOGIN)
     @DeleteMapping("/info")
     public String deleteFeedback(@RequestParam Integer feedbackId) {
-        UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        return null;
+        User user = HttpInterceptor.userHolder.get();
+        return feedBackService.deleteFeedback(user.getUserId(), feedbackId);
     }
+
+    @OperateLog("获取活动反馈列表（该活动的所有人的反馈）")
+    @DefaultActionState(ActionState.LOGIN)
+    @GetMapping("/list")
+    public List<FeedbackModel> getListByEventId(@RequestParam Integer eventId) {
+        return feedBackService.getListByEventId(eventId);
+    }
+
 }

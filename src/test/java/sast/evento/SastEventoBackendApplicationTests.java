@@ -2,15 +2,19 @@ package sast.evento;
 
 import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
+import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import org.springframework.stereotype.Component;
 import sast.evento.common.enums.ActionState;
 import sast.evento.common.enums.ErrorEnum;
 import sast.evento.config.ActionRegister;
 import sast.evento.exception.LocalRunTimeException;
+import sast.evento.mapper.DepartmentMapper;
+import sast.evento.mapper.SubscribeDepartmentMapper;
 import sast.evento.job.EventStateUpdateJob;
 import sast.evento.model.Action;
 import sast.evento.model.treeDataNodeDTO.AntDesignTreeDataNode;
@@ -20,7 +24,15 @@ import sast.evento.model.wxServiceDTO.AccessTokenRequest;
 import sast.evento.model.wxServiceDTO.WxSubscribeRequest;
 import sast.evento.service.CodeService;
 import sast.evento.service.EventStateScheduleService;
+import sast.evento.service.LocationService;
+import sast.evento.service.LoginService;
 import sast.evento.service.QrCodeCheckInService;
+import sast.evento.utils.*;
+import sast.sastlink.sdk.model.UserInfo;
+import sast.sastlink.sdk.model.response.AccessTokenResponse;
+import sast.sastlink.sdk.model.response.RefreshResponse;
+import sast.sastlink.sdk.service.SastLinkService;
+import sast.sastlink.sdk.service.impl.RestTemplateSastLinkService;
 import sast.evento.utils.*;
 
 import java.awt.image.BufferedImage;
@@ -28,8 +40,23 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static sast.sastlink.sdk.enums.GrantType.REFRESH_TOKEN;
+import static sast.sastlink.sdk.enums.SastLinkApi.ACCESS_TOKEN;
+
 @SpringBootTest
 class SastEventoBackendApplicationTests {
+    @Resource
+    private LoginService loginService;
+    @Resource
+    private RedisUtil redisUtil;
+
+    @Resource
+    private LocationService locationService;
+    @Resource
+    private RestTemplateSastLinkService sastLinkService;
+
+    @Resource
+    private SubscribeDepartmentMapper subscribeDepartmentMapper;
 
     @Resource
     private EventStateScheduleService eventStateScheduleService;
@@ -106,6 +133,18 @@ class SastEventoBackendApplicationTests {
     }
 
     @Test
+    void RedisTest() {
+        System.out.println(JsonUtil.toJson(locationService.getLocations()));
+    }
+
+    @Test
+    void SastLinkTest() {
+        sastLinkService.login("","");
+    }
+    @Test
+    void subscribeDepartmentMapperTest() {
+        System.out.println(subscribeDepartmentMapper.selectSubscribeDepartmentUser(List.of(1, 10, 2, 3, 4)));
+    }
     void combineTest() throws SchedulerException {
         Date date = new Date();
         date.setTime(date.getTime() + 5000);

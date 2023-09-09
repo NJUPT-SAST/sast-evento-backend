@@ -10,8 +10,8 @@ public enum EventState {
     IN_PROGRESS(3, "进行中"),
     CANCELED(4, "已取消"),
     ENDED(5, "已结束");
-    private Integer state;
-    private String description;
+    private final Integer state;
+    private final String description;
 
     EventState(Integer state, String description) {
         this.state = state;
