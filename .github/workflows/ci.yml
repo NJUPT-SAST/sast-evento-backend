@@ -21,6 +21,7 @@ jobs:
             target/*.jar
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/dev-cicd'
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v3
