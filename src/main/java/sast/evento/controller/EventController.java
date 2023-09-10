@@ -24,7 +24,7 @@ public class EventController {
     @Resource
     private EventService eventService;
 
-    @OperateLog("查看所有正在进行的活动列表")
+    @OperateLog("查看正在进行活动列表")
     @DefaultActionState(ActionState.PUBLIC)
     @GetMapping("/conducting")
     public List<EventModel> getConducting() {
@@ -32,14 +32,14 @@ public class EventController {
     }
 
 
-    @OperateLog("查看最新活动列表（按开始时间正序排列未开始的活动）")
+    @OperateLog("查看最新活动列表")
     @DefaultActionState(ActionState.PUBLIC)
     @GetMapping("/newest")
     public List<EventModel> getNewest() {
         return eventService.getNewest();
     }
 
-    @OperateLog("查看用户历史活动列表（参加过已结束）")
+    @OperateLog("查看用户历史活动列表")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/history")
     public List<EventModel> getHistory() {
@@ -54,7 +54,7 @@ public class EventController {
      * @return 是否成功
      */
     @OperateLog("删除活动")
-    @DefaultActionState(ActionState.MANAGER)
+    @DefaultActionState(value = ActionState.MANAGER,group = "event")
     @DeleteMapping("/info")
     public String deleteEvent(@RequestParam @EventId Integer eventId) {
         return eventService.deleteEvent(eventId).toString();
@@ -76,9 +76,9 @@ public class EventController {
      * @return 是否成功
      */
     @OperateLog("取消活动")
-    @DefaultActionState(ActionState.MANAGER)
+    @DefaultActionState(value = ActionState.MANAGER,group = "event")
     @PatchMapping("/info")
-    public String patchEvent(@RequestParam @EventId Integer eventId,
+    public String cancelEvent(@RequestParam @EventId Integer eventId,
                              @RequestBody Event event) {
         if (!event.getId().equals(eventId)) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid id.");
         return eventService.cancelEvent(eventId).toString();
@@ -90,8 +90,8 @@ public class EventController {
      * @param eventModel 活动信息
      * @return 活动id
      */
-    @OperateLog("发起活动（添加活动）")
-    @DefaultActionState(ActionState.ADMIN)
+    @OperateLog("发起活动")
+    @DefaultActionState(value = ActionState.ADMIN,group = "event")
     @PostMapping("/info")
     public String addEvent(@RequestBody EventModel eventModel) {
         if (eventModel.getId() != null) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "id should be null.");
@@ -108,7 +108,7 @@ public class EventController {
      * @return 是否成功
      */
     @OperateLog("修改活动")
-    @DefaultActionState(ActionState.MANAGER)
+    @DefaultActionState(value = ActionState.MANAGER,group = "event")
     @PutMapping("/info")
     public String putEvent(@RequestParam @EventId Integer eventId,
                            @RequestBody EventModel eventModel) {
@@ -124,7 +124,7 @@ public class EventController {
         return eventService.getEvents(page, size);
     }
 
-    @OperateLog("获取活动列表(筛选)")
+    @OperateLog("筛选获取课表")
     @DefaultActionState(ActionState.PUBLIC)
     @PostMapping("/list")
     public List<EventModel> postForEvents(@RequestParam(required = false) List<Integer> typeId,

@@ -2,11 +2,9 @@ package sast.evento.config;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.annotation.AnnotatedElementUtils;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Component;
@@ -24,7 +22,6 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @projectName: sast-evento-backend
@@ -34,34 +31,25 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Component
 public class ActionRegister implements ApplicationListener<ContextRefreshedEvent> {
-
     private static final String PACKAGE_PATH = "classpath*:sast/evento/controller";
-    private static final String defaultGroupName = "default";
-    public static Map<String, Action> actionName2action = new ConcurrentHashMap<>();
+    public static Map<String, Action> actionName2action = new HashMap<>();
     public static Set<String> actionNameSet;
-    @Value("${evento.host}")
-    private String host;
-    @Value("${evento.port}")
-    private Integer port;
-    @Value("${evento.protocol}")
-    private String protocol;
 
     @SneakyThrows
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         parseAll(getAllClass(PACKAGE_PATH));
         actionNameSet = actionName2action.keySet();
-        log.info("Scan of action is over. Final actionName2action map is:{}", actionName2action);
-        log.info("and final actionName set is:{} total action num:{}", actionNameSet, actionNameSet.size());
+        //log.info("Scan of action is over. Final actionName2action map is:{}", actionName2action);
+        log.info("Scan of action is over. Final actionName set is:{} total action num:{}", actionNameSet, actionNameSet.size());
     }
 
     @SneakyThrows
     private void parseAll(Set<Class> set) {
         for (Class c : set) {
-            RequestMapping preMap = AnnotationUtils.findAnnotation(c, RequestMapping.class);
-            String pre = (preMap == null) ? "" : preMap.path()[0];
             Method[] declaredMethods = c.getDeclaredMethods();
             for (Method m : declaredMethods) {
+                OperateLog ano = m.getAnnotation(OperateLog.class);
                 RequestMapping r = AnnotatedElementUtils.findMergedAnnotation(m, RequestMapping.class);
                 DefaultActionState d = AnnotatedElementUtils.findMergedAnnotation(m, DefaultActionState.class);
                 if (r == null) {
@@ -70,11 +58,8 @@ public class ActionRegister implements ApplicationListener<ContextRefreshedEvent
                 if (d == null) {
                     throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "run failed,the annotation defaultActionState is needed on Mapping method");
                 }
-                URL url = new URL(protocol, host, port, pre + r.path()[0]);
-                OperateLog logAnno = AnnotatedElementUtils.findMergedAnnotation(m, OperateLog.class);
-                String description = (logAnno == null) ? "" : logAnno.description();
                 String methodName = m.getName();
-                actionName2action.put(methodName, new Action(description, methodName, r.method()[0].name(), String.valueOf(url), defaultGroupName, d.value()));
+                actionName2action.put(methodName, new Action(m.getName(), d.group(), d.value(),ano.value()));
             }
         }
     }

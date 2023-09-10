@@ -22,18 +22,35 @@ public class SastLinkServiceConfig {
     private String clientSecret;
     @Value("${sast-link.code-verifier}")
     private String codeVerifier;
-    @Value("${sast-link.link-host}")
-    private String linkHostName;
+    @Value("${sast-link.link-path}")
+    private String linkPath;
+
+    @Value("${sast-link-web.redirect-uri-web}")
+    private String redirectUri_web;
+    @Value("${sast-link-web.client-id-web}")
+    private String clientId_web;
+    @Value("${sast-link-web.client-secret-web}")
+    private String clientSecret_web;
 
     @Bean
-    public SastLinkService sastLinkService(RestTemplate restTemplate) {
+    public SastLinkService sastLinkService() {
         return RestTemplateSastLinkService.Builder()
                 .setRedirectUri(redirectUri)
                 .setClientId(clientId)
                 .setClientSecret(clientSecret)
                 .setCodeVerifier(codeVerifier)
-                .setHostName(linkHostName)
-                .setRestTemplate(restTemplate)
+                .setHostName(linkPath)
+                .build();
+    }
+
+    @Bean
+    public SastLinkService sastLinkServiceWeb() {
+        return RestTemplateSastLinkService.Builder()
+                .setRedirectUri(redirectUri_web)
+                .setClientId(clientId_web)
+                .setClientSecret(clientSecret_web)
+                .setCodeVerifier(codeVerifier)
+                .setHostName(linkPath)
                 .build();
     }
 }

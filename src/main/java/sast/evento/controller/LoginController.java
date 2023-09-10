@@ -25,15 +25,16 @@ public class LoginController {
     @Resource
     private LoginService loginService;
 
-    @OperateLog("Link登录")
+    @OperateLog("link登录")
     @PostMapping("/login/link")
     @DefaultActionState(ActionState.PUBLIC)
-    public Map<String, Object> linkLogin(@RequestParam String code) {
+    public Map<String, Object> linkLogin(@RequestParam String code,
+                                         @RequestParam Integer type) {
         if (code == null || code.isEmpty()) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid code");
         }
         try {
-            return loginService.linkLogin(code);
+            return loginService.linkLogin(code,type);
         } catch (SastLinkException e) {
             throw new LocalRunTimeException(ErrorEnum.SAST_LINK_SERVICE_ERROR, e.getMessage());
         }
@@ -44,23 +45,24 @@ public class LoginController {
     @DefaultActionState(ActionState.PUBLIC)
     public Map<String, Object> wxLogin(@RequestParam String email,
                                        @RequestParam String password,
+                                       @RequestParam String openId,
                                        @RequestParam String codeChallenge,
-                                       @RequestParam String codeChallengeMethod,
-                                       @RequestParam String openId) {
-        if (email.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid email");
-        }
-        if (password.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid password");
-        }
-        if (openId.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid openId");
-        }
-        try {
-            return loginService.wxLogin(email, password, codeChallenge, codeChallengeMethod, openId);
-        } catch (SastLinkException e) {
-            throw new LocalRunTimeException(ErrorEnum.SAST_LINK_SERVICE_ERROR, e.getMessage());
-        }
+                                       @RequestParam String codeChallengeMethod) {
+        throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"temporarily closed");
+//        if (email.isEmpty()) {
+//            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid email");
+//        }
+//        if (password.isEmpty()) {
+//            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid password");
+//        }
+//        if (openId.isEmpty()) {
+//            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid openId");
+//        }
+//        try {
+//            return loginService.wxLogin(email, password, codeChallenge, codeChallengeMethod, openId);
+//        } catch (Exception e) {
+//            throw new LocalRunTimeException(ErrorEnum.SAST_LINK_SERVICE_ERROR, e.getMessage());
+//        }
     }
 
     @OperateLog("登出")

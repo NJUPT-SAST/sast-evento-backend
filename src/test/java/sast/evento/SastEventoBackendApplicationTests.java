@@ -47,7 +47,7 @@ class SastEventoBackendApplicationTests {
     @Resource
     private LocationService locationService;
     @Resource
-    private RestTemplateSastLinkService sastLinkService;
+    private RestTemplateSastLinkService sastLinkServiceWeb;
 
     @Resource
     private SubscribeDepartmentMapper subscribeDepartmentMapper;
@@ -119,7 +119,13 @@ class SastEventoBackendApplicationTests {
 
     @Test
     void SastLinkTest() {
-        sastLinkService.login("","");
+        String token = sastLinkServiceWeb.login("","");
+        String code = sastLinkServiceWeb.authorize(token,"","");
+        System.out.println(code);
+
+
+
+
     }
     @Test
     void subscribeDepartmentMapperTest(){

@@ -14,10 +14,7 @@ import sast.evento.model.treeDataNodeDTO.TreeDataNode;
 import sast.evento.service.PermissionService;
 import sast.evento.service.PermissionServiceCacheAble;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @projectName: sast-evento-backend
@@ -33,14 +30,15 @@ public class PermissionServiceImpl implements PermissionService {
     @Resource
     private UserMapper userMapper;
     /* 设置所有不需要管理的默认权限 */
-    public static final List<String> defaultManagerPermission = List.of(
+    public static final List<String> defaultManagerPermission = Arrays.asList(
             "getAllManagerPermissionsAsTree", "getAllManagerPermissions",
             "getUserManagerPermissions", "getUserManagerPermissAsList");
-    public static final List<String> defaultAdminPermission = List.of(
+    public static final List<String> defaultAdminPermission = Arrays.asList(
             "getUserAdminPermissions", "getAllAdminPermissions",
             "getAllAdminPermissionsAsTree", "getUserAdminPermissAsList",
             "getFeedback", "getStates", "getActionList", "getTypes",
-            "getDepartments", "getLocations", "getAdmins");
+            "getDepartments", "getLocations", "getAdmins", "getDir",
+            "getUrls");
 
     @Override
     public List<Action> getAllAdminPermissions() {
@@ -87,7 +85,10 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public void updateAdminPermission(List<String> methodNames, String userId) {
-        methodNames.addAll(defaultAdminPermission);
+        System.out.println(methodNames);
+        System.out.println(defaultManagerPermission);
+        methodNames.addAll(defaultManagerPermission);
+
         Permission permission = new Permission(null, 0, userId, methodNames, null);
         permissionServiceCacheAble.updatePermission(permission);
     }
@@ -175,7 +176,6 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     private TreeDataNode getNode(String description, String methodName) {
-        //todo 对接前端客户端
         return new AntDesignTreeDataNode(description, methodName, null);
         //return new SemiTreeDataNode(title,value,key);
     }

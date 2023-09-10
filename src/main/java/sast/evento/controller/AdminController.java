@@ -33,7 +33,7 @@ public class AdminController {
      * @return 活动地点id
      */
     @OperateLog("添加活动地点")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(value = ActionState.ADMIN,group = "location")
     @PostMapping("/location")
     public String addLocation(@RequestBody Location location) {
         if (location.getId() != null) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "id should be null.");
@@ -46,7 +46,7 @@ public class AdminController {
      * @return 是否成功
      */
     @OperateLog("删除活动地点")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(value = ActionState.ADMIN,group = "location")
     @DeleteMapping("/location")
     public String deleteLocation(@RequestParam Integer locationId) {
         return locationService.deleteLocation(locationId).toString();
@@ -57,7 +57,7 @@ public class AdminController {
      * @return 活动地点列表
      */
     @OperateLog("获取活动地点")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(value = ActionState.ADMIN,group = "location")
     @GetMapping("/locations")
     public List<TreeDataNode> getLocations() {
         /* 以树状结构返回 */
@@ -89,7 +89,7 @@ public class AdminController {
      * @return ok
      */
     @OperateLog("修改活动地点名称")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(value = ActionState.ADMIN,group = "location")
     @PatchMapping("/location")
     public String updateLocationName(@RequestParam Integer id,
                                      @RequestParam String locationName) {
@@ -103,7 +103,7 @@ public class AdminController {
      * @return 活动类型id
      */
     @OperateLog("添加活动类型")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(value = ActionState.ADMIN,group = "type")
     @PostMapping("/type")
     public String addType(@RequestBody EventType type) {
         if (type.getId() != null) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "id should be null");
@@ -116,7 +116,7 @@ public class AdminController {
      * @return 是否成功
      */
     @OperateLog("删除活动类型")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(value = ActionState.ADMIN,group = "type")
     @DeleteMapping("/type")
     public String deleteType(@RequestParam Integer typeId) {
         return eventTypeService.deleteEventType(typeId).toString();
@@ -127,7 +127,7 @@ public class AdminController {
      * @return 活动类型列表
      */
     @OperateLog("获取活动类型")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(value = ActionState.ADMIN,group = "type")
     @GetMapping("/types")
     public List<EventType> getTypes() {
         return eventTypeService.getAllEventType();
@@ -140,7 +140,7 @@ public class AdminController {
      * @return 是否成功
      */
     @OperateLog("修改活动类型")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(value = ActionState.ADMIN,group = "type")
     @PutMapping("/type")
     public String updateType(@RequestParam Integer typeId,
                              @RequestBody EventType type) {
@@ -149,28 +149,29 @@ public class AdminController {
     }
 
     @OperateLog("添加组织部门")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(value = ActionState.ADMIN,group = "department")
     @PostMapping("/department")
     public Integer addDepartment(@RequestParam String departmentName){
         return departmentService.addDepartment(departmentName);
     }
 
     @OperateLog("删除部门")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(value = ActionState.ADMIN,group = "department")
     @DeleteMapping("/department")
-    public void deleteDepartment(@RequestParam Integer departmentId){
+    public String deleteDepartment(@RequestParam Integer departmentId){
         departmentService.deleteDepartment(departmentId);
+        return "ok";
     }
 
     @OperateLog("获取全部组织部门")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(value = ActionState.ADMIN,group = "department")
     @GetMapping("/departments")
     public List<Department> getDepartments(){
         return departmentService.getDepartments();
     }
 
     @OperateLog("修改组织部门名称")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(value = ActionState.ADMIN,group = "department")
     @PutMapping("/department")
     public void putDepartment(@RequestParam Integer departmentId,
                               @RequestParam String departmentName){

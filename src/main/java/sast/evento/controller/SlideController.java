@@ -36,7 +36,7 @@ public class SlideController {
     }
 
     @OperateLog("添加活动幻灯片")
-    @DefaultActionState(ActionState.MANAGER)
+    @DefaultActionState(value = ActionState.MANAGER,group = "slide")
     @PostMapping("/event/info")
     public Integer addEventSlide(@RequestParam @EventId Integer eventId,
                                  @RequestParam String url,
@@ -46,7 +46,7 @@ public class SlideController {
     }
 
     @OperateLog("删除活动幻灯片")
-    @DefaultActionState(ActionState.MANAGER)
+    @DefaultActionState(value = ActionState.MANAGER,group = "slide")
     @DeleteMapping("/event/info")
     public String deleteEventSlide(@RequestParam @EventId Integer eventId,
                                    @RequestParam Integer slideId) {
@@ -55,7 +55,7 @@ public class SlideController {
     }
 
     @OperateLog("编辑活动幻灯片")
-    @DefaultActionState(ActionState.MANAGER)
+    @DefaultActionState(value = ActionState.MANAGER,group = "slide")
     @PatchMapping("/event/info")
     public String patchEventSlide(@RequestParam @EventId Integer eventId,
                                   @RequestParam Integer slideId,
@@ -67,7 +67,7 @@ public class SlideController {
     }
 
     @OperateLog("添加首页幻灯片")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(value = ActionState.ADMIN,group = "slide")
     @PostMapping("/home/info")
     public Integer addHomeSlide(@RequestParam String url,
                                 @RequestParam String link,
@@ -76,7 +76,7 @@ public class SlideController {
     }
 
     @OperateLog("删除首页幻灯片")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(value = ActionState.ADMIN,group = "slide")
     @DeleteMapping("/home/info")
     public String deleteHomeSlide(@RequestParam Integer slideId) {
         slideService.deleteHomeSlide(slideId);
@@ -84,7 +84,7 @@ public class SlideController {
     }
 
     @OperateLog("编辑首页幻灯片")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(value = ActionState.ADMIN,group = "slide")
     @PatchMapping("/home/info")
     public String patchHomeSlide(@RequestParam Integer slideId,
                                  @RequestParam(required = false) String url,

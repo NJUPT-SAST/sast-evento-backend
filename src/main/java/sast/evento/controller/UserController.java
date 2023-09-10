@@ -34,7 +34,7 @@ public class UserController {
     @GetMapping("/info")
     public UserProFile getUser(@RequestParam String userId) {
         /* 等着和sastLink对接捏 */
-        return null;
+        throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"not finish");
     }
 
     @OperateLog("更改个人信息")
@@ -45,10 +45,10 @@ public class UserController {
         if (!userProFile.getUserId().equals(userId))
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid id.");
         /* 等着和sastLink对接捏 */
-        return null;
+        throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"not finish");
     }
 
-    @OperateLog("订阅活动 / 取消订阅")
+    @OperateLog("订阅活动或取消订阅")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/subscribe")
     public String subscribe(@RequestParam Integer eventId,
@@ -92,7 +92,7 @@ public class UserController {
         return participateService.getParticipation(user.getUserId(), eventId);
     }
 
-    @OperateLog("订阅组别 / 取消订阅")
+    @OperateLog("订阅组别或取消订阅")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/subscribe/department")
     public String subscribeDepartment(@RequestParam Integer departmentId,
