@@ -25,7 +25,6 @@ public class SchedulerUtil {
         return schedulerFactory.getScheduler();
     }
 
-
     public static void addJob(String jobName, String jobGroupName, String triggerName, String triggerGroupName, Class<? extends org.quartz.Job> jobClass, @Nullable JobDataMap jobDataMap, String cron) throws SchedulerException {
         Scheduler scheduler = getScheduler();
         if (scheduler.isShutdown()) {

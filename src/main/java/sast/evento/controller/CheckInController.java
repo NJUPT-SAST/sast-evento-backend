@@ -28,10 +28,10 @@ public class CheckInController {
     }
 
     @OperateLog("获取活动签到二维码")
-    @DefaultActionState(ActionState.ADMIN)/* 这里为admin,eventId注解没什么用 */
+    @DefaultActionState(value = ActionState.ADMIN,group = "checkIn")/* 这里为admin,eventId注解没什么用 */
     @GetMapping("/qrcode")
     @ResponseBody
-    public BufferedImage eventQrcodeGet(@RequestParam @EventId Integer eventId) {
+    public BufferedImage getEventQrcode(@RequestParam @EventId Integer eventId) {
         throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"not finish");
     }
 

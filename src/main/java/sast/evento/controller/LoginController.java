@@ -28,12 +28,13 @@ public class LoginController {
     @OperateLog("link登录")
     @PostMapping("/login/link")
     @DefaultActionState(ActionState.PUBLIC)
-    public Map<String, Object> linkLogin(@RequestParam String code) {
+    public Map<String, Object> linkLogin(@RequestParam String code,
+                                         @RequestParam Integer type) {
         if (code == null || code.isEmpty()) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid code");
         }
         try {
-            return loginService.linkLogin(code);
+            return loginService.linkLogin(code,type);
         } catch (SastLinkException e) {
             throw new LocalRunTimeException(ErrorEnum.SAST_LINK_SERVICE_ERROR, e.getMessage());
         }

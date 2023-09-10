@@ -26,7 +26,7 @@ import java.util.List;
 @RequestMapping("/picture")
 public class PictureController {
     @OperateLog("获取所有目录")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(value = ActionState.ADMIN,group = "picture")
     @GetMapping("/dir")
     public List<String> getDir(@RequestParam(defaultValue = "") String dir) {
         try {
@@ -37,7 +37,7 @@ public class PictureController {
     }
 
     @OperateLog("获取图片url列表")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(value = ActionState.ADMIN,group = "picture")
     @GetMapping("/list")
     public List<String> getUrls(@RequestParam(defaultValue = "") String dir,
                                 @RequestParam(defaultValue = "") String lastUrl,
@@ -50,7 +50,7 @@ public class PictureController {
     }
 
     @OperateLog("添加图片")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(value = ActionState.ADMIN,group = "picture")
     @PostMapping("/info")
     public String addPicture(MultipartFile picture,
                              @RequestParam(defaultValue = "") String dir) {
@@ -67,7 +67,7 @@ public class PictureController {
     }
 
     @OperateLog("删除图片")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(value = ActionState.ADMIN,group = "picture")
     @DeleteMapping("/info")
     public String deletePicture(@RequestParam String url) {
         if (url.isEmpty()) {

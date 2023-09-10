@@ -9,6 +9,8 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.ContextRefreshedEvent;
+import sast.evento.common.enums.ErrorEnum;
+import sast.evento.exception.LocalRunTimeException;
 import sast.evento.utils.SchedulerUtil;
 
 /**
@@ -21,14 +23,9 @@ public class SchedulerConfig implements ApplicationListener<ContextRefreshedEven
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         try {
-            scheduler().start();
+            SchedulerUtil.startScheduler();
         } catch (SchedulerException e) {
-            e.printStackTrace();
+            throw new LocalRunTimeException(ErrorEnum.SCHEDULER_ERROR,"error start");
         }
-    }
-    @Bean
-    public Scheduler scheduler() throws SchedulerException {
-        SchedulerFactory schedulerFactoryBean = new StdSchedulerFactory();
-        return schedulerFactoryBean.getScheduler();
     }
 }

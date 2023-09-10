@@ -32,7 +32,7 @@ public class PermissionController {
 
 
     @OperateLog("获取所有后台管理权限")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(value = ActionState.ADMIN,group = "permission")
     @GetMapping("/admin/treeData")
     public List<TreeDataNode> getAllAdminPermissionsAsTree() {
         return permissionService.getAllAdminPermissionsAsTree();
@@ -46,14 +46,14 @@ public class PermissionController {
     }
 
     @OperateLog("获取所有活动管理权限")
-    @DefaultActionState(ActionState.MANAGER)
+    @DefaultActionState(value = ActionState.MANAGER,group = "permission")
     @GetMapping("/manager/treeData")
     public List<TreeDataNode> getAllManagerPermissionsAsTree(@RequestParam @EventId Integer eventId) {
         return permissionService.getAllManagerPermissionsAsTree();
     }
 
     @OperateLog("删除后台管理者")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(value = ActionState.ADMIN,group = "permission")
     @DeleteMapping("/admin")
     public String deleteAdmin(@RequestParam String userId) {
         if (userId.isEmpty()) {
@@ -64,14 +64,14 @@ public class PermissionController {
     }
 
     @OperateLog("获取后台管理者列表")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(value = ActionState.ADMIN,group = "permission")
     @GetMapping("/admins")
     public List<User> getAdmins() {
         return permissionService.getAdmins();
     }
 
     @OperateLog("添加后台管理者")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(value = ActionState.ADMIN,group = "permission")
     @PostMapping("/admin")
     public String addAdmin(@RequestParam List<String> methodNames,
                            @RequestParam String userId) {
@@ -83,7 +83,7 @@ public class PermissionController {
     }
 
     @OperateLog("编辑后台管理者权限")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(value = ActionState.ADMIN,group = "permission")
     @PutMapping("/admin")
     public String putAdmin(@RequestParam List<String> methodNames,
                            @RequestParam String userId) {
@@ -105,7 +105,7 @@ public class PermissionController {
     }
 
     @OperateLog("获取用户具有的后台管理权限")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(value = ActionState.ADMIN,group = "permission")
     @GetMapping("/admin/user/list")
     public List<String> getUserAdminPermissAsList(@RequestParam String userId) {
         if (userId.isEmpty()) {
@@ -126,7 +126,7 @@ public class PermissionController {
     }
 
     @OperateLog("获取用户对某活动管理的权限")
-    @DefaultActionState(ActionState.MANAGER)
+    @DefaultActionState(value = ActionState.MANAGER,group = "permission")
     @GetMapping("/event/manager/user/list")
     public List<String> getUserManagerPermissAsList(@RequestParam @EventId Integer eventId,
                                                     @RequestParam String userId) {
@@ -137,7 +137,7 @@ public class PermissionController {
     }
 
     @OperateLog("删除活动管理者")
-    @DefaultActionState(ActionState.MANAGER)
+    @DefaultActionState(value = ActionState.MANAGER,group = "permission")
     @DeleteMapping(value = "/event/manager")
     public String deleteManager(@RequestParam @EventId Integer eventId,
                                 @RequestParam String userId) {
@@ -149,7 +149,7 @@ public class PermissionController {
     }
 
     @OperateLog("编辑活动管理者权限")
-    @DefaultActionState(ActionState.MANAGER)
+    @DefaultActionState(value = ActionState.MANAGER,group = "permission")
     @PutMapping(value = "/event/manager")
     public String putManager(@RequestParam List<String> methodNames,
                              @RequestParam @EventId Integer eventId,
@@ -162,7 +162,7 @@ public class PermissionController {
     }
 
     @OperateLog("添加活动管理者")
-    @DefaultActionState(ActionState.MANAGER)
+    @DefaultActionState(value = ActionState.MANAGER,group = "permission")
     @PostMapping(value = "/event/manager")
     public String addManager(@RequestParam List<String> methodNames,
                              @RequestParam @EventId Integer eventId,

@@ -12,4 +12,5 @@ import java.lang.annotation.Target;
 public @interface DefaultActionState {
     /* 添加注释后,默认为管理员操作 */
     ActionState value() default ActionState.ADMIN;
+    String group() default "default";
 }
