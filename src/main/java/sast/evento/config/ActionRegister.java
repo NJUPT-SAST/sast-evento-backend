@@ -63,7 +63,8 @@ public class ActionRegister implements BeanFactoryAware, CommandLineRunner {
                     throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "run failed,the annotation defaultActionState is needed on Mapping method");
                 }
                 String methodName = m.getName();
-                actionName2action.put(methodName, new Action(m.getName(), d.group(), d.value(), ano.value()));
+
+                actionName2action.put(methodName, new Action(m.getName(), d.group(), d.value(),ano.value()));
             }
         }
         actionNameSet = actionName2action.keySet();
