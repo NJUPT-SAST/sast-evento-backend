@@ -20,7 +20,7 @@ import sast.evento.model.wxServiceDTO.WxSubscribeRequest;
 import sast.evento.service.CodeService;
 import sast.evento.service.LocationService;
 import sast.evento.service.LoginService;
-import sast.evento.service.QrCodeCheckInService;
+
 import sast.evento.utils.*;
 import sast.sastlink.sdk.model.UserInfo;
 import sast.sastlink.sdk.model.response.AccessTokenResponse;
@@ -78,15 +78,6 @@ class SastEventoBackendApplicationTests {
     }
 
     @Test
-    void generateQrCode() {
-        try {
-            BufferedImage image = QRCodeUtil.generateQrCode("");
-        } catch (Exception e) {
-            throw new LocalRunTimeException(ErrorEnum.QRCODE_ERROR);
-        }
-    }
-
-    @Test
     void wxSubscribe() {
         Map<String, String> dataMap = new HashMap<>();
         dataMap.put("key1", "");
@@ -98,19 +89,7 @@ class SastEventoBackendApplicationTests {
         System.out.println(JsonUtil.toJson(new AccessTokenRequest()));
     }
 
-    @Test
-    void refreshJobTest() {
-        Integer eventId = 1000000;
-        QrCodeCheckInService service = SpringContextUtil.getBean(QrCodeCheckInService.class);
-        service.getCheckInQrCode(eventId);
-        CodeService codeService = SpringContextUtil.getBean(CodeService.class);
-        String code = codeService.getCode(eventId);
-        System.out.println("code: " + code);
-        System.out.println("check: " + service.checkCode(eventId, code));
-        codeService.refreshCode(eventId);
-        System.out.println("check: " + service.checkCode(eventId, code));
-        service.close(eventId);
-    }
+
 
     @Test
     void RedisTest() {
