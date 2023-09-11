@@ -25,7 +25,6 @@ public class SchedulerUtil {
         return schedulerFactory.getScheduler();
     }
 
-
     public static void addJob(String jobName, String jobGroupName, String triggerName, String triggerGroupName, Class<? extends org.quartz.Job> jobClass, @Nullable JobDataMap jobDataMap, String cron) throws SchedulerException {
         Scheduler scheduler = getScheduler();
         if (scheduler.isShutdown()) {
@@ -61,6 +60,29 @@ public class SchedulerUtil {
         scheduler.scheduleJob(jobDetail, trigger);
     }
 
+    public static void addOneTimeJob(String jobName, String jobGroupName, String triggerName, String triggerGroupName, Class<? extends org.quartz.Job> jobClass, @Nullable JobDataMap jobDataMap, Date date) throws SchedulerException {
+        Scheduler scheduler = getScheduler();
+        if (scheduler.isShutdown()) {
+            throw new RuntimeException("Please contact admin to start the scheduler first.");
+        }
+        log.info("""
+                jobName: {}
+                jobGroup: {}
+                triggerName: {}
+                triggerGroupName: {}""", jobName, jobGroupName, triggerName, triggerGroupName);
+
+        JobDetail jobDetail = JobBuilder.newJob(jobClass)
+                .withIdentity(jobName, jobGroupName)
+                .setJobData(jobDataMap)
+                .build();
+        SimpleTrigger simpleTrigger = (SimpleTrigger) TriggerBuilder.newTrigger()
+                .withIdentity(triggerName, triggerGroupName)
+                .startAt(date)
+                .build();
+        scheduler.scheduleJob(jobDetail, simpleTrigger);
+    }
+
+
     public static void resetJobCron(String triggerName, String triggerGroupName, String cron) throws Exception {
         Scheduler scheduler = getScheduler();
         TriggerKey triggerKey = new TriggerKey(triggerName, triggerGroupName);
@@ -68,6 +90,19 @@ public class SchedulerUtil {
         if (!trigger.getCronExpression().equalsIgnoreCase(cron)) {
             trigger.setCronExpression(cron);
             scheduler.rescheduleJob(triggerKey, trigger);
+        }
+    }
+
+    public static void resetJobSimpleTrigger(String triggerName, String triggerGroupName, Date date) throws Exception {
+        Scheduler scheduler = getScheduler();
+        TriggerKey triggerKey = new TriggerKey(triggerName, triggerGroupName);
+        SimpleTrigger trigger = (SimpleTrigger) scheduler.getTrigger(triggerKey);
+        if (!trigger.getStartTime().equals(date)) {
+            SimpleTrigger simpleTrigger = (SimpleTrigger) TriggerBuilder.newTrigger()
+                    .withIdentity(triggerKey)
+                    .startAt(date)
+                    .build();
+            scheduler.rescheduleJob(triggerKey, simpleTrigger);
         }
     }
 
