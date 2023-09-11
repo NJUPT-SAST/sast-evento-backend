@@ -31,6 +31,9 @@ public class FeedBackServiceImpl implements FeedBackService {
     @Override
     public FeedbacksDTO getFeedback(Integer eventId) {
         FeedbacksDTO feedbacksDTO = feedbackMapper.getFeedback(eventId);
+        if(feedbacksDTO == null){
+            throw new LocalRunTimeException(ErrorEnum.EVENT_NOT_EXIST);
+        }
         feedbacksDTO.setEventId(eventId);
         return feedbacksDTO;
     }

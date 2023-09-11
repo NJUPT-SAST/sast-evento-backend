@@ -25,6 +25,7 @@ public enum ErrorEnum {
     /* 数据不存在 */
     EVENT_TYPE_NOT_EXIST(1006, "eventType not exist"),
     LOCATION_NOT_EXIST(1007, "location not exist"),
+    EVENT_NOT_EXIST(1008,"event not exist"),
 
 
     /* 其他服务错误 */
