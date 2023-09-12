@@ -3,8 +3,11 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="sast.evento.mapper.PermissionMapper">
+    <resultMap id="user" type="sast.evento.entitiy.User" autoMapping="true">
+        <result column="id" property="userId"/>
+    </resultMap>
 
-    <select id="getUserHasPermissionByEvent" resultType="sast.evento.entitiy.User">
+    <select id="getUserHasPermissionByEvent" resultMap="user">
         select u.*
         from permission p
                  join user u on u.id = p.user_id
