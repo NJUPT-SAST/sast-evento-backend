@@ -9,7 +9,9 @@ import sast.evento.exception.LocalRunTimeException;
 import sast.evento.mapper.FeedbackMapper;
 import sast.evento.mapper.FeedbackModelMapper;
 import sast.evento.model.FeedbackModel;
+import sast.evento.model.FeedbackNumModel;
 import sast.evento.model.FeedbacksDTO;
+import sast.evento.model.PageModel;
 import sast.evento.service.FeedBackService;
 
 import java.util.List;
@@ -128,7 +130,7 @@ public class FeedBackServiceImpl implements FeedBackService {
 
     // 管理端获取活动及其反馈数量列表
     @Override
-    public List<Map<String, Integer>> getFeedbackEvents(Integer page, Integer size) {
+    public PageModel<FeedbackNumModel> getFeedbackEvents(Integer page, Integer size) {
         Integer index = (page - 1) * size;
         return feedbackMapper.getFeedbackEvents(index, size);
     }
