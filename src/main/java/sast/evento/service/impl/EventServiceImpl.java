@@ -10,7 +10,6 @@ import sast.evento.common.enums.ErrorEnum;
 import sast.evento.common.enums.EventState;
 import sast.evento.config.ActionRegister;
 import sast.evento.entitiy.Event;
-import sast.evento.entitiy.EventType;
 import sast.evento.entitiy.Location;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.mapper.*;
@@ -351,31 +350,21 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventModel> postForEvents(List<Integer> typeId, List<Integer> departmentId, String time) {
+        // 如果time为空，则将time赋值为今天的日期
+        if(time.isEmpty()){
+            time = timeUtil.getTime();
+        }
+
+        List<Date> date = timeUtil.getDateOfMonday(time);
         if (typeId.isEmpty()) {
             if (departmentId.isEmpty()) {
-                if (time.isEmpty()) {
-                    return eventModelMapper.getEventList();
-                }
-                List<Date> date = timeUtil.getDateOfMonday(time);
                 return eventModelMapper.getEventByTime(date.get(0), date.get(1));
             }
-            if (time.isEmpty()) {
-                return eventModelMapper.getEventByDepartmentId(departmentId);
-            }
-            List<Date> date = timeUtil.getDateOfMonday(time);
             return eventModelMapper.getEventByDepartmentIdAndTime(departmentId, date.get(0), date.get(1));
         }
         if (departmentId.isEmpty()) {
-            if (time.isEmpty()) {
-                return eventModelMapper.getEventByTypeId(typeId);
-            }
-            List<Date> date = timeUtil.getDateOfMonday(time);
             return eventModelMapper.getEventByTypeIdAndTime(typeId, date.get(0), date.get(1));
         }
-        if (time.isEmpty()) {
-            return eventModelMapper.getEventByTypeIdAndDepartmentId(typeId, departmentId);
-        }
-        List<Date> date = timeUtil.getDateOfMonday(time);
         return eventModelMapper.postForEventsByAll(typeId, departmentId, date.get(0), date.get(1));
     }
 
@@ -388,7 +377,9 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventModel> exchangeLocationOfEvents(List<EventModel> events) {
         // 获取所有location
-        List<Location> locations = locationMapper.selectList(null);
+        QueryWrapper<Location> wrapper = new QueryWrapper<>();
+        wrapper.orderByAsc("id");
+        List<Location> locations = locationMapper.selectList(wrapper);
         // 获取event中的location并转化成符合要求的结果
         Integer locationId;
         // 用于判断每个连接的字符串的后面是否需要空格，最详细的那一栏后面不需要
@@ -396,8 +387,8 @@ public class EventServiceImpl implements EventService {
         StringBuilder fullAddress = new StringBuilder();
         List<EventModel> resultEvents = new ArrayList<>();
         for (EventModel event : events) {
-            locationId = Integer.valueOf(event.getLocation());
-            while (locationId > 0) {
+            locationId = event.getLocationId();
+            while (locationId != null&&locationId>0) {
                 fullAddress.insert(0, locations.get(locationId - 1).getLocationName() + " ");
                 if (isNeedSpace.equals(false)) {
                     fullAddress.deleteCharAt(fullAddress.length() - 1);

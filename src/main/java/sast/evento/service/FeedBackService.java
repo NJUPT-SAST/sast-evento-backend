@@ -1,7 +1,9 @@
 package sast.evento.service;
 
 import sast.evento.model.FeedbackModel;
+import sast.evento.model.FeedbackNumModel;
 import sast.evento.model.FeedbacksDTO;
+import sast.evento.model.PageModel;
 
 import java.util.List;
 import java.util.Map;
@@ -36,6 +38,6 @@ public interface FeedBackService {
     List<FeedbackModel> getListByEventId(Integer eventId);
 
     // 管理端获取活动及其反馈数量列表
-    List<Map<String, Integer>> getFeedbackEvents(Integer page, Integer size);
+    PageModel<FeedbackNumModel> getFeedbackEvents(Integer page, Integer size);
 
 }

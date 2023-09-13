@@ -113,13 +113,6 @@
         ORDER BY e.gmt_event_start ASC
     </select>
 
-<!--    获取活动列表(分页）-->
-    <select id="getEventList" resultMap="eventModelMap">
-        <include refid="selectFrom" />
-        JOIN
-        (SELECT id FROM event LIMIT #{index}, #{size}) AS e_ids ON e.id = e_ids.id
-    </select>
-
     <select id="getEvents" resultMap="pageModelMap">
         SELECT  t.total,
                 e.id,
@@ -158,13 +151,6 @@
         <include refid="byTime"/>
     </select>
 
-    <!--    根据departmentId选出活动列表    -->
-    <select id="getEventByDepartmentId" resultMap="eventModelMap">
-        <include refid="selectFrom"/>
-        WHERE
-        <include refid="byDepartmentId"/>
-    </select>
-
     <!--    根据departmentId和time选出活动列表   -->
     <select id="getEventByDepartmentIdAndTime" resultMap="eventModelMap">
         <include refid="selectFrom"/>
@@ -174,13 +160,6 @@
         <include refid="byDepartmentId"/>
     </select>
 
-    <!--    根据typeId选出活动列表    -->
-    <select id="getEventByTypeId" resultMap="eventModelMap">
-        <include refid="selectFrom"/>
-        WHERE
-        <include refid="byTypeId"/>
-    </select>
-
     <!--    根据typeId和time选出活动列表    -->
     <select id="getEventByTypeIdAndTime" resultMap="eventModelMap">
         <include refid="selectFrom"/>
@@ -188,15 +167,6 @@
         <include refid="byTypeId"/>
         AND
         <include refid="byTime"/>
-    </select>
-
-    <!--    根据typeId和departmentId选出活动列表    -->
-    <select id="getEventByTypeIdAndDepartmentId" resultMap="eventModelMap">
-        <include refid="selectFrom"/>
-        WHERE
-        <include refid="byTypeId"/>
-        AND
-        <include refid="byDepartmentId"/>
     </select>
 
     <!--    根据三个筛选条件选出活动列表    -->

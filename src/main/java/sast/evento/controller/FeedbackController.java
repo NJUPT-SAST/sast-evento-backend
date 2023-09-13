@@ -9,7 +9,9 @@ import sast.evento.common.enums.ActionState;
 import sast.evento.entitiy.User;
 import sast.evento.interceptor.HttpInterceptor;
 import sast.evento.model.FeedbackModel;
+import sast.evento.model.FeedbackNumModel;
 import sast.evento.model.FeedbacksDTO;
+import sast.evento.model.PageModel;
 import sast.evento.service.FeedBackService;
 
 import java.util.List;
@@ -40,9 +42,9 @@ public class FeedbackController {
      * @author Aiden
      */
     @OperateLog("获取活动及其反馈数量列表")
-    @DefaultActionState(value = ActionState.ADMIN,group = "feedback")
+    @DefaultActionState(value = ActionState.PUBLIC,group = "feedback")
     @GetMapping("/num")
-    public List<Map<String, Integer>> getFeedbackEvents(
+    public PageModel<FeedbackNumModel> getFeedbackEvents(
             @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
             @RequestParam(value = "size", required = false, defaultValue = "10") Integer size) {
         return feedBackService.getFeedbackEvents(page, size);
