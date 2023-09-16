@@ -135,16 +135,14 @@ public class AdminController {
 
     /**
      * 修改活动类型
-     * @param typeId 活动类型id
      * @param type 活动类型
      * @return 是否成功
      */
     @OperateLog("修改活动类型")
     @DefaultActionState(value = ActionState.ADMIN,group = "type")
     @PutMapping("/type")
-    public String updateType(@RequestParam Integer typeId,
-                             @RequestBody EventType type) {
-        if (!type.getId().equals(typeId)) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid id");
+    public String updateType(@RequestBody EventType type) {
+        if (type == null || type.getId() == null) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         return eventTypeService.editEventType(type).toString();
     }
 
