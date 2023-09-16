@@ -64,4 +64,14 @@ public class TimeUtil {
         resultDate.add(date.getTime());
         return resultDate;
     }
+
+    /**
+     * @return String 获取当前yyyy-MM-dd格式的日期
+     * @author Aiden
+     */
+    public String getTime(){
+        Date date = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        return dateFormat.format(date);
+    }
 }
