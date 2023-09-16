@@ -52,9 +52,6 @@ public class EventTypeServiceImpl implements EventTypeService {
 
     @Override
     public Boolean editEventType(EventType eventType) {
-        if (eventType == null) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
-        }
         UpdateWrapper<EventType> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("id", eventType.getId());
         return eventTypeMapper.update(eventType, updateWrapper) > 0;
