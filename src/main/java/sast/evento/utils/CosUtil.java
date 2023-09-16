@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -72,7 +73,31 @@ public class CosUtil {
                 .toList();
     }
 
-    /* 获取当前桶下所有目录 */
+    /* 获取当前目录下所有key(无限制) */
+    public static List<String> getKeys(String dir) throws CosClientException {
+        String dirPrefix = dir.isEmpty() ? "" : (dir + "/");
+        List<String> res = new ArrayList<>();
+        ObjectListing objectListing;
+        String marker = null;
+        do {
+            ListObjectsRequest request = new ListObjectsRequest(bucketName, dirPrefix, marker, "/", 1000);
+            objectListing = cosClient.listObjects(request);
+            List<String> every = objectListing.getObjectSummaries().stream()
+                    .map(COSObjectSummary::getKey)
+                    .toList();
+            res.addAll(every);
+            marker = objectListing.getNextMarker();
+        } while (marker != null);
+        return res;
+    }
+
+    public static List<String> changeKey2URL(List<String> keys) {
+        return keys.stream()
+                .map(key -> "https://" + bucketName + ".cos." + COS_REGION + ".myqcloud.com/" + key)
+                .toList();
+    }
+
+    /* 获取当前桶下1000以内所有目录 */
     public static List<String> getDirs(String dir) throws CosClientException {
         String dirPrefix = dir.isEmpty() ? "" : (dir + "/");
         ListObjectsRequest request = new ListObjectsRequest(bucketName, dirPrefix, "", "/", 1000);
