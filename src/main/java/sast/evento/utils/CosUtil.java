@@ -55,8 +55,9 @@ public class CosUtil {
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(file.getContentType());
         objectMetadata.setContentLength(file.getSize());
-        InputStream inputStream = file.getInputStream();
-        key = dirPrefix + prefix + "_" + md5HashCode(inputStream);
+//        InputStream inputStream = file.getInputStream();
+//        key = dirPrefix + prefix + "_" + md5HashCode(inputStream);
+        key = dirPrefix + prefix + "_" + System.currentTimeMillis();
         PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, key, file.getInputStream(), objectMetadata);
         putObjectRequest.setStorageClass(StorageClass.Standard);
         cosClient.putObject(putObjectRequest);
