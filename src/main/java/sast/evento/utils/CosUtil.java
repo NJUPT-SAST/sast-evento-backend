@@ -44,6 +44,9 @@ public class CosUtil {
         if (originalFileName == null || originalFileName.isEmpty()) {
             throw new IllegalArgumentException("name of upload file is empty.");
         }
+        if(!originalFileName.contains(".")){
+            throw new IllegalArgumentException("error originalFileName");
+        }
         int idx = originalFileName.lastIndexOf(".");
         String prefix = originalFileName.substring(0, idx);
         prefix = prefix.length() < 3 ? prefix + "_file" : prefix;
@@ -57,7 +60,7 @@ public class CosUtil {
         PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, key, file.getInputStream(), objectMetadata);
         putObjectRequest.setStorageClass(StorageClass.Standard);
         cosClient.putObject(putObjectRequest);
-        return "https://" + bucketName + ".cos." + COS_REGION + ".myqcloud.com/" + key;
+        return key;
     }
 
     /* 通过上一次获得的最后一个URL来获取下一个分页 */
@@ -97,6 +100,10 @@ public class CosUtil {
                 .toList();
     }
 
+    public static String changeKey2URL(String key){
+        return "https://" + bucketName + ".cos." + COS_REGION + ".myqcloud.com/" + key;
+    }
+
     /* 获取当前桶下1000以内所有目录 */
     public static List<String> getDirs(String dir) throws CosClientException {
         String dirPrefix = dir.isEmpty() ? "" : (dir + "/");
@@ -108,8 +115,13 @@ public class CosUtil {
     }
 
     /* 根据url删除图片 */
-    public static void delete(String url) throws CosClientException {
+    public static void deleteByUrl(String url) throws CosClientException {
         String key = url.substring(url.indexOf("/", 9) + 1);
+        cosClient.deleteObject(bucketName, key);
+    }
+
+    /* 根据key删除图片 */
+    public static void deleteByKey(String key) throws CosClientException {
         cosClient.deleteObject(bucketName, key);
     }
 
