@@ -40,7 +40,7 @@ public class ImageServiceImpl implements ImageService {
         ImageDO imageDO = new ImageDO();
         imageDO.setCosKey(key);
         imageDO.setUri(uri);
-        imageDO.setName(file.getName());
+        imageDO.setName(file.getOriginalFilename());
         imageDO.setExtension(fileName.substring(fileName.lastIndexOf(".")));
         imageDO.setSize(file.getSize());
         imageDO.setUserId(user.getUserId());
@@ -51,7 +51,7 @@ public class ImageServiceImpl implements ImageService {
     @Override
     public Map<String, Object> getPictures(Integer num, Integer size) {
         IPage<ImageDO> page = imageDOMapper.selectPage(new Page<>(num, size), null);
-        return Map.of("images", page.getRecords(), "total", page.getSize());
+        return Map.of("images", page.getRecords(), "total", page.getTotal());
     }
 
     @Override
