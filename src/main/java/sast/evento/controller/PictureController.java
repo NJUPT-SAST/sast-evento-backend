@@ -12,6 +12,7 @@ import sast.evento.exception.LocalRunTimeException;
 import sast.evento.interceptor.HttpInterceptor;
 import sast.evento.service.ImageService;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,30 +29,41 @@ public class PictureController {
     @OperateLog("获取图片url列表")
     @DefaultActionState(value = ActionState.ADMIN, group = "picture")
     @GetMapping("/list")
-    public Map<String, Object> getUrls(@RequestParam(defaultValue = "1") Integer num,
+    public Map<String, Object> getUrls(@RequestParam(defaultValue = "") String dir,
+                                       @RequestParam(defaultValue = "1") Integer num,
                                        @RequestParam(defaultValue = "10") Integer size) {
-        return imageService.getPictures(num, size);
+        return imageService.getPictures(num, size, dir);
     }
 
     @OperateLog("添加图片")
     @DefaultActionState(value = ActionState.ADMIN, group = "picture")
     @PostMapping("/info")
-    public String addPicture(MultipartFile picture) {
+    public String addPicture(@RequestParam(defaultValue = "") String dir,
+                             MultipartFile picture) {
         User user = HttpInterceptor.userHolder.get();
         if (picture == null || picture.isEmpty()) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "picture file should not be empty");
         }
-        return imageService.upload(picture, user);
+        return imageService.upload(picture, user, dir);
     }
 
     @OperateLog("删除图片")
     @DefaultActionState(value = ActionState.ADMIN, group = "picture")
     @DeleteMapping("/info")
-    public String deletePicture(@RequestParam String key) {
+    public String deletePicture(@RequestParam(defaultValue = "") String dir,
+                                @RequestParam String key) {
         if (key.isEmpty()) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "picture key should not be empty");
         }
-        imageService.deletePicture(key);
+        imageService.deletePicture(key, dir);
         return "ok";
     }
+
+    @OperateLog("获取图片目录")
+    @DefaultActionState(value = ActionState.ADMIN, group = "picture")
+    @GetMapping("/dir")
+    public List<String> getDir() {
+        return imageService.getDirs();
+    }
+
 }

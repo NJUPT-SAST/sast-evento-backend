@@ -19,6 +19,7 @@ public class ImageDO {
     private String name;
     private String userId;
     private String cosKey;
+    private String cosDir;
     private String extension;
     private String uri;
     private Long size;
