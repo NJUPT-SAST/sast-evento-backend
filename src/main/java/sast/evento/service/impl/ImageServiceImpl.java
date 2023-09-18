@@ -17,6 +17,7 @@ import sast.evento.utils.CosUtil;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -27,10 +28,10 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String upload(MultipartFile file, User user) {
+    public String upload(MultipartFile file, User user, String dir) {
         String key;
         try {
-            key = CosUtil.upload(file, "");
+            key = CosUtil.upload(file, dir);
         } catch (NoSuchAlgorithmException | IOException e) {
             throw new LocalRunTimeException(ErrorEnum.COS_SERVICE_ERROR, "upload failed");
         }
@@ -40,6 +41,7 @@ public class ImageServiceImpl implements ImageService {
         ImageDO imageDO = new ImageDO();
         imageDO.setCosKey(key);
         imageDO.setUri(uri);
+        imageDO.setCosDir(dir);
         imageDO.setName(file.getOriginalFilename());
         imageDO.setExtension(fileName.substring(fileName.lastIndexOf(".")));
         imageDO.setSize(file.getSize());
@@ -49,15 +51,23 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
-    public Map<String, Object> getPictures(Integer num, Integer size) {
-        IPage<ImageDO> page = imageDOMapper.selectPage(new Page<>(num, size), null);
+    public Map<String, Object> getPictures(Integer num, Integer size, String dir) {
+        IPage<ImageDO> page = imageDOMapper.selectPage(new Page<>(num, size), Wrappers.lambdaQuery(ImageDO.class)
+                .eq(ImageDO::getCosDir, dir));
         return Map.of("images", page.getRecords(), "total", page.getTotal());
     }
 
     @Override
+    public List<String> getDirs() {
+        return imageDOMapper.selectDirs();
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
-    public void deletePicture(String key) {
-        if (imageDOMapper.delete(Wrappers.lambdaQuery(ImageDO.class).eq(ImageDO::getCosKey, key)) == 0) {
+    public void deletePicture(String key, String dir) {
+        if (imageDOMapper.delete(Wrappers.lambdaQuery(ImageDO.class)
+                .eq(ImageDO::getCosDir, dir)
+                .and(wrapper -> wrapper.eq(ImageDO::getCosKey, key))) == 0) {
             throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "delete failed");
         }
         CosUtil.deleteByKey(key);
