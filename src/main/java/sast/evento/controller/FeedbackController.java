@@ -42,7 +42,7 @@ public class FeedbackController {
      * @author Aiden
      */
     @OperateLog("获取活动及其反馈数量列表")
-    @DefaultActionState(value = ActionState.PUBLIC,group = "feedback")
+    @DefaultActionState(value = ActionState.ADMIN,group = "feedback")
     @GetMapping("/num")
     public PageModel<FeedbackNumModel> getFeedbackEvents(
             @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
