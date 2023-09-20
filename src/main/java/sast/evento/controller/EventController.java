@@ -130,12 +130,7 @@ public class EventController {
     public List<EventModel> postForEvents(@RequestParam(required = false) List<Integer> typeId,
                                           @RequestParam(required = false) List<Integer> departmentId,
                                           @RequestParam(required = false) String time) {
-        // 获取未处理location的初步活动列表
-        List<EventModel> eventModels = eventService.postForEvents(typeId, departmentId, time);
-        // 获取所有处理location后的活动列表
-        return eventService.exchangeLocationOfEvents(eventModels);
-        // 处理location，从string类型的location_id转换成地址
-
+        return eventService.postForEvents(typeId, departmentId, time);
     }
 
 }

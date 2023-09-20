@@ -368,41 +368,6 @@ public class EventServiceImpl implements EventService {
         return eventModelMapper.postForEventsByAll(typeId, departmentId, date.get(0), date.get(1));
     }
 
-    /**
-     * @param events 需要转换的地址
-     * @return List<EventModel>
-     * @author Aiden
-     * 将活动中的location转化为要求的格式
-     */
-    @Override
-    public List<EventModel> exchangeLocationOfEvents(List<EventModel> events) {
-        // 获取所有location
-        QueryWrapper<Location> wrapper = new QueryWrapper<>();
-        wrapper.orderByAsc("id");
-        List<Location> locations = locationMapper.selectList(wrapper);
-        // 获取event中的location并转化成符合要求的结果
-        Integer locationId;
-        // 用于判断每个连接的字符串的后面是否需要空格，最详细的那一栏后面不需要
-        Boolean isNeedSpace = false;
-        StringBuilder fullAddress = new StringBuilder();
-        List<EventModel> resultEvents = new ArrayList<>();
-        for (EventModel event : events) {
-            locationId = event.getLocationId();
-            while (locationId != null&&locationId>0) {
-                fullAddress.insert(0, locations.get(locationId - 1).getLocationName() + " ");
-                if (isNeedSpace.equals(false)) {
-                    fullAddress.deleteCharAt(fullAddress.length() - 1);
-                    isNeedSpace = true;
-                }
-                locationId = locations.get(locationId - 1).getParentId();
-            }
-            event.setLocation(fullAddress.toString());
-            resultEvents.add(event);
-            fullAddress = new StringBuilder();
-            isNeedSpace = false;
-        }
-        return resultEvents;
-    }
     @Override
     public List<EventModel> getRegistered(String userId) {
         if (userId == null) {
