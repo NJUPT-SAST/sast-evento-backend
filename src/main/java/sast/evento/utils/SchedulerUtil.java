@@ -6,7 +6,6 @@ import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.impl.matchers.KeyMatcher;
 import org.quartz.impl.triggers.CronTriggerImpl;
 import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -61,7 +60,7 @@ public class SchedulerUtil {
         scheduler.scheduleJob(jobDetail, trigger);
     }
 
-    public static void addOneTimeJob(String jobName, String jobGroupName, String triggerName, String triggerGroupName, Class<? extends org.quartz.Job> jobClass, @Nullable JobDataMap jobDataMap, Date date) throws SchedulerException {
+    public static void addJob(String jobName, String jobGroupName, String triggerName, String triggerGroupName, Class<? extends org.quartz.Job> jobClass, @Nullable JobDataMap jobDataMap, Date date) throws SchedulerException {
         Scheduler scheduler = getScheduler();
         if (scheduler.isShutdown()) {
             throw new RuntimeException("Please contact admin to start the scheduler first.");
@@ -84,7 +83,7 @@ public class SchedulerUtil {
     }
 
 
-    public static void resetJobCron(String triggerName, String triggerGroupName, String cron) throws Exception {
+    public static void resetJobTrigger(String triggerName, String triggerGroupName, String cron) throws Exception {
         Scheduler scheduler = getScheduler();
         TriggerKey triggerKey = new TriggerKey(triggerName, triggerGroupName);
         CronTriggerImpl trigger = (CronTriggerImpl) scheduler.getTrigger(triggerKey);
@@ -94,7 +93,7 @@ public class SchedulerUtil {
         }
     }
 
-    public static void resetJobSimpleTrigger(String triggerName, String triggerGroupName, Date date) throws Exception {
+    public static void resetJobTrigger(String triggerName, String triggerGroupName, Date date) throws Exception {
         Scheduler scheduler = getScheduler();
         TriggerKey triggerKey = new TriggerKey(triggerName, triggerGroupName);
         SimpleTrigger trigger = (SimpleTrigger) scheduler.getTrigger(triggerKey);

@@ -47,6 +47,7 @@ public class CosUtil {
         String prefix = originalFileName.substring(0, idx);
         prefix = prefix.length() < 3 ? prefix + "_file" : prefix;
         String key = null;
+        // TODO compress image & 防瑟瑟
         /* upload */
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(file.getContentType());

@@ -38,13 +38,13 @@ public class EventStateScheduleServiceImpl implements EventStateScheduleService 
         jobDataMap.put("state", state);
         switch (state) {
             case 1 ->
-                    SchedulerUtil.addOneTimeJob(stringEventId, notStartStateJobGroupName, stringEventId, notStartStateTriggerGroupName, EventStateUpdateJob.class, jobDataMap, startTime);
+                    SchedulerUtil.addJob(stringEventId, notStartStateJobGroupName, stringEventId, notStartStateTriggerGroupName, EventStateUpdateJob.class, jobDataMap, startTime);
             case 2 ->
-                    SchedulerUtil.addOneTimeJob(stringEventId, checkingInStateJobGroupName, stringEventId, checkingInStateTriggerGroupName, EventStateUpdateJob.class, jobDataMap, startTime);
+                    SchedulerUtil.addJob(stringEventId, checkingInStateJobGroupName, stringEventId, checkingInStateTriggerGroupName, EventStateUpdateJob.class, jobDataMap, startTime);
             case 3 ->
-                    SchedulerUtil.addOneTimeJob(stringEventId, inProgressStateJobGroupName, stringEventId, inProgressStateTriggerGroupName, EventStateUpdateJob.class, jobDataMap, startTime);
+                    SchedulerUtil.addJob(stringEventId, inProgressStateJobGroupName, stringEventId, inProgressStateTriggerGroupName, EventStateUpdateJob.class, jobDataMap, startTime);
             case 5 ->
-                    SchedulerUtil.addOneTimeJob(stringEventId, endedStateJobGroupName, stringEventId, endedStateTriggerGroupName, EventStateUpdateJob.class, jobDataMap, startTime);
+                    SchedulerUtil.addJob(stringEventId, endedStateJobGroupName, stringEventId, endedStateTriggerGroupName, EventStateUpdateJob.class, jobDataMap, startTime);
             default -> throw new LocalRunTimeException(ErrorEnum.SCHEDULER_ERROR);
         }
     }
@@ -79,13 +79,13 @@ public class EventStateScheduleServiceImpl implements EventStateScheduleService 
         String stringEventId = String.valueOf(eventId);
         switch (state) {
             case 1 ->
-                    SchedulerUtil.resetJobSimpleTrigger(stringEventId, notStartStateTriggerGroupName, startTime);
+                    SchedulerUtil.resetJobTrigger(stringEventId, notStartStateTriggerGroupName, startTime);
             case 2 ->
-                    SchedulerUtil.resetJobSimpleTrigger(stringEventId, checkingInStateTriggerGroupName, startTime);
+                    SchedulerUtil.resetJobTrigger(stringEventId, checkingInStateTriggerGroupName, startTime);
             case 3 ->
-                    SchedulerUtil.resetJobSimpleTrigger(stringEventId, inProgressStateTriggerGroupName, startTime);
+                    SchedulerUtil.resetJobTrigger(stringEventId, inProgressStateTriggerGroupName, startTime);
             case 5 ->
-                    SchedulerUtil.resetJobSimpleTrigger(stringEventId, endedStateTriggerGroupName, startTime);
+                    SchedulerUtil.resetJobTrigger(stringEventId, endedStateTriggerGroupName, startTime);
             default -> throw new LocalRunTimeException(ErrorEnum.SCHEDULER_ERROR);
         }
     }

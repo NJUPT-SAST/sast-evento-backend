@@ -2,46 +2,25 @@ package sast.evento;
 
 import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
-import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import org.springframework.stereotype.Component;
-import sast.evento.common.enums.ActionState;
-import sast.evento.common.enums.ErrorEnum;
-import sast.evento.config.ActionRegister;
-import sast.evento.exception.LocalRunTimeException;
-import sast.evento.mapper.DepartmentMapper;
 import sast.evento.mapper.SubscribeDepartmentMapper;
 import sast.evento.job.EventStateUpdateJob;
-import sast.evento.model.Action;
-import sast.evento.model.treeDataNodeDTO.AntDesignTreeDataNode;
-import sast.evento.model.treeDataNodeDTO.SemiTreeDataNode;
-import sast.evento.model.treeDataNodeDTO.TreeDataNode;
 import sast.evento.model.wxServiceDTO.AccessTokenRequest;
 import sast.evento.model.wxServiceDTO.WxSubscribeRequest;
-import sast.evento.service.CodeService;
 import sast.evento.service.EventStateScheduleService;
 import sast.evento.service.LocationService;
 import sast.evento.service.LoginService;
 import sast.evento.service.QrCodeCheckInService;
 import sast.evento.utils.*;
-import sast.sastlink.sdk.model.UserInfo;
-import sast.sastlink.sdk.model.response.AccessTokenResponse;
-import sast.sastlink.sdk.model.response.RefreshResponse;
-import sast.sastlink.sdk.service.SastLinkService;
 import sast.sastlink.sdk.service.impl.RestTemplateSastLinkService;
-import sast.evento.utils.*;
 
-import java.awt.image.BufferedImage;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
-import static sast.sastlink.sdk.enums.GrantType.REFRESH_TOKEN;
-import static sast.sastlink.sdk.enums.SastLinkApi.ACCESS_TOKEN;
 
 @SpringBootTest
 class SastEventoBackendApplicationTests {
@@ -96,7 +75,7 @@ class SastEventoBackendApplicationTests {
         jobDataMapForUtil.put("eventId", 44);
         jobDataMapForUtil.put("state", 3);
         SchedulerUtil.startScheduler();
-        SchedulerUtil.addOneTimeJob("44", "update_not_start_state_job_group", "44", "update_not_start_state_trigger_group", EventStateUpdateJob.class, jobDataMapForUtil, date);
+        SchedulerUtil.addJob("44", "update_not_start_state_job_group", "44", "update_not_start_state_trigger_group", EventStateUpdateJob.class, jobDataMapForUtil, date);
         try {
             Thread.sleep(7000);
         } catch (Exception e) {
@@ -152,7 +131,7 @@ class SastEventoBackendApplicationTests {
         jobDataMapForUtil.put("eventId", 56);
         jobDataMapForUtil.put("state", 3);
 //        SchedulerUtil.startScheduler();
-        SchedulerUtil.addOneTimeJob("44", "update_not_start_state_job_group", "44", "update_not_start_state_trigger_group", EventStateUpdateJob.class, jobDataMapForUtil, date);
+        SchedulerUtil.addJob("44", "update_not_start_state_job_group", "44", "update_not_start_state_trigger_group", EventStateUpdateJob.class, jobDataMapForUtil, date);
         JobDataMap jobDataMapForDirect = new JobDataMap();
         jobDataMapForDirect.put("eventId", 57);
         jobDataMapForDirect.put("state", 2);
