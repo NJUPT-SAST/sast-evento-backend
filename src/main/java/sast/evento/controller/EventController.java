@@ -94,7 +94,6 @@ public class EventController {
     @DefaultActionState(value = ActionState.ADMIN,group = "event")
     @PostMapping("/info")
     public String addEvent(@RequestBody EventModel eventModel) {
-        if (eventModel.getId() != null) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "id should be null.");
         User user = HttpInterceptor.userHolder.get();
         Integer eventId = eventService.addEvent(eventModel, user.getUserId());
         return eventId.toString();

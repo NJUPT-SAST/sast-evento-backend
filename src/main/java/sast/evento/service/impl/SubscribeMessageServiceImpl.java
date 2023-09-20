@@ -76,7 +76,7 @@ public class SubscribeMessageServiceImpl implements SubscribeMessageService {
             throw new LocalRunTimeException(ErrorEnum.WX_SUBSCRIBE_ERROR, "Wx subscribe message service is close");
         }
         String cron = SchedulerUtil.simpleDateFormat.format(startTime);
-        SchedulerUtil.resetJobCron(String.valueOf(eventId), triggerGroupName, cron);
+        SchedulerUtil.resetJobTrigger(String.valueOf(eventId), triggerGroupName, cron);
     }
 
     /* 删除任务 */
