@@ -102,7 +102,48 @@ public class ParticipateServiceImpl implements ParticipateService {
             }
         }
     }
+    // 签到成功 || 签到失败
+    @Override
+    public String participate (String userId, Integer eventId, Boolean isParticipate){
+        if (userId == null || eventId == null || isParticipate == null) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
+        }
 
+        QueryWrapper<Participate> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", userId);
+        queryWrapper.eq("event_id", eventId);
+        Participate participate = participateMapper.selectOne(queryWrapper);
+        // 若无结果，则表示用户没有报名、没有订阅、更没有签到，直接插入一条记录
+        if (participate == null) {
+            participate = new Participate();
+            participate.setUserId(userId);
+            participate.setEventId(eventId);
+            participate.setIsRegistration(true);
+            participate.setIsParticipate(true);
+            participate.setIsSubscribe(false);
+
+            int insertResult = participateMapper.insert(participate);
+            if (isParticipate) {
+                return insertResult > 0 ? "签到成功" : "签到失败";
+            } else {
+                return insertResult > 0 ? "取消签到成功" : "取消签到失败";
+            }
+            // 若有结果，则表示用户已经报名、订阅、签到，直接更新记录
+        } else{
+            UpdateWrapper<Participate> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.eq("user_id", userId);
+            updateWrapper.eq("event_id", eventId);
+            updateWrapper.set("is_participate", isParticipate);
+
+            int updateResult = participateMapper.update(null, updateWrapper);
+            if (isParticipate) {
+                return updateResult > 0 ? "签到成功" : "签到失败";
+            } else {
+                return updateResult > 0 ? "取消签到成功" : "取消签到失败";
+            }
+        }
+
+    }
     // 获取个人的活动的状态
     // 若无结果，则表示用户没有报名、没有订阅、更没有签到。
     @Override

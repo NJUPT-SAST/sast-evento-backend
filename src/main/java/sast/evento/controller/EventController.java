@@ -54,7 +54,7 @@ public class EventController {
      * @return 是否成功
      */
     @OperateLog("删除活动")
-    @DefaultActionState(ActionState.MANAGER)
+    @DefaultActionState(value = ActionState.MANAGER,group = "event")
     @DeleteMapping("/info")
     public String deleteEvent(@RequestParam @EventId Integer eventId) {
         return eventService.deleteEvent(eventId).toString();
@@ -76,7 +76,7 @@ public class EventController {
      * @return 是否成功
      */
     @OperateLog("取消活动")
-    @DefaultActionState(ActionState.MANAGER)
+    @DefaultActionState(value = ActionState.MANAGER,group = "event")
     @PatchMapping("/info")
     public String cancelEvent(@RequestParam @EventId Integer eventId,
                              @RequestBody Event event) {
@@ -91,7 +91,7 @@ public class EventController {
      * @return 活动id
      */
     @OperateLog("发起活动")
-    @DefaultActionState(ActionState.ADMIN)
+    @DefaultActionState(value = ActionState.ADMIN,group = "event")
     @PostMapping("/info")
     public String addEvent(@RequestBody EventModel eventModel) {
         User user = HttpInterceptor.userHolder.get();
@@ -107,7 +107,7 @@ public class EventController {
      * @return 是否成功
      */
     @OperateLog("修改活动")
-    @DefaultActionState(ActionState.MANAGER)
+    @DefaultActionState(value = ActionState.MANAGER,group = "event")
     @PutMapping("/info")
     public String putEvent(@RequestParam @EventId Integer eventId,
                            @RequestBody EventModel eventModel) {

@@ -33,8 +33,6 @@ public interface EventModelMapper {
 //    List<EventModel> getEvents(@Param("index") Integer index, @Param("size") Integer size);
     PageModel<EventModel> getEvents(@Param("index") Integer index, @Param("size") Integer size);
 
-    List<EventModel> getEventList();
-
     /**
      * @param monday     Date
      * @param nextMonday Date
@@ -42,13 +40,6 @@ public interface EventModelMapper {
      * @author Aiden
      */
     List<EventModel> getEventByTime(@Param("monday") Date monday, @Param("next_monday") Date nextMonday);
-
-    /**
-     * @param departmentId List<Integer>
-     * @return 根据departmentId选出活动列表
-     * @author Aiden
-     */
-    List<EventModel> getEventByDepartmentId(@Param("department_id") List<Integer> departmentId);
 
     /**
      * @param departmentId List<Integer>
@@ -62,13 +53,6 @@ public interface EventModelMapper {
                                                    @Param("next_monday") Date nextMonday);
 
     /**
-     * @param typeId List<Integer>
-     * @return 根据typeId选出活动列表
-     * @author Aiden
-     */
-    List<EventModel> getEventByTypeId(@Param("type_id") List<Integer> typeId);
-
-    /**
      * @param typeId     List<Integer>
      * @param monday     Date
      * @param nextMonday Date
@@ -78,15 +62,6 @@ public interface EventModelMapper {
     List<EventModel> getEventByTypeIdAndTime(@Param("type_id") List<Integer> typeId,
                                              @Param("monday") Date monday,
                                              @Param("next_monday") Date nextMonday);
-
-    /**
-     * @param typeId       List<Integer>
-     * @param departmentId List<Integer>
-     * @return 根据typeId和departmentId选出活动列表
-     * @author Aiden
-     */
-    List<EventModel> getEventByTypeIdAndDepartmentId(@Param("type_id") List<Integer> typeId,
-                                                     @Param("department_id") List<Integer> departmentId);
 
     /**
      * @param typeId       List<Integer>

@@ -14,6 +14,7 @@ import sast.sastlink.sdk.model.UserInfo;
 import sast.sastlink.sdk.model.response.AccessTokenResponse;
 import sast.sastlink.sdk.model.response.RefreshResponse;
 import sast.sastlink.sdk.service.SastLinkService;
+import sast.sastlink.sdk.service.impl.RestTemplateSastLinkService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +31,8 @@ public class LoginServiceImpl implements LoginService {
     @Resource
     private SastLinkService sastLinkService;
     @Resource
+    private SastLinkService sastLinkServiceWeb;
+    @Resource
     private UserMapper userMapper;
     @Resource
     private JwtUtil jwtUtil;
@@ -42,8 +45,13 @@ public class LoginServiceImpl implements LoginService {
     private static final long USER_INFO_EXPIRE = 6000;
 
     @Override
-    public Map<String, Object> linkLogin(String code) throws SastLinkException {
-        Map<String, Object> data = login(code);
+    public Map<String, Object> linkLogin(String code,Integer type) throws SastLinkException {
+        SastLinkService service = switch(type){
+            case 0 -> sastLinkService;
+            case 1 -> sastLinkServiceWeb;
+            default -> throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"error link client type value: " + type);
+        };
+        Map<String, Object> data = login(code,service);
         UserInfo userInfo = (UserInfo) data.get("userInfo");
         userMapper.ignoreInsertUser(userInfo.getUserId(), userInfo.getWechatId(), userInfo.getEmail());
         return data;
@@ -56,13 +64,13 @@ public class LoginServiceImpl implements LoginService {
         String code = sastLinkService.authorize(token, code_challenge, code_challenge_method);
         sastLinkService.logout(token);
         /* 临时登录一下，登完就退 */
-        Map<String, Object> data = login(code);
+        Map<String, Object> data = login(code,sastLinkServiceWeb);
         UserInfo userInfo = (UserInfo) data.get("userInfo");
         userMapper.ignoreInsertUser(userInfo.getUserId(), openId, userInfo.getEmail());
         return data;
     }
 
-    private Map<String, Object> login(String code) throws SastLinkException {
+    private Map<String, Object> login(String code, SastLinkService sastLinkService) throws SastLinkException {
         AccessTokenResponse accessTokenResponse = sastLinkService.accessToken(code);
         UserInfo userInfo = sastLinkService.userInfo(accessTokenResponse.getAccess_token());
         String userId = userInfo.getUserId();
