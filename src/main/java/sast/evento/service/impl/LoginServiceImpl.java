@@ -123,9 +123,13 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public void checkLoginState(String userId, String token) {
-        String localToken = String.valueOf(redisUtil.get("TOKEN:" + userId));
-        if (!token.equals(localToken)) {
-            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "login has expired, please login first");
+        Object o = redisUtil.get("TOKEN:" + userId);
+        if(o != null){
+        String localToken = String.valueOf(o);
+            if (!localToken.isEmpty()) {
+                return;
+            }
         }
+        throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "login has expired, please login first");
     }
 }
