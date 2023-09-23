@@ -17,6 +17,7 @@
     <resultMap id="feedbackNumModelMap" type="sast.evento.model.FeedbackNumModel">
         <result property="eventId" column="event_id"/>
         <result property="feedbackCount" column="feedback_count"/>
+        <result property="title" column="title"/>
     </resultMap>
 
     <resultMap id="pageModelMap" type="sast.evento.model.PageModel">
@@ -25,7 +26,7 @@
     </resultMap>
 
     <select id="getFeedbackEvents" resultMap="pageModelMap">
-        SELECT t.total, e.id AS event_id, fc.feedback_count
+        SELECT t.total, e.id AS event_id, fc.feedback_count, e.title
         FROM event e
                  LEFT JOIN participate p ON e.id = p.event_id
                  LEFT JOIN feedback f ON p.id = f.participate_id

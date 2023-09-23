@@ -15,4 +15,5 @@ import lombok.NoArgsConstructor;
 public class FeedbackNumModel {
     private Integer eventId;
     private Integer feedbackCount;
+    private String title;
 }
