@@ -6,7 +6,9 @@ import sast.evento.annotation.DefaultActionState;
 import sast.evento.annotation.EventId;
 import sast.evento.annotation.OperateLog;
 import sast.evento.common.enums.ActionState;
+import sast.evento.common.enums.ErrorEnum;
 import sast.evento.entitiy.Slide;
+import sast.evento.exception.LocalRunTimeException;
 import sast.evento.model.SlidePageModel;
 import sast.evento.service.SlideService;
 
@@ -22,6 +24,7 @@ public class SlideController {
     @DefaultActionState(ActionState.PUBLIC)
     @GetMapping("/event/list")
     public List<Slide> getEventSlides(@RequestParam @EventId Integer eventId) {
+        checkEventId(eventId);
         /* 获取所有活动幻灯片 */
         return slideService.getEventSlides(eventId);
     }
@@ -42,6 +45,7 @@ public class SlideController {
                                  @RequestParam String url,
                                  @RequestParam(required = false) String link,
                                  @RequestParam String title) {
+        checkEventId(eventId);
         return slideService.addEventSlide(eventId, url, link, title);
     }
 
@@ -50,6 +54,7 @@ public class SlideController {
     @DeleteMapping("/event/info")
     public String deleteEventSlide(@RequestParam @EventId Integer eventId,
                                    @RequestParam Integer slideId) {
+        checkEventId(eventId);
         slideService.deleteEventSlide(slideId, eventId);
         return "ok";
     }
@@ -62,6 +67,7 @@ public class SlideController {
                                   @RequestParam(required = false) String url,
                                   @RequestParam(required = false) String link,
                                   @RequestParam(required = false) String title) {
+        checkEventId(eventId);
         slideService.patchEventSlide(eventId, slideId, url, link, title);
         return "ok";
     }
@@ -94,5 +100,10 @@ public class SlideController {
         return "ok";
     }
 
+    void checkEventId(Integer eventId) {
+        if (eventId == null || eventId <= 0) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid eventId, eventId should be greater than 0");
+        }
+    }
 
 }
