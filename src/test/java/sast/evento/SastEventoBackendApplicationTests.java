@@ -6,21 +6,20 @@ import org.junit.jupiter.api.Test;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import sast.evento.mapper.SubscribeDepartmentMapper;
 import sast.evento.job.EventStateUpdateJob;
-import sast.evento.model.wxServiceDTO.AccessTokenRequest;
-import sast.evento.model.wxServiceDTO.WxSubscribeRequest;
+import sast.evento.mapper.SubscribeDepartmentMapper;
 import sast.evento.service.EventStateScheduleService;
 import sast.evento.service.LocationService;
 import sast.evento.service.LoginService;
-import sast.evento.service.QrCodeCheckInService;
-import sast.evento.utils.*;
+import sast.evento.utils.JsonUtil;
+import sast.evento.utils.RedisUtil;
+import sast.evento.utils.SchedulerUtil;
 import sast.sastlink.sdk.service.impl.RestTemplateSastLinkService;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 
 @SpringBootTest
 class SastEventoBackendApplicationTests {
@@ -118,12 +117,14 @@ class SastEventoBackendApplicationTests {
 
     @Test
     void SastLinkTest() {
-        sastLinkService.login("","");
+        sastLinkService.login("", "");
     }
+
     @Test
     void subscribeDepartmentMapperTest() {
         System.out.println(subscribeDepartmentMapper.selectSubscribeDepartmentUser(List.of(1, 10, 2, 3, 4)));
     }
+
     void combineTest() throws SchedulerException {
         Date date = new Date();
         date.setTime(date.getTime() + 5000);

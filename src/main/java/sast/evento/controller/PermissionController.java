@@ -199,8 +199,8 @@ public class PermissionController {
     }
 
     void checkEventId(Integer eventId) {
-        if (eventId <= 0) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid eventId");
+        if (eventId == null || eventId <= 0) {
+            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid eventId, eventId should be greater than 0");
         }
     }
 
