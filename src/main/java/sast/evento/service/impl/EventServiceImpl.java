@@ -2,6 +2,7 @@ package sast.evento.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,10 +17,7 @@ import sast.evento.mapper.*;
 import sast.evento.model.Action;
 import sast.evento.model.EventModel;
 import sast.evento.model.PageModel;
-import sast.evento.service.EventDepartmentService;
-import sast.evento.service.EventService;
-import sast.evento.service.EventStateScheduleService;
-import sast.evento.service.PermissionService;
+import sast.evento.service.*;
 import sast.evento.utils.TimeUtil;
 
 import java.util.*;
@@ -52,6 +50,9 @@ public class EventServiceImpl implements EventService {
 
     @Resource
     private PermissionService permissionService;
+
+    @Resource
+    private LocationService locationService;
 
     @Resource
     private TimeUtil timeUtil;
@@ -104,7 +105,11 @@ public class EventServiceImpl implements EventService {
         }
 
         Integer index = (page - 1) * size;
-        return eventModelMapper.getEvents(index, size);
+        PageModel<EventModel> res = eventModelMapper.getEvents(index, size);
+        Map<Integer,String> locationNameMap = locationService.getLocationStrMap();
+        res.getResult()
+                .forEach(eventModel -> eventModel.setLocation(locationNameMap.get(eventModel.getLocationId())));
+        return res;
     }
 
     // 获取已订阅的活动列表

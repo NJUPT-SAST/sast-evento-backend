@@ -111,7 +111,7 @@ public class LoginServiceImpl implements LoginService {
                 .orElse("");
         if (accessToken.isEmpty()) {
             String refreshToken = (String) Optional.ofNullable(redisUtil.get(REFRESH_TOKEN + userId))
-                    .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "login has expired, please login first"));
+                    .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "link login has expired, please login first, user id: "+userId));
             RefreshResponse refreshResponse = sastLinkService.refresh(refreshToken);
             redisUtil.set(ACCESS_TOKEN + userId, refreshResponse.getAccessToken(), refreshResponse.getExpiresIn());
             redisUtil.set(REFRESH_TOKEN + userId, refreshResponse.getRefreshToken(), REFRESH_EXPIRE);

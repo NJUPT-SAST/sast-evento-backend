@@ -11,10 +11,8 @@ import sast.evento.model.treeDataNodeDTO.SemiTreeDataNode;
 import sast.evento.model.treeDataNodeDTO.TreeDataNode;
 import sast.evento.service.LocationService;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class LocationServiceImpl implements LocationService {
@@ -126,5 +124,34 @@ public class LocationServiceImpl implements LocationService {
 
     private TreeDataNode getTreeData(String name, Integer id) {
         return new SemiTreeDataNode(name, String.valueOf(id), String.valueOf(id));
+    }
+
+    @Override
+    public Map<Integer,String> getLocationStrMap(){
+        List<Location> locations = locationMapper.selectList(null);
+        Map<Integer,String> res = new HashMap<>();
+        Map<Integer,Location> Id2LocationMap = locations.stream()
+                .collect(Collectors.toMap(Location::getId, location -> location));
+        Location root = locations.stream()
+                .filter(location -> location.getId().equals(0))
+                .findAny()
+                .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "no root location"));
+        locations.remove(root);
+        res.put(0,"");
+        while (!locations.isEmpty()){
+            List<Location> del = new ArrayList<>();
+            for (Location needUpdate: locations) {
+                if(needUpdate.getParentId().equals(0)){
+                    del.add(needUpdate);
+                    res.put(needUpdate.getId(),needUpdate.getLocationName());
+                }else {
+                    Location parent = Id2LocationMap.get(needUpdate.getParentId());
+                    needUpdate.setParentId(parent.getParentId());
+                    needUpdate.setLocationName(parent.getLocationName()+" "+needUpdate.getLocationName());
+                }
+            }
+            locations.removeAll(del);
+        }
+        return res;
     }
 }
