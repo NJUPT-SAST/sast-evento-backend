@@ -1,11 +1,13 @@
 package sast.evento.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import sast.evento.common.enums.EventState;
+import sast.evento.common.enums.EventStateDeserializer;
 import sast.evento.entitiy.Department;
 import sast.evento.entitiy.EventType;
 
@@ -41,7 +43,7 @@ public class EventModel {
     private Date gmtRegistrationEnd;
 
     private EventType eventType;
-    @JsonIgnore
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer typeId;
 
     private String location;
@@ -50,8 +52,14 @@ public class EventModel {
 
     private String tag;
 
+
     private EventState state;
 
     private List<Department> departments;
+
+    @JsonDeserialize(using = EventStateDeserializer.class)
+    public void setState(EventState state) {
+        this.state = state;
+    }
 
 }
