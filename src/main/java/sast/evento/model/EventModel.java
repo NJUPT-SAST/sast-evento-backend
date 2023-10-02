@@ -1,7 +1,7 @@
 package sast.evento.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -41,7 +41,7 @@ public class EventModel {
     private Date gmtRegistrationEnd;
 
     private EventType eventType;
-    @JsonIgnore
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer typeId;
 
     private String location;
@@ -49,6 +49,7 @@ public class EventModel {
     private Integer locationId;
 
     private String tag;
+
 
     private EventState state;
 
