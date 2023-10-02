@@ -20,6 +20,7 @@ import sast.evento.model.PageModel;
 import sast.evento.service.*;
 import sast.evento.utils.TimeUtil;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -250,6 +251,7 @@ public class EventServiceImpl implements EventService {
         }
 
         // 更新数据库
+        event.setState(getMatchState(event.getGmtRegistrationStart(),event.getGmtRegistrationEnd(),event.getGmtEventStart(),event.getGmtEventEnd()));
         UpdateWrapper<Event> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("id", event.getId());
         boolean isSuccess =  eventMapper.update(event, updateWrapper) > 0;
@@ -379,6 +381,20 @@ public class EventServiceImpl implements EventService {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
         return eventModelMapper.getRegistered(userId);
+    }
+
+    private EventState getMatchState(Date registrationStart,Date registrationEnd,Date eventStart,Date eventEnd){
+        Date date = new Date();
+        if(registrationStart.before(date)&&registrationEnd.after(date)){
+            return EventState.CHECKING_IN;
+        }
+        if(eventStart.before(date)&&eventEnd.after(date)){
+            return EventState.IN_PROGRESS;
+        }
+        if(eventEnd.before(date)){
+            return EventState.ENDED;
+        }
+        return EventState.NOT_STARTED;
     }
 
 }
