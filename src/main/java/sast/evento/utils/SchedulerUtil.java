@@ -82,20 +82,31 @@ public class SchedulerUtil {
     }
 
 
-    public static void resetJobTrigger(String triggerName, String triggerGroupName, String cron) throws Exception {
+    public static Boolean resetJobTrigger(String triggerName, String triggerGroupName, String cron) throws Exception {
         Scheduler scheduler = getScheduler();
         TriggerKey triggerKey = new TriggerKey(triggerName, triggerGroupName);
         CronTriggerImpl trigger = (CronTriggerImpl) scheduler.getTrigger(triggerKey);
+        if(trigger == null){
+            log.error("resetRepeatJobFailed:"+triggerGroupName+":"+triggerName);
+            return false;
+        }
+
         if (!trigger.getCronExpression().equalsIgnoreCase(cron)) {
             trigger.setCronExpression(cron);
             scheduler.rescheduleJob(triggerKey, trigger);
         }
+        return true;
     }
 
-    public static void resetJobTrigger(String triggerName, String triggerGroupName, Date date) throws Exception {
+    public static Boolean resetJobTrigger(String triggerName, String triggerGroupName, Date date) throws Exception {
         Scheduler scheduler = getScheduler();
         TriggerKey triggerKey = new TriggerKey(triggerName, triggerGroupName);
         SimpleTrigger trigger = (SimpleTrigger) scheduler.getTrigger(triggerKey);
+        if(trigger == null){
+            log.error("resetRepeatJobFailed:"+triggerGroupName+":"+triggerName);
+            return false;
+        }
+
         if (!trigger.getStartTime().equals(date)) {
             SimpleTrigger simpleTrigger = (SimpleTrigger) TriggerBuilder.newTrigger()
                     .withIdentity(triggerKey)
@@ -103,12 +114,18 @@ public class SchedulerUtil {
                     .build();
             scheduler.rescheduleJob(triggerKey, simpleTrigger);
         }
+        return true;
     }
 
-    public static void resetRepeatJob(String triggerName, String triggerGroupName, String cron, Date start, Date end) throws Exception {
+    public static Boolean resetRepeatJob(String triggerName, String triggerGroupName, String cron, Date start, Date end) throws Exception {
         Scheduler scheduler = getScheduler();
         TriggerKey triggerKey = new TriggerKey(triggerName, triggerGroupName);
         CronTriggerImpl trigger = (CronTriggerImpl) scheduler.getTrigger(triggerKey);
+        if(trigger == null){
+            log.error("resetRepeatJobFailed:"+triggerGroupName+":"+triggerName);
+            return false;
+        }
+
         if (!trigger.getCronExpression().equalsIgnoreCase(cron)) {
             trigger.setCronExpression(cron);
         }
@@ -119,6 +136,7 @@ public class SchedulerUtil {
             trigger.setEndTime(end);
         }
         scheduler.rescheduleJob(triggerKey, trigger);
+        return true;
     }
 
     public static void addJobListener(String jobName, String jobGroup, JobListener listener) throws SchedulerException {

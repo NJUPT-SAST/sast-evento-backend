@@ -77,7 +77,7 @@ public class EventStateScheduleServiceImpl implements EventStateScheduleService 
     @SneakyThrows
     public void updateJob(Integer eventId, Date startTime, Integer state) {
         String stringEventId = String.valueOf(eventId);
-        switch (state) {
+        if(!switch (state) {
             case 1 ->
                     SchedulerUtil.resetJobTrigger(stringEventId, notStartStateTriggerGroupName, startTime);
             case 2 ->
@@ -87,6 +87,8 @@ public class EventStateScheduleServiceImpl implements EventStateScheduleService 
             case 5 ->
                     SchedulerUtil.resetJobTrigger(stringEventId, endedStateTriggerGroupName, startTime);
             default -> throw new LocalRunTimeException(ErrorEnum.SCHEDULER_ERROR);
+        }){
+            scheduleJob(eventId,startTime,state);
         }
     }
 
