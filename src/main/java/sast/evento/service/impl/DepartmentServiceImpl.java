@@ -1,13 +1,16 @@
 package sast.evento.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import sast.evento.common.enums.ErrorEnum;
 import sast.evento.entitiy.Department;
+import sast.evento.entitiy.EventDepartment;
 import sast.evento.entitiy.UserDepartmentSubscribe;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.mapper.DepartmentMapper;
+import sast.evento.mapper.EventDepartmentMapper;
 import sast.evento.mapper.SubscribeDepartmentMapper;
 import sast.evento.service.DepartmentService;
 
@@ -25,6 +28,9 @@ public class DepartmentServiceImpl implements DepartmentService {
     private DepartmentMapper departmentMapper;
 
     @Resource
+    private EventDepartmentMapper eventDepartmentMapper;
+
+    @Resource
     private SubscribeDepartmentMapper subscribeDepartmentMapper;
 
     @Override
@@ -36,6 +42,8 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public void deleteDepartment(Integer departmentId) {
+        eventDepartmentMapper.delete(Wrappers.lambdaQuery(EventDepartment.class)
+                .eq(EventDepartment::getDepartmentId, departmentId));
         departmentMapper.deleteById(departmentId);
     }
 
@@ -47,14 +55,16 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public void putDepartment(Integer departmentId, String departmentName) {
-        departmentMapper.updateById(new Department(departmentId, departmentName));
+        if (departmentMapper.updateById(new Department(departmentId, departmentName)) < 1) {
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "update failed");
+        }
     }
 
     @Override
     public void subscribeDepartment(String userId, Integer departmentId, boolean insert) {
         try {
             if (insert) {
-                subscribeDepartmentMapper.insert(new UserDepartmentSubscribe(null, userId, departmentId,null,null));
+                subscribeDepartmentMapper.insert(new UserDepartmentSubscribe(null, userId, departmentId, null, null));
             } else {
                 subscribeDepartmentMapper.delete(new LambdaQueryWrapper<UserDepartmentSubscribe>()
                         .eq(UserDepartmentSubscribe::getUserId, userId)
@@ -72,9 +82,9 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public List<UserDepartmentSubscribe> getSubscribeDepartmentUser(List<Integer> departmentIds) {
-       if(departmentIds.isEmpty()){
-           return new ArrayList<>();
-       }
-       return  subscribeDepartmentMapper.selectSubscribeDepartmentUser(departmentIds);
+        if (departmentIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return subscribeDepartmentMapper.selectSubscribeDepartmentUser(departmentIds);
     }
 }
