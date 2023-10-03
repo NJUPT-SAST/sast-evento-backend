@@ -7,12 +7,14 @@ import sast.evento.annotation.EventId;
 import sast.evento.annotation.OperateLog;
 import sast.evento.common.enums.ActionState;
 import sast.evento.common.enums.ErrorEnum;
+import sast.evento.entitiy.Department;
 import sast.evento.entitiy.Event;
 import sast.evento.entitiy.User;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.interceptor.HttpInterceptor;
 import sast.evento.model.EventModel;
 import sast.evento.model.PageModel;
+import sast.evento.service.DepartmentService;
 import sast.evento.service.EventService;
 
 import java.util.List;
@@ -23,6 +25,9 @@ public class EventController {
 
     @Resource
     private EventService eventService;
+
+    @Resource
+    private DepartmentService departmentService;
 
     @OperateLog("查看正在进行活动列表")
     @DefaultActionState(ActionState.PUBLIC)
@@ -54,7 +59,7 @@ public class EventController {
      * @return 是否成功
      */
     @OperateLog("删除活动")
-    @DefaultActionState(value = ActionState.MANAGER,group = "event")
+    @DefaultActionState(value = ActionState.MANAGER, group = "event")
     @DeleteMapping("/info")
     public String deleteEvent(@RequestParam @EventId Integer eventId) {
         return eventService.deleteEvent(eventId).toString();
@@ -76,10 +81,10 @@ public class EventController {
      * @return 是否成功
      */
     @OperateLog("取消活动")
-    @DefaultActionState(value = ActionState.MANAGER,group = "event")
+    @DefaultActionState(value = ActionState.MANAGER, group = "event")
     @PatchMapping("/info")
     public String cancelEvent(@RequestParam @EventId Integer eventId,
-                             @RequestBody Event event) {
+                              @RequestBody Event event) {
         if (!event.getId().equals(eventId)) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid id.");
         return eventService.cancelEvent(eventId).toString();
     }
@@ -91,7 +96,7 @@ public class EventController {
      * @return 活动id
      */
     @OperateLog("发起活动")
-    @DefaultActionState(value = ActionState.ADMIN,group = "event")
+    @DefaultActionState(value = ActionState.ADMIN, group = "event")
     @PostMapping("/info")
     public String addEvent(@RequestBody EventModel eventModel) {
         User user = HttpInterceptor.userHolder.get();
@@ -107,7 +112,7 @@ public class EventController {
      * @return 是否成功
      */
     @OperateLog("修改活动")
-    @DefaultActionState(value = ActionState.MANAGER,group = "event")
+    @DefaultActionState(value = ActionState.MANAGER, group = "event")
     @PutMapping("/info")
     public String putEvent(@RequestParam @EventId Integer eventId,
                            @RequestBody EventModel eventModel) {
@@ -132,4 +137,11 @@ public class EventController {
         return eventService.postForEvents(typeId, departmentId, time);
     }
 
+    @OperateLog("获取全部组织部门(filter)")
+    @DefaultActionState(value = ActionState.LOGIN, group = "event")
+    @GetMapping("/departments")
+    public List<Department> getDepartments() {
+        // TODO: 屏蔽部分部门
+        return departmentService.getDepartments();
+    }
 }
