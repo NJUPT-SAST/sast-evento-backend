@@ -69,7 +69,7 @@ public class EventServiceImpl implements EventService {
             return null;
         }
         Integer locationId = eventModel.getLocationId();
-        if(locationId != null){
+        if (locationId != null) {
             String locationName = locationMapper.getLocationName(locationId);
             eventModel.setLocation(locationName);
         }
@@ -107,7 +107,7 @@ public class EventServiceImpl implements EventService {
 
         Integer index = (page - 1) * size;
         PageModel<EventModel> res = eventModelMapper.getEvents(index, size);
-        Map<Integer,String> locationNameMap = locationService.getLocationStrMap();
+        Map<Integer, String> locationNameMap = locationService.getLocationStrMap();
         res.getResult()
                 .forEach(eventModel -> eventModel.setLocation(locationNameMap.get(eventModel.getLocationId())));
         return res;
@@ -248,21 +248,30 @@ public class EventServiceImpl implements EventService {
             if (!conflictCheck(event)) {
                 throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "conflict with other event.");
             }
+            // 立即更新状态
+            event.setState(getMatchState(event.getGmtRegistrationStart(), event.getGmtRegistrationEnd(), event.getGmtEventStart(), event.getGmtEventEnd()));
         }
 
         // 更新数据库
-        event.setState(getMatchState(event.getGmtRegistrationStart(),event.getGmtRegistrationEnd(),event.getGmtEventStart(),event.getGmtEventEnd()));
         UpdateWrapper<Event> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("id", event.getId());
-        boolean isSuccess =  eventMapper.update(event, updateWrapper) > 0;
+        boolean isSuccess = eventMapper.update(event, updateWrapper) > 0;
 
         // 添加更新任务
         if (isSuccess && isTimeUpdated) {
             if (isGmtRegistrationStartUpdated) {
-                eventStateScheduleService.updateJob(event.getId(), event.getGmtRegistrationStart(), EventState.CHECKING_IN.getState());
+                if (event.getGmtRegistrationStart().after(new Date())) {
+                    eventStateScheduleService.updateJob(event.getId(), event.getGmtRegistrationStart(), EventState.CHECKING_IN.getState());
+                } else {
+                    eventStateScheduleService.removeJob(event.getId(), EventState.CHECKING_IN.getState());
+                }
             }
             if (isGmtRegistrationEndUpdated) {
-                eventStateScheduleService.updateJob(event.getId(), event.getGmtRegistrationEnd(), EventState.NOT_STARTED.getState());
+                if (event.getGmtRegistrationEnd().after(new Date())) {
+                    eventStateScheduleService.updateJob(event.getId(), event.getGmtRegistrationEnd(), EventState.NOT_STARTED.getState());
+                } else {
+                    eventStateScheduleService.removeJob(event.getId(), EventState.NOT_STARTED.getState());
+                }
             }
             if (isGmtEventStartUpdated) {
                 eventStateScheduleService.updateJob(event.getId(), event.getGmtEventStart(), EventState.IN_PROGRESS.getState());
@@ -358,7 +367,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventModel> postForEvents(List<Integer> typeId, List<Integer> departmentId, String time) {
         // 如果time为空，则将time赋值为今天的日期
-        if(time.isEmpty()){
+        if (time.isEmpty()) {
             time = timeUtil.getTime();
         }
 
@@ -383,15 +392,15 @@ public class EventServiceImpl implements EventService {
         return eventModelMapper.getRegistered(userId);
     }
 
-    private EventState getMatchState(Date registrationStart,Date registrationEnd,Date eventStart,Date eventEnd){
+    private EventState getMatchState(Date registrationStart, Date registrationEnd, Date eventStart, Date eventEnd) {
         Date date = new Date();
-        if(registrationStart.before(date)&&registrationEnd.after(date)){
+        if (registrationStart.before(date) && registrationEnd.after(date)) {
             return EventState.CHECKING_IN;
         }
-        if(eventStart.before(date)&&eventEnd.after(date)){
+        if (eventStart.before(date) && eventEnd.after(date)) {
             return EventState.IN_PROGRESS;
         }
-        if(eventEnd.before(date)){
+        if (eventEnd.before(date)) {
             return EventState.ENDED;
         }
         return EventState.NOT_STARTED;

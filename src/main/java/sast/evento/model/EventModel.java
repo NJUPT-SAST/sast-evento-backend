@@ -50,7 +50,6 @@ public class EventModel {
 
     private String tag;
 
-
     private EventState state;
 
     private List<Department> departments;
