@@ -1,11 +1,13 @@
 package sast.evento.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import sast.evento.common.enums.ErrorEnum;
 import sast.evento.entitiy.Location;
 import sast.evento.exception.LocalRunTimeException;
+import sast.evento.mapper.EventMapper;
 import sast.evento.mapper.LocationMapper;
 import sast.evento.model.treeDataNodeDTO.SemiTreeDataNode;
 import sast.evento.model.treeDataNodeDTO.TreeDataNode;
@@ -18,6 +20,9 @@ import java.util.stream.Collectors;
 public class LocationServiceImpl implements LocationService {
     @Resource
     private LocationMapper locationMapper;
+
+    @Resource
+    private EventMapper eventMapper;
 
     @Override
     public Integer addLocation(Location location) {
@@ -37,6 +42,17 @@ public class LocationServiceImpl implements LocationService {
         if (id.equals(0)) {
             throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "can not delete root location");
         }
+        // check if the location has children
+        if (locationMapper.selectCount(Wrappers.lambdaQuery(Location.class)
+                .eq(Location::getParentId, id)) > 0) {
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "can not delete a location with children");
+        }
+        // check if the location is used in events
+        if (eventMapper.selectCount(Wrappers.lambdaQuery(sast.evento.entitiy.Event.class)
+                .eq(sast.evento.entitiy.Event::getLocationId, id)) > 0) {
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "can not delete a location used in events");
+        }
+
         boolean isSuccess = locationMapper.deleteById(id) > 0;
         if (!isSuccess) {
             throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "delete location failed");
