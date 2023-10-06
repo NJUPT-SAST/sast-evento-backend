@@ -138,7 +138,7 @@ public class EventController {
     }
 
     @OperateLog("获取全部组织部门(filter)")
-    @DefaultActionState(value = ActionState.LOGIN, group = "event")
+    @DefaultActionState(value = ActionState.PUBLIC, group = "event")
     @GetMapping("/departments")
     public List<Department> getDepartments() {
         // TODO: 屏蔽部分部门
