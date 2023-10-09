@@ -17,7 +17,7 @@ import java.util.Date;
  */
 @Slf4j
 public class SchedulerUtil {
-    public static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("ss mm HH dd MM ? yyyy");
+    public static final String simpleDateFormatPattern = "ss mm HH dd MM ? yyyy";
     private static final StdSchedulerFactory schedulerFactory = new StdSchedulerFactory();
 
     public static Scheduler getScheduler() throws SchedulerException {
