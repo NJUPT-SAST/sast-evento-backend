@@ -97,8 +97,8 @@ public class HttpInterceptor implements HandlerInterceptor {
                 }
             }
         }
-        UserInfo userInfo = loginService.getUserInfo(userId);
-        userHolder.set(new User(userInfo.getUserId(), userInfo.getWechatId(), userInfo.getEmail()));
+        User user = loginService.getLocalUser(userId);
+        userHolder.set(user);
         return true;
     }
 

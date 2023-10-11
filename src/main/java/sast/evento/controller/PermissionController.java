@@ -180,7 +180,7 @@ public class PermissionController {
     @GetMapping(value = "/admin/self")
     public List<String> getSelfAdminPermission() {
         User user = HttpInterceptor.userHolder.get();
-        return permissionService.getUserAdminPermissAsList(user.getUserId());
+        return permissionService.getUserAdminPermissAsList(user.getId());
     }
 
     @OperateLog("获取用户自身活动管理权限用于条件渲染")
@@ -189,7 +189,7 @@ public class PermissionController {
     public List<String> getSelfManagerPermission(@RequestParam @EventId Integer eventId) {
         checkEventId(eventId);
         User user = HttpInterceptor.userHolder.get();
-        return permissionService.getUserManagerPermissAsList(eventId, user.getUserId());
+        return permissionService.getUserManagerPermissAsList(eventId, user.getId());
     }
 
     void checkUserId(String userId) {

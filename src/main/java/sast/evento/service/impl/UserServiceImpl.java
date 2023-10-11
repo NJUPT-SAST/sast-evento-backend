@@ -5,6 +5,7 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import sast.evento.entitiy.User;
 import sast.evento.mapper.UserMapper;
+import sast.evento.service.PermissionService;
 import sast.evento.service.UserService;
 
 /**
@@ -17,7 +18,6 @@ public class UserServiceImpl implements UserService {
     /* 因为sastLink原因存储信息暂时未确定，但是一定会存studentId和openId */
     @Resource
     private UserMapper userMapper;
-
     @Override
     public Boolean checkUserState(String userId) {
         return getUserById(userId) != null;
@@ -27,18 +27,11 @@ public class UserServiceImpl implements UserService {
     public User getUserById(String userId) {
         return userMapper.selectById(userId);
     }
+
     @Override
     public Integer updateUser(User user) {
         return userMapper.updateById(user);
     }
 
-    @Override
-    public Integer addUser(User user) {
-        return userMapper.insert(user);
-    }
 
-    @Override
-    public Integer deleteUserById(String userId) {
-        return userMapper.deleteById(userId);
-    }
 }

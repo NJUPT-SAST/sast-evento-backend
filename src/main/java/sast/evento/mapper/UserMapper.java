@@ -7,7 +7,5 @@ import sast.evento.entitiy.User;
 
 @Mapper
 public interface UserMapper extends BaseMapper<User> {
-    void ignoreInsertUser(@Param("id") String id,
-                          @Param("openId") String openId,
-                          @Param("email") String email);
+    void ignoreInsertUser(@Param("user") User user);
 }

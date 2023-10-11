@@ -49,7 +49,7 @@ public class EventController {
     @GetMapping("/history")
     public List<EventModel> getHistory() {
         User user = HttpInterceptor.userHolder.get();
-        return eventService.getHistory(user.getUserId());
+        return eventService.getHistory(user.getId());
     }
 
     /**
@@ -100,7 +100,7 @@ public class EventController {
     @PostMapping("/info")
     public String addEvent(@RequestBody EventModel eventModel) {
         User user = HttpInterceptor.userHolder.get();
-        Integer eventId = eventService.addEvent(eventModel, user.getUserId());
+        Integer eventId = eventService.addEvent(eventModel, user.getId());
         return eventId.toString();
     }
 

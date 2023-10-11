@@ -40,30 +40,16 @@ public class LoginController {
         }
     }
 
+
+
     @OperateLog("微信登录")
     @PostMapping("/login/wx")
     @DefaultActionState(ActionState.PUBLIC)
-    public Map<String, Object> wxLogin(@RequestParam String email,
-                                       @RequestParam String password,
-                                       @RequestParam String openId,
-                                       @RequestParam String codeChallenge,
-                                       @RequestParam String codeChallengeMethod) {
-        throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"temporarily closed");
-//        if (email.isEmpty()) {
-//            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid email");
-//        }
-//        if (password.isEmpty()) {
-//            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid password");
-//        }
-//        if (openId.isEmpty()) {
-//            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid openId");
-//        }
-//        try {
-//            return loginService.wxLogin(email, password, codeChallenge, codeChallengeMethod, openId);
-//        } catch (Exception e) {
-//            throw new LocalRunTimeException(ErrorEnum.SAST_LINK_SERVICE_ERROR, e.getMessage());
-//        }
+    public Map<String, Object> wxLogin(@RequestParam String code) {
+        return loginService.wxLogin(code);
     }
+
+
 
     @OperateLog("登出")
     @GetMapping("/logout")
@@ -71,7 +57,7 @@ public class LoginController {
     public String logout() {
         User user = HttpInterceptor.userHolder.get();
         try {
-            loginService.logout(user.getUserId());
+            loginService.logout(user.getId());
         } catch (SastLinkException e) {
             throw new LocalRunTimeException(ErrorEnum.SAST_LINK_SERVICE_ERROR, e.getMessage());
         }

@@ -3,8 +3,9 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="sast.evento.mapper.UserMapper">
-    <insert id="ignoreInsertUser">
-        insert ignore into user (id, open_id ,email) values (#{id},#{openId},#{email})
+    <insert id="ignoreInsertUser" parameterType="sast.evento.entitiy.User">
+        insert ignore into user (id, open_id, email, link_id, nickname, avatar, org, bio, link)
+        values (#{user.id}, #{user.openId}, #{user.email}, #{user.linkId}, #{user.nickname}, #{user.organization},
+                #{user.avatar}, #{user.biography}, #{user.link})
     </insert>
-
 </mapper>

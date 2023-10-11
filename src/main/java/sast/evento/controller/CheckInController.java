@@ -39,7 +39,7 @@ public class CheckInController {
         }
 
         if (code.equals(codeService.getAuthCode(eventId))){
-            participateService.participate(user.getUserId(),eventId,true);
+            participateService.participate(user.getId(),eventId,true);
             return "签到成功";
         } else {
             throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"验证码不对");

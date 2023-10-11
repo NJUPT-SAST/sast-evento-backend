@@ -1,24 +1,28 @@
 package sast.evento.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import sast.evento.common.enums.ErrorEnum;
+import sast.evento.entitiy.User;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.mapper.UserMapper;
+import sast.evento.model.wxServiceDTO.JsCodeSessionResponse;
 import sast.evento.service.LoginService;
+import sast.evento.service.WxService;
 import sast.evento.utils.JsonUtil;
 import sast.evento.utils.JwtUtil;
 import sast.evento.utils.RedisUtil;
 import sast.sastlink.sdk.exception.SastLinkException;
 import sast.sastlink.sdk.model.UserInfo;
 import sast.sastlink.sdk.model.response.AccessTokenResponse;
-import sast.sastlink.sdk.model.response.RefreshResponse;
 import sast.sastlink.sdk.service.SastLinkService;
-import sast.sastlink.sdk.service.impl.RestTemplateSastLinkService;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
+
+import static sast.evento.utils.JwtUtil.TOKEN;
 
 /**
  * @projectName: sast-evento-backend
@@ -35,101 +39,96 @@ public class LoginServiceImpl implements LoginService {
     @Resource
     private UserMapper userMapper;
     @Resource
+    private WxService wxService;
+    @Resource
     private JwtUtil jwtUtil;
     @Resource
     private RedisUtil redisUtil;
-    private static final String ACCESS_TOKEN = "access_token:";
-    private static final String REFRESH_TOKEN = "refresh_token:";
-    private static final long REFRESH_EXPIRE = 20000;
-    private static final String USER_INFO = "user_info:";
-    private static final long USER_INFO_EXPIRE = 6000;
+    private static final String USER = "user:";
 
     @Override
-    public Map<String, Object> linkLogin(String code,Integer type) throws SastLinkException {
-        SastLinkService service = switch(type){
+    public Map<String, Object> linkLogin(String code, Integer type) throws SastLinkException {
+        SastLinkService service = switch (type) {
             case 0 -> sastLinkService;
             case 1 -> sastLinkServiceWeb;
-            default -> throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"error link client type value: " + type);
+            default -> throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "error link client type value: " + type);
         };
-        Map<String, Object> data = login(code,service);
-        UserInfo userInfo = (UserInfo) data.get("userInfo");
-        userMapper.ignoreInsertUser(userInfo.getUserId(), userInfo.getWechatId(), userInfo.getEmail());
-        return data;
+        AccessTokenResponse accessTokenResponse = service.accessToken(code);
+        UserInfo userInfo = service.userInfo(accessTokenResponse.getAccess_token());
+        User user = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
+                .eq(User::getLinkId,userInfo.getUserId()));
+        if(user == null){
+            user = new User();
+            user.setLinkId(userInfo.getUserId());
+        }
+        user.setEmail(userInfo.getEmail());
+        userMapper.insert(user);
+        String token = addTokenInCache(user);
+        return Map.of("token", token, "userInfo", user);
     }
 
     @Override
-    public Map<String, Object> wxLogin(String email, String password, String code_challenge, String code_challenge_method, String openId) throws SastLinkException {
-        String token = sastLinkService.login(email, password);
-        System.out.println(token);
-        String code = sastLinkService.authorize(token, code_challenge, code_challenge_method);
-        sastLinkService.logout(token);
-        /* 临时登录一下，登完就退 */
-        Map<String, Object> data = login(code,sastLinkServiceWeb);
-        UserInfo userInfo = (UserInfo) data.get("userInfo");
-        userMapper.ignoreInsertUser(userInfo.getUserId(), openId, userInfo.getEmail());
-        return data;
+    public Map<String, Object> wxLogin(String code) {
+        JsCodeSessionResponse jsCodeSessionResponse = wxService.login(code);
+        String openId = jsCodeSessionResponse.getOpenid();
+        if (openId == null || openId.isEmpty()) {
+            throw new LocalRunTimeException(ErrorEnum.WX_SERVICE_ERROR, "wx login failed");
+        }
+        User user = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
+                .eq(User::getOpenId, openId));
+        if (user == null) {
+            user = new User();
+            user.setOpenId(openId);
+            userMapper.insert(user);
+        }
+        String token = addTokenInCache(user);
+        return Map.of("unionid", jsCodeSessionResponse.getUnionid(),"userInfo",user,"token",token);
     }
 
-    private Map<String, Object> login(String code, SastLinkService sastLinkService) throws SastLinkException {
-        AccessTokenResponse accessTokenResponse = sastLinkService.accessToken(code);
-        UserInfo userInfo = sastLinkService.userInfo(accessTokenResponse.getAccess_token());
-        String userId = userInfo.getUserId();
+    private String addTokenInCache(User user){
+        String userId = user.getId();
+        String token = generateToken(userId);
+        redisUtil.set(TOKEN + userId, token, jwtUtil.expiration);
+        return token;
+    }
+
+    private String generateToken(String userId) {
         Map<String, String> payload = new HashMap<>();
         payload.put("user_id", userId);
-        String token = jwtUtil.generateToken(payload);
-        redisUtil.set(ACCESS_TOKEN + userId, accessTokenResponse.getAccess_token(), accessTokenResponse.getExpires_in());
-        redisUtil.set(REFRESH_TOKEN + userId, accessTokenResponse.getRefresh_token(), REFRESH_EXPIRE);
-        redisUtil.set("TOKEN:" + userId, token, jwtUtil.expiration);
-        redisUtil.set(USER_INFO + userId, JsonUtil.toJson(userInfo), USER_INFO_EXPIRE);
-        return Map.of("token", token, "userInfo", userInfo);
-    }
-
-    @Override
-    public Map<String, String> wxRegister(String email) throws SastLinkException {
-        return Map.of("register_ticket", sastLinkService.sendCaptcha(email));
-    }
-
-    @Override
-    public boolean checkCaptcha(String ticket, String captcha, String password) throws SastLinkException {
-        return sastLinkService.checkCaptchaAndRegister(captcha, ticket, password);
+        return jwtUtil.generateToken(payload);
     }
 
     @Override
     public void logout(String userId) throws SastLinkException {
-        redisUtil.del("TOKEN:" + userId, ACCESS_TOKEN + userId, REFRESH_TOKEN + userId, USER_INFO + userId);
-    }
-
-    @Override
-    public UserInfo getUserInfo(String userId) throws SastLinkException {
-        UserInfo userInfo;
-        String userInfoJson = (String) Optional.ofNullable(redisUtil.get(USER_INFO + userId)).orElse("");
-        if (!userInfoJson.isEmpty()) {
-            userInfo = JsonUtil.fromJson(userInfoJson, UserInfo.class);
-            return userInfo;
-        }
-        String accessToken = (String) Optional.ofNullable(redisUtil.get(ACCESS_TOKEN + userId))
-                .orElse("");
-        if (accessToken.isEmpty()) {
-            String refreshToken = (String) Optional.ofNullable(redisUtil.get(REFRESH_TOKEN + userId))
-                    .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "link login has expired, please login first, user id: "+userId));
-            RefreshResponse refreshResponse = sastLinkService.refresh(refreshToken);
-            redisUtil.set(ACCESS_TOKEN + userId, refreshResponse.getAccessToken(), refreshResponse.getExpiresIn());
-            redisUtil.set(REFRESH_TOKEN + userId, refreshResponse.getRefreshToken(), REFRESH_EXPIRE);
-        }
-        userInfo = sastLinkService.userInfo(accessToken);
-        redisUtil.set(USER_INFO + userId, JsonUtil.toJson(userInfo), USER_INFO_EXPIRE);
-        return userInfo;
+        redisUtil.del(TOKEN + userId);
     }
 
     @Override
     public void checkLoginState(String userId, String token) {
-        Object o = redisUtil.get("TOKEN:" + userId);
-        if(o != null){
-        String localToken = String.valueOf(o);
+        Object o = redisUtil.get(TOKEN + userId);
+        if (o != null) {
+            String localToken = String.valueOf(o);
             if (!localToken.isEmpty()) {
                 return;
             }
         }
         throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "login has expired, please login first");
     }
+
+    @Override
+    public User getLocalUser(String userId) {
+        String json = (String) redisUtil.get(USER + userId);
+        User user = null;
+        if (json == null) {
+            user = userMapper.selectById(userId);
+            if (user == null) {
+                throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "user not exist");
+            }
+            redisUtil.set(USER + userId, JsonUtil.toJson(user));
+        } else {
+            user = JsonUtil.fromJson(json, User.class);
+        }
+        return user;
+    }
+
 }

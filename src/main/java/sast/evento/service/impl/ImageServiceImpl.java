@@ -45,7 +45,7 @@ public class ImageServiceImpl implements ImageService {
         imageDO.setName(file.getOriginalFilename());
         imageDO.setExtension(fileName.substring(fileName.lastIndexOf(".")));
         imageDO.setSize(file.getSize());
-        imageDO.setUserId(user.getUserId());
+        imageDO.setUserId(user.getId());
         imageDOMapper.insert(imageDO);
         return uri;
     }

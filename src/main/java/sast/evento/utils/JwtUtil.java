@@ -24,6 +24,8 @@ public class JwtUtil {
     private String secret;
     @Value("${jwt.expiration}")
     public Integer expiration;
+    public static final String TOKEN = "token:";
+
 
     public JwtUtil(RedisUtil redisUtil) {
         this.redisUtil = redisUtil;
@@ -57,13 +59,13 @@ public class JwtUtil {
     }
 
     public Boolean isExpired(String userId, String token) {
-        Long expire = redisUtil.getExpire("TOKEN:" + userId);
-        String oriToken = (String) redisUtil.hget("TOKEN:", userId);
+        Long expire = redisUtil.getExpire(TOKEN + userId);
+        String oriToken = (String) redisUtil.hget(TOKEN, userId);
         return (expire <= 0) && oriToken.equals(token);
     }
 
     public void reFreshToken(String userId) {
-        redisUtil.expire("TOKEN:" + userId, 3, TimeUnit.DAYS);
+        redisUtil.expire(TOKEN + userId, 3, TimeUnit.DAYS);
     }
 
 
