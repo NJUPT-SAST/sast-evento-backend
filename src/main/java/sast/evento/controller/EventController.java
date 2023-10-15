@@ -14,6 +14,7 @@ import sast.evento.exception.LocalRunTimeException;
 import sast.evento.interceptor.HttpInterceptor;
 import sast.evento.model.EventModel;
 import sast.evento.model.PageModel;
+import sast.evento.model.UserModel;
 import sast.evento.service.DepartmentService;
 import sast.evento.service.EventService;
 
@@ -48,7 +49,7 @@ public class EventController {
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/history")
     public List<EventModel> getHistory() {
-        User user = HttpInterceptor.userHolder.get();
+        UserModel user = HttpInterceptor.userHolder.get();
         return eventService.getHistory(user.getId());
     }
 
@@ -99,7 +100,7 @@ public class EventController {
     @DefaultActionState(value = ActionState.ADMIN, group = "event")
     @PostMapping("/info")
     public String addEvent(@RequestBody EventModel eventModel) {
-        User user = HttpInterceptor.userHolder.get();
+        UserModel user = HttpInterceptor.userHolder.get();
         Integer eventId = eventService.addEvent(eventModel, user.getId());
         return eventId.toString();
     }

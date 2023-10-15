@@ -15,7 +15,7 @@ public interface LoginService {
 
     void checkLoginState(String userId, String token);
 
-    User getLocalUser(String userId);
+    void bindStudent(String userId,String studentId);
 
 
 }

@@ -59,8 +59,8 @@ public class WxServiceImpl implements WxService {
 
     @Override
     public AccessTokenResponse getAccessToken() {
-        Map<String,Object> map = restTemplate.getForEntity(Constant.wxAccessTokenURL, Map.class,appid,secret).getBody();
-        if(map == null){
+        Map<String, Object> map = restTemplate.getForEntity(Constant.wxAccessTokenURL, Map.class, appid, secret).getBody();
+        if (map == null) {
             throw new LocalRunTimeException(ErrorEnum.WX_SERVICE_ERROR, "response is empty");
         }
         AccessTokenResponse response = new AccessTokenResponse();
@@ -76,13 +76,13 @@ public class WxServiceImpl implements WxService {
     @Override
     public JsCodeSessionResponse login(String code) {
         String text = restTemplate.getForEntity(Constant.jsCode2Session, String.class, appid, secret, code).getBody();
-        JsCodeSessionResponse jsCodeSessionResponse = null;
-        System.out.println(text);
-        if (jsCodeSessionResponse == null) {
-            throw new LocalRunTimeException(ErrorEnum.WX_SERVICE_ERROR, "error get null userInfo");
+        if (text == null) {
+            throw new LocalRunTimeException(ErrorEnum.WX_SERVICE_ERROR, "null response from wx");
         }
-        if (!jsCodeSessionResponse.getErrmsg().isEmpty()) {
-            log.error("error get userInfo: " + jsCodeSessionResponse.getErrmsg());
+        JsCodeSessionResponse jsCodeSessionResponse = JsonUtil.fromJson(text, JsCodeSessionResponse.class);
+        System.out.println(text);
+        if (jsCodeSessionResponse == null ||!jsCodeSessionResponse.getErrmsg().isEmpty()) {
+            log.error("error get userInfo: " + text);
             throw new LocalRunTimeException(ErrorEnum.WX_SERVICE_ERROR, "error get userInfo from WeChat");
         }
         return jsCodeSessionResponse;

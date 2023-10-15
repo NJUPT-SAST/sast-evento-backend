@@ -8,6 +8,8 @@ public interface UserService {
 
     User getUserById(String userId);
 
+    User getUserByStudentId(String studentId);
+
     Integer updateUser(User user);
 
 }

@@ -35,6 +35,7 @@ public enum ErrorEnum {
     QRCODE_ERROR(10003, "qr code generation error"),
     COS_SERVICE_ERROR(10004,"cos service error"),
     SAST_LINK_SERVICE_ERROR(10005,"sast link service error"),
+    STUDENT_NOT_BIND(10006,"the visiting service needs binding student number"),
     /* 时间格式错误 */
     TIME_ERROR(20001, "time format error");
     private final Integer errCode;

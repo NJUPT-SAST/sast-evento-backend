@@ -8,10 +8,7 @@ import sast.evento.annotation.OperateLog;
 import sast.evento.common.enums.ActionState;
 import sast.evento.entitiy.User;
 import sast.evento.interceptor.HttpInterceptor;
-import sast.evento.model.FeedbackModel;
-import sast.evento.model.FeedbackNumModel;
-import sast.evento.model.FeedbacksDTO;
-import sast.evento.model.PageModel;
+import sast.evento.model.*;
 import sast.evento.service.FeedBackService;
 
 import java.util.List;
@@ -56,7 +53,7 @@ public class FeedbackController {
     public String addFeedback(@RequestParam(required = false) String content,
                               @RequestParam Double score,
                               @RequestParam Integer eventId) {
-        User user = HttpInterceptor.userHolder.get();
+        UserModel user = HttpInterceptor.userHolder.get();
         return feedBackService.addFeedback(user.getId(), content, score, eventId);
     }
 
@@ -64,7 +61,7 @@ public class FeedbackController {
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/user/list")
     public List<FeedbackModel> getListByUserId() {
-        User user = HttpInterceptor.userHolder.get();
+        UserModel user = HttpInterceptor.userHolder.get();
         return feedBackService.getListByUserId(user.getId());
     }
 
@@ -73,7 +70,7 @@ public class FeedbackController {
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/user/info")
     public FeedbackModel getUserFeedback(@RequestParam Integer eventId) {
-        User user = HttpInterceptor.userHolder.get();
+        UserModel user = HttpInterceptor.userHolder.get();
         return feedBackService.getFeedback(user.getId(), eventId);
     }
 
@@ -85,7 +82,7 @@ public class FeedbackController {
     public String patchFeedback(@RequestParam(required = false) String content,
                                 @RequestParam(required = false) Double score,
                                 @RequestParam Integer feedbackId) {
-        User user = HttpInterceptor.userHolder.get();
+        UserModel user = HttpInterceptor.userHolder.get();
         return feedBackService.patchFeedback(user.getId(), feedbackId, content, score);
     }
 
@@ -93,7 +90,7 @@ public class FeedbackController {
     @DefaultActionState(ActionState.LOGIN)
     @DeleteMapping("/info")
     public String deleteFeedback(@RequestParam Integer feedbackId) {
-        User user = HttpInterceptor.userHolder.get();
+        UserModel user = HttpInterceptor.userHolder.get();
         return feedBackService.deleteFeedback(user.getId(), feedbackId);
     }
 

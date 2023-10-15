@@ -9,9 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import sast.evento.common.enums.ErrorEnum;
 import sast.evento.entitiy.ImageDO;
-import sast.evento.entitiy.User;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.mapper.ImageDOMapper;
+import sast.evento.model.UserModel;
 import sast.evento.service.ImageService;
 import sast.evento.utils.CosUtil;
 
@@ -28,7 +28,7 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String upload(MultipartFile file, User user, String dir) {
+    public String upload(MultipartFile file, UserModel user, String dir) {
         String key;
         try {
             key = CosUtil.upload(file, dir);

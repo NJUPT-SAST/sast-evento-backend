@@ -8,4 +8,8 @@
         values (#{user.id}, #{user.openId}, #{user.email}, #{user.linkId}, #{user.nickname}, #{user.organization},
                 #{user.avatar}, #{user.biography}, #{user.link})
     </insert>
+    <update id="bindStudentId">
+        UPDATE user SET student_id = #{studentId} WHERE id = #{userId}
+    </update>
+
 </mapper>

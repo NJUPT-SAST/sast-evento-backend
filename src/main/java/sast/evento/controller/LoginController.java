@@ -9,6 +9,7 @@ import sast.evento.common.enums.ErrorEnum;
 import sast.evento.entitiy.User;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.interceptor.HttpInterceptor;
+import sast.evento.model.UserModel;
 import sast.evento.service.LoginService;
 import sast.sastlink.sdk.exception.SastLinkException;
 
@@ -40,8 +41,6 @@ public class LoginController {
         }
     }
 
-
-
     @OperateLog("微信登录")
     @PostMapping("/login/wx")
     @DefaultActionState(ActionState.PUBLIC)
@@ -49,18 +48,25 @@ public class LoginController {
         return loginService.wxLogin(code);
     }
 
-
-
     @OperateLog("登出")
     @GetMapping("/logout")
     @DefaultActionState(ActionState.LOGIN)
     public String logout() {
-        User user = HttpInterceptor.userHolder.get();
+        UserModel user = HttpInterceptor.userHolder.get();
         try {
             loginService.logout(user.getId());
         } catch (SastLinkException e) {
             throw new LocalRunTimeException(ErrorEnum.SAST_LINK_SERVICE_ERROR, e.getMessage());
         }
+        return "ok";
+    }
+
+    @OperateLog("改绑学号")
+    @PostMapping("/bind/student")
+    @DefaultActionState(ActionState.LOGIN)
+    public String bindState(@RequestParam String studentId){
+        UserModel user = HttpInterceptor.userHolder.get();
+        loginService.bindStudent(user.getId(),studentId);
         return "ok";
     }
 

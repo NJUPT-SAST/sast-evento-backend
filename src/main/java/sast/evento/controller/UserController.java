@@ -5,14 +5,12 @@ import org.springframework.web.bind.annotation.*;
 import sast.evento.annotation.DefaultActionState;
 import sast.evento.annotation.OperateLog;
 import sast.evento.common.enums.ActionState;
-import sast.evento.common.enums.ErrorEnum;
 import sast.evento.entitiy.Department;
 import sast.evento.entitiy.Participate;
 import sast.evento.entitiy.User;
-import sast.evento.exception.LocalRunTimeException;
 import sast.evento.interceptor.HttpInterceptor;
 import sast.evento.model.EventModel;
-import sast.evento.model.UserProFile;
+import sast.evento.model.UserModel;
 import sast.evento.service.DepartmentService;
 import sast.evento.service.EventService;
 import sast.evento.service.ParticipateService;
@@ -36,14 +34,14 @@ public class UserController {
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/info")
     public User getUser(@RequestParam String userId) {
-        return HttpInterceptor.userHolder.get();
+        return userService.getUserById(userId);
     }
 
     @OperateLog("更改个人信息")
     @DefaultActionState(ActionState.LOGIN)
     @PutMapping("/info")
     public String putUser(@RequestBody User user) {
-        User local = HttpInterceptor.userHolder.get();;
+        UserModel local = HttpInterceptor.userHolder.get();
         user.setId(local.getId());
         userService.updateUser(user);
         return "ok";
@@ -54,7 +52,7 @@ public class UserController {
     @GetMapping("/subscribe")
     public String subscribe(@RequestParam Integer eventId,
                             @RequestParam Boolean isSubscribe) {
-        User user = HttpInterceptor.userHolder.get();
+        UserModel user = HttpInterceptor.userHolder.get();
         return participateService.subscribe(user.getId(), eventId, isSubscribe);
     }
 
@@ -62,7 +60,7 @@ public class UserController {
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/subscribed")
     public List<EventModel> getSubscribed() {
-        User user = HttpInterceptor.userHolder.get();
+        UserModel user = HttpInterceptor.userHolder.get();
         return eventService.getSubscribed(user.getId());
     }
 
@@ -71,7 +69,7 @@ public class UserController {
     @GetMapping("/register")
     public String register(@RequestParam Integer eventId,
                            @RequestParam Boolean isRegister) {
-        User user = HttpInterceptor.userHolder.get();
+        UserModel user = HttpInterceptor.userHolder.get();
         return participateService.register(user.getId(), eventId, isRegister);
     }
 
@@ -79,7 +77,7 @@ public class UserController {
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/registered")
     public List<EventModel> getRegistered() {
-        User user = HttpInterceptor.userHolder.get();
+        UserModel user = HttpInterceptor.userHolder.get();
         return eventService.getRegistered(user.getId());
     }
 
@@ -89,7 +87,7 @@ public class UserController {
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/participate")
     public Participate getParticipation(@RequestParam Integer eventId) {
-        User user = HttpInterceptor.userHolder.get();
+        UserModel user = HttpInterceptor.userHolder.get();
         return participateService.getParticipation(user.getId(), eventId);
     }
 
@@ -98,7 +96,7 @@ public class UserController {
     @GetMapping("/subscribe/department")
     public String subscribeDepartment(@RequestParam Integer departmentId,
                                       @RequestParam Boolean isSubscribe) {
-        User user = HttpInterceptor.userHolder.get();
+        UserModel user = HttpInterceptor.userHolder.get();
         departmentService.subscribeDepartment(user.getId(), departmentId, isSubscribe);
         return "ok";
     }
@@ -107,7 +105,7 @@ public class UserController {
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/subscribe/departments")
     public List<Department> getSubscribeDepartment() {
-        User user = HttpInterceptor.userHolder.get();
+        UserModel user = HttpInterceptor.userHolder.get();
         return departmentService.getSubscribeDepartment(user.getId());
     }
 

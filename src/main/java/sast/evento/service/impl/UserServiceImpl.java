@@ -1,6 +1,7 @@
 package sast.evento.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import sast.evento.entitiy.User;
@@ -26,6 +27,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserById(String userId) {
         return userMapper.selectById(userId);
+    }
+
+    @Override
+    public User getUserByStudentId(String studentId) {
+        return userMapper.selectOne(Wrappers.lambdaQuery(User.class)
+                .eq(User::getStudentId,studentId)
+                .last("limit 1"));
     }
 
     @Override
