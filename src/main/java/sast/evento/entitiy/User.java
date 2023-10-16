@@ -27,7 +27,9 @@ public class User {
     @TableId(value = "id",type = IdType.ASSIGN_ID)
     private String id;
     @JsonIgnore
-    private String openId;//openId属于隐私信息，不得随意当成返回
+    private String unionId;//openId属于隐私信息，不得随意当成返回
+    @JsonIgnore
+    private String openId;
 
     private String linkId;
 
@@ -49,8 +51,6 @@ public class User {
 
     private String link;
 
-    //private String hide;
-
     public User(UserInfo userInfo){
         this.linkId = userInfo.getUserId();
         this.studentId = userInfo.getUserId();
@@ -60,7 +60,6 @@ public class User {
         this.organization = (userInfo.getOrg() == null||userInfo.getOrg().isEmpty())?null: Organization.valueOf(userInfo.getOrg()).getId();
         this.biography = userInfo.getBio();
         this.link = userInfo.getLink();
-        //this.hide = userInfo.getHide();
     }
 
 }

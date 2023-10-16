@@ -48,6 +48,37 @@ public class LoginController {
         return loginService.wxLogin(code);
     }
 
+    @OperateLog("绑定学号")
+    @PostMapping("/bind/student")
+    @DefaultActionState(ActionState.LOGIN)
+    public String bindStudentId(@RequestParam String studentId){
+        UserModel user = HttpInterceptor.userHolder.get();
+        loginService.bindStudent(user.getId(),studentId);
+        return "ok";
+    }
+
+    @OperateLog("获取key")
+    @GetMapping("/login/key")
+    @DefaultActionState(ActionState.PUBLIC)
+    public Map<String, Object> getKey(@RequestParam String studentId){
+        return loginService.getKeyForLogin(studentId);
+    }
+
+    @OperateLog("绑定密码")
+    @PostMapping("/bind/pwd")
+    @DefaultActionState(ActionState.LOGIN)
+    public Map<String, Object> bindPassword(@RequestParam String password) {
+        UserModel user = HttpInterceptor.userHolder.get();
+        return loginService.bindPassword(user.getStudentId(), password);
+    }
+
+    @OperateLog("密码登录")
+    @PostMapping("/login/pwd")
+    @DefaultActionState(ActionState.PUBLIC)
+    public Map<String, Object> bindPassword(@RequestParam String studentId, @RequestParam String password) {
+        return loginService.loginByPassword(studentId, password);
+    }
+
     @OperateLog("登出")
     @GetMapping("/logout")
     @DefaultActionState(ActionState.LOGIN)
@@ -61,13 +92,5 @@ public class LoginController {
         return "ok";
     }
 
-    @OperateLog("改绑学号")
-    @PostMapping("/bind/student")
-    @DefaultActionState(ActionState.LOGIN)
-    public String bindState(@RequestParam String studentId){
-        UserModel user = HttpInterceptor.userHolder.get();
-        loginService.bindStudent(user.getId(),studentId);
-        return "ok";
-    }
 
 }

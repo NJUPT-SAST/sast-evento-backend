@@ -7,15 +7,16 @@ import org.springframework.transaction.annotation.Transactional;
 import sast.evento.common.enums.ErrorEnum;
 import sast.evento.common.enums.Platform;
 import sast.evento.entitiy.User;
+import sast.evento.entitiy.UserPassword;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.mapper.UserMapper;
+import sast.evento.mapper.UserPasswordMapper;
 import sast.evento.model.UserModel;
 import sast.evento.model.wxServiceDTO.JsCodeSessionResponse;
+import sast.evento.response.GlobalResponse;
 import sast.evento.service.LoginService;
 import sast.evento.service.WxService;
-import sast.evento.utils.JsonUtil;
-import sast.evento.utils.JwtUtil;
-import sast.evento.utils.RedisUtil;
+import sast.evento.utils.*;
 import sast.sastlink.sdk.enums.Organization;
 import sast.sastlink.sdk.exception.SastLinkException;
 import sast.sastlink.sdk.model.UserInfo;
@@ -44,12 +45,15 @@ public class LoginServiceImpl implements LoginService {
     @Resource
     private UserMapper userMapper;
     @Resource
+    private UserPasswordMapper userPasswordMapper;
+    @Resource
     private WxService wxService;
     @Resource
     private JwtUtil jwtUtil;
     @Resource
     private RedisUtil redisUtil;
-    private static final String USER = "user:";
+    private static final String LOGIN_KEY = "rsa:";
+    private static final long LOGIN_KEY_EXPIRE = 60000;
 
     @Override
     public Map<String, Object> linkLogin(String code, Integer type) throws SastLinkException {
@@ -60,30 +64,15 @@ public class LoginServiceImpl implements LoginService {
         };
         AccessTokenResponse accessTokenResponse = service.accessToken(code);
         UserInfo userInfo = service.userInfo(accessTokenResponse.getAccess_token());
-//        User user = getUserFrom2Client(userInfo);
         User user = Optional.ofNullable(userMapper.selectOne(Wrappers.lambdaQuery(User.class)
                 .eq(User::getLinkId, userInfo.getUserId()))).orElse(new User());
         setCommonInfo(user,userInfo);
         if(user.getId() == null){
             userMapper.insert(user);
-        }else {
-            userMapper.updateById(user);
         }
         String token = addTokenInCache(user,Platform.SastLink);
         return Map.of("token", token, "userInfo", user);
     }
-
-    private void setCommonInfo(User local,UserInfo userInfo){
-        local.setAvatar(userInfo.getAvatar());
-        local.setEmail(userInfo.getEmail());
-        local.setNickname(userInfo.getNickname());
-        System.out.println("userInfo org    :  "+userInfo.getOrg());
-        local.setOrganization((userInfo.getOrg() == null||userInfo.getOrg().isEmpty())?null: Organization.valueOf(userInfo.getOrg()).getId());
-        local.setBiography(userInfo.getBio());
-        local.setLink(userInfo.getLink());
-        //local.setHide(userInfo.getHide());
-    }
-
     @Override
     public Map<String, Object> wxLogin(String code) {
         JsCodeSessionResponse jsCodeSessionResponse = wxService.login(code);
@@ -96,6 +85,7 @@ public class LoginServiceImpl implements LoginService {
         if (user == null) {
             user = new User();
             user.setOpenId(openId);
+            user.setUnionId(jsCodeSessionResponse.getUnionid());
             userMapper.insert(user);
         }
         String token = addTokenInCache(user,Platform.WeChat);
@@ -103,21 +93,52 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
+    public Map<String,Object> getKeyForLogin(String studentId){
+        //生成公钥密钥
+        Map<String,String> keyPair= RSAUtil.generateKey();
+        String publicKeyStr = keyPair.get("publicKeyStr");
+        String privateKeyStr = keyPair.get("privateKeyStr");
+        redisUtil.set(LOGIN_KEY+studentId,privateKeyStr,LOGIN_KEY_EXPIRE);
+        return Map.of("expireIn",System.currentTimeMillis()+LOGIN_KEY_EXPIRE,
+                "str",publicKeyStr);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Map<String,Object> bindPassword(String studentId,String password){
+        String privateKeyStr = (String) redisUtil.get(LOGIN_KEY+studentId);
+        if(privateKeyStr == null||privateKeyStr.isEmpty()){
+            throw new LocalRunTimeException(ErrorEnum.LOGIN_EXPIRE,"login failed please try again");
+        }
+        try {
+            password = RSAUtil.decryptByPrivateKey(password,privateKeyStr);
+        } catch (Exception e) {
+            throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR,"login failed please try again");
+        }
+        String salt = MD5Util.getSalt(5);
+        User user = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
+                .eq(User::getStudentId,studentId));
+        if(user == null){
+            throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR,"please use wechat register first");
+        }
+        UserPassword userPassword = new UserPassword(null,studentId,MD5Util.md5Encode(password,salt),salt);
+        userPasswordMapper.insert(userPassword);
+        String token = addTokenInCache(user,Platform.Password);
+        return Map.of("token", token, "userInfo", user);
+    }
+
+    @Override
+    public Map<String,Object> loginByPassword(String studentId,String password){
+        checkPassword(studentId, password);
+        User user = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
+                .eq(User::getStudentId,studentId));
+        String token = addTokenInCache(user,Platform.SastLink);
+        return Map.of("token", token, "userInfo", user);
+    }
+
+    @Override
     public void bindStudent(String userId,String studentId){
         userMapper.bindStudentId(userId,studentId);
-    }
-
-    private String addTokenInCache(User user, Platform platform){
-        UserModel userModel =new UserModel(user.getId(),user.getStudentId(),user.getEmail(),platform.name());
-        String token = generateToken(userModel);
-        redisUtil.set(TOKEN + user.getId(), token, jwtUtil.expiration);
-        return token;
-    }
-
-    private String generateToken(UserModel user) {
-        Map<String, String> payload = new HashMap<>();
-        payload.put("user", JsonUtil.toJson(user));
-        return jwtUtil.generateToken(payload);
     }
 
     @Override
@@ -137,6 +158,47 @@ public class LoginServiceImpl implements LoginService {
         throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "login has expired, please login first");
     }
 
+    private void setCommonInfo(User local,UserInfo userInfo){
+        local.setAvatar(userInfo.getAvatar());
+        local.setEmail(userInfo.getEmail());
+        local.setNickname(userInfo.getNickname());
+        local.setOrganization((userInfo.getOrg() == null||userInfo.getOrg().isEmpty())?null: Organization.valueOf(userInfo.getOrg()).getId());
+        local.setBiography(userInfo.getBio());
+        local.setLink(userInfo.getLink());
+    }
+
+    private void checkPassword(String studentId,String password){
+        String privateKeyStr = (String) redisUtil.get(LOGIN_KEY+studentId);
+        if(privateKeyStr == null||privateKeyStr.isEmpty()){
+            throw new LocalRunTimeException(ErrorEnum.LOGIN_EXPIRE,"login failed please try again");
+        }
+        try {
+            password = RSAUtil.decryptByPrivateKey(password,privateKeyStr);
+        } catch (Exception e) {
+            throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR,"login failed please try again");
+        }
+        UserPassword userPassword = userPasswordMapper.selectOne(Wrappers.lambdaQuery(UserPassword.class)
+                .eq(UserPassword::getStudentId,studentId));
+        if(userPassword == null){
+            throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR,"please register first");
+        }
+        if(!MD5Util.md5Encode(password,userPassword.getSalt()).equals(userPassword.getPassword())){
+            throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR,"error password");
+        }
+    }
+
+    private String addTokenInCache(User user, Platform platform){
+        UserModel userModel =new UserModel(user.getId(),user.getStudentId(),user.getEmail(),platform.name());
+        String token = generateToken(userModel);
+        redisUtil.set(TOKEN + user.getId(), token, jwtUtil.expiration);
+        return token;
+    }
+
+    private String generateToken(UserModel user) {
+        Map<String, String> payload = new HashMap<>();
+        payload.put("user", JsonUtil.toJson(user));
+        return jwtUtil.generateToken(payload);
+    }
 
     private User getUserFrom2Client(UserInfo userInfo){
         User user = null;

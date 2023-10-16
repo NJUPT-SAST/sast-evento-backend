@@ -17,5 +17,11 @@ public interface LoginService {
 
     void bindStudent(String userId,String studentId);
 
+    Map<String,Object> getKeyForLogin(String studentId);
+
+    Map<String,Object> bindPassword(String studentId,String password);
+
+    Map<String,Object> loginByPassword(String studentId,String password);
+
 
 }
