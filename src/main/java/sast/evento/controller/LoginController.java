@@ -26,6 +26,12 @@ public class LoginController {
     @Resource
     private LoginService loginService;
 
+    /**
+     * 使用sast-link第三方登录，由于多端，进行两端的分别配置
+     * @param code sast-link验证code
+     * @param type web端或客户端
+     * @return Map
+     */
     @OperateLog("link登录")
     @PostMapping("/login/link")
     @DefaultActionState(ActionState.PUBLIC)
@@ -41,6 +47,11 @@ public class LoginController {
         }
     }
 
+    /**
+     * 使用weChat第三方登录
+     * @param code weChat验证code
+     * @return Map
+     */
     @OperateLog("微信登录")
     @PostMapping("/login/wx")
     @DefaultActionState(ActionState.PUBLIC)
@@ -48,6 +59,11 @@ public class LoginController {
         return loginService.wxLogin(code);
     }
 
+    /**
+     * weChat登录后绑定学号
+     * @param studentId 学号
+     * @return ok
+     */
     @OperateLog("绑定学号")
     @PostMapping("/bind/student")
     @DefaultActionState(ActionState.LOGIN)
@@ -57,6 +73,37 @@ public class LoginController {
         return "ok";
     }
 
+    /**
+     * 获取授权给新设备登录的ticket
+     * @param studentId 学号
+     * @return Map
+     */
+    @OperateLog("获取ticket")
+    @GetMapping("/login/ticket")
+    @DefaultActionState(ActionState.LOGIN)
+    public Map<String, Object> getTicket(@RequestParam String studentId){
+        return loginService.getLoginTicket(studentId);
+    }
+
+    /**
+     * 新设备获取ticket后使用学号登录
+     * @param studentId 学号
+     * @param ticket 登录令牌
+     * @return Map
+     */
+    @OperateLog("检查ticket并登录")
+    @PostMapping("/login/ticket")
+    @DefaultActionState(ActionState.PUBLIC)
+    public Map<String, Object> loginByTicket(@RequestParam String studentId,
+                                             @RequestParam String ticket){
+        return loginService.checkTicket(studentId,ticket);
+    }
+
+    /**
+     * 获取使用密码登录时加密使用的RSA公钥
+     * @param studentId 学号
+     * @return Map
+     */
     @OperateLog("获取key")
     @GetMapping("/login/key")
     @DefaultActionState(ActionState.PUBLIC)
@@ -64,6 +111,11 @@ public class LoginController {
         return loginService.getKeyForLogin(studentId);
     }
 
+    /**
+     * 给已经使用第三方登陆的用户绑定密码或者修改密码
+     * @param password 密码
+     * @return Map
+     */
     @OperateLog("绑定密码")
     @PostMapping("/bind/pwd")
     @DefaultActionState(ActionState.LOGIN)
@@ -72,13 +124,23 @@ public class LoginController {
         return loginService.bindPassword(user.getStudentId(), password);
     }
 
+    /**
+     * 学号密码登录
+     * @param studentId 学号
+     * @param password 密码
+     * @return Map
+     */
     @OperateLog("密码登录")
     @PostMapping("/login/pwd")
     @DefaultActionState(ActionState.PUBLIC)
-    public Map<String, Object> bindPassword(@RequestParam String studentId, @RequestParam String password) {
+    public Map<String, Object> loginByPassword(@RequestParam String studentId, @RequestParam String password) {
         return loginService.loginByPassword(studentId, password);
     }
 
+    /**
+     * 登出
+     * @return ok
+     */
     @OperateLog("登出")
     @GetMapping("/logout")
     @DefaultActionState(ActionState.LOGIN)

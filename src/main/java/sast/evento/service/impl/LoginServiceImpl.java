@@ -53,8 +53,9 @@ public class LoginServiceImpl implements LoginService {
     @Resource
     private RedisUtil redisUtil;
     private static final String LOGIN_KEY = "rsa:";
+    private static final String LOGIN_TICKET = "ticket:";
     private static final long LOGIN_KEY_EXPIRE = 60000;
-
+    private static final long LOGIN_TICKET_EXPIRE = 60000;
     @Override
     public Map<String, Object> linkLogin(String code, Integer type) throws SastLinkException {
         SastLinkService service = switch (type) {
@@ -99,9 +100,29 @@ public class LoginServiceImpl implements LoginService {
         String publicKeyStr = keyPair.get("publicKeyStr");
         String privateKeyStr = keyPair.get("privateKeyStr");
         redisUtil.set(LOGIN_KEY+studentId,privateKeyStr,LOGIN_KEY_EXPIRE);
-        return Map.of("expireIn",System.currentTimeMillis()+LOGIN_KEY_EXPIRE,
+        return Map.of("expireIn",LOGIN_KEY_EXPIRE,
                 "str",publicKeyStr);
     }
+
+    @Override
+    public Map<String, Object> getLoginTicket(String studentId) {
+        String ticket = TicketUtil.generateTicket();
+        redisUtil.set(LOGIN_TICKET+studentId,ticket,LOGIN_TICKET_EXPIRE);
+        return Map.of("expireIn",LOGIN_TICKET_EXPIRE,"ticket",ticket);
+    }
+
+    @Override
+    public Map<String, Object> checkTicket(String studentId, String ticket) {
+        String localTicket = (String) redisUtil.get(LOGIN_TICKET+studentId);
+        if(localTicket.equals(ticket)){
+            redisUtil.del(LOGIN_TICKET+studentId);
+        }
+        User user = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
+                .eq(User::getStudentId,studentId));
+        String token = addTokenInCache(user,Platform.SastLink);
+        return Map.of("token", token, "userInfo", user);
+    }
+
 
     @Override
     @Transactional(rollbackFor = Exception.class)
