@@ -205,6 +205,10 @@ public class LoginServiceImpl implements LoginService {
             if (force) {
                 User del = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
                         .eq(User::getId,userId).last("for update"));
+                //TODO 还得改进，只绑定一次也不一定能保证安全
+                if(user.getOpenId()!=null || del.getLinkId()!=null){
+                    throw new LocalRunTimeException(ErrorEnum.ACCOUNT_HAS_BEEN_BIND,"please contact administrator");
+                }
                 user.setOpenId(del.getOpenId());
                 user.setUnionId(del.getUnionId());
                 user.setStudentId(studentId);

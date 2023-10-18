@@ -40,6 +40,7 @@ public enum ErrorEnum {
     SAST_LINK_SERVICE_ERROR(10005,"sast link service error"),
     STUDENT_NOT_BIND(10006,"bind studentId first"),
     STUDENT_HAS_BEEN_BIND(10007,"studentId has been bind"),
+    ACCOUNT_HAS_BEEN_BIND(10008,"account has been bind"),
     /* 时间格式错误 */
     TIME_ERROR(20001, "time format error");
     private final Integer errCode;
