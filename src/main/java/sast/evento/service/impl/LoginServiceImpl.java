@@ -22,7 +22,6 @@ import sast.sastlink.sdk.model.response.AccessTokenResponse;
 import sast.sastlink.sdk.service.SastLinkService;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -52,6 +51,7 @@ public class LoginServiceImpl implements LoginService {
     private RedisUtil redisUtil;
     private static final String LOGIN_KEY = "rsa:";
     private static final String LOGIN_TICKET = "ticket:";
+    private static final String LOGIN_SUCCESS = "login:";
     private static final long LOGIN_KEY_EXPIRE = 600;
     private static final long LOGIN_TICKET_EXPIRE = 600;
 
@@ -74,12 +74,12 @@ public class LoginServiceImpl implements LoginService {
         if (user == null) {
             //查看有对应学号的账号
             User origin = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
-                    .eq(User::getStudentId,userInfo.getUserId()));
+                    .eq(User::getStudentId, userInfo.getUserId()));
             if (origin != null) {
                 origin.setLinkId(userInfo.getUserId());
                 origin.setStudentId(userInfo.getUserId());
                 userMapper.updateById(origin);
-            }else {
+            } else {
                 user = new User();
                 setCommonInfo(user, userInfo);
                 user.setLinkId(userInfo.getUserId());
@@ -130,29 +130,43 @@ public class LoginServiceImpl implements LoginService {
                 "str", publicKeyStr);
     }
 
+    //未登录展示保持连接并等待（检查Ticket更改状态）
     @Override
-    public Map<String, Object> getLoginTicket(String studentId) {
+    public Map<String, Object> getLoginTicket(String studentId, String ticket) {
         studentId = studentId.toLowerCase();
         if (!userMapper.exists(Wrappers.lambdaQuery(User.class)
                 .eq(User::getStudentId, studentId))) {
             throw new LocalRunTimeException(ErrorEnum.STUDENT_NOT_BIND);
         }
-        String ticket = TicketUtil.generateTicket();
+        String local = (String) redisUtil.get(LOGIN_TICKET + studentId);
+        if (ticket != null && !ticket.isEmpty()) {
+            String userJson = (String) redisUtil.get(LOGIN_SUCCESS + studentId);
+            if (ticket.equals(local) && userJson != null) {
+                User user = JsonUtil.fromJson(userJson, User.class);
+                String token = addTokenInCache(user, false);
+                redisUtil.del(LOGIN_TICKET + studentId, LOGIN_SUCCESS + studentId);
+                return Map.of("token", token, "userInfo", user);
+            }
+        }
+        if (local != null) {
+            return Map.of("expireIn", redisUtil.getExpire(LOGIN_TICKET + studentId), "ticket", local);
+        }
+        ticket = TicketUtil.generateTicket();
         redisUtil.set(LOGIN_TICKET + studentId, ticket, LOGIN_TICKET_EXPIRE);
         return Map.of("expireIn", LOGIN_TICKET_EXPIRE, "ticket", ticket);
     }
 
+    //检查Ticket更改状态
     @Override
-    public Map<String, Object> checkTicket(String studentId, String ticket) {
+    public void checkTicket(String studentId, String ticket) {
         studentId = studentId.toLowerCase();
         String localTicket = (String) redisUtil.get(LOGIN_TICKET + studentId);
-        if (localTicket.equals(ticket)) {
+        if (localTicket != null && localTicket.equals(ticket)) {
             redisUtil.del(LOGIN_TICKET + studentId);
         }
         User user = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
                 .eq(User::getStudentId, studentId));
-        String token = addTokenInCache(user, false);
-        return Map.of("token", token, "userInfo", user);
+        redisUtil.set(LOGIN_SUCCESS + studentId, JsonUtil.toJson(user));
     }
 
 
@@ -201,13 +215,13 @@ public class LoginServiceImpl implements LoginService {
         User user = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
                 .eq(User::getStudentId, studentId).last("for update"));
         if (user != null) {
-            //若已经存在,则使用第一个账号
+            //若已经存在,则使用第一个账号(本账号已经绑定过也算在这里，所以只可以绑定一次学号，否则去联系管理员)
             if (force) {
                 User del = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
-                        .eq(User::getId,userId).last("for update"));
-                //TODO 还得改进，只绑定一次也不一定能保证安全
-                if(user.getOpenId()!=null || del.getLinkId()!=null){
-                    throw new LocalRunTimeException(ErrorEnum.ACCOUNT_HAS_BEEN_BIND,"please contact administrator");
+                        .eq(User::getId, userId).last("for update"));
+                if (user.getOpenId() != null || del.getLinkId() != null) {
+                    //微信已经绑定过学号也在这里报错
+                    throw new LocalRunTimeException(ErrorEnum.ACCOUNT_HAS_BEEN_BIND, "please contact administrator");
                 }
                 user.setOpenId(del.getOpenId());
                 user.setUnionId(del.getUnionId());

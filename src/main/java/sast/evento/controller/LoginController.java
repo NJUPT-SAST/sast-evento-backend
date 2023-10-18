@@ -81,23 +81,25 @@ public class LoginController {
      * @return Map
      */
     @OperateLog("获取ticket")
-    @GetMapping("/login/ticket")
+    @PostMapping("/login/ticket/get")
     @DefaultActionState(ActionState.PUBLIC)
-    public Map<String, Object> getTicket(@RequestParam String studentId){
-        return loginService.getLoginTicket(studentId);
+    public Map<String, Object> getTicket(@RequestParam String studentId,
+                                         @RequestParam(required = false) String ticket){
+        return loginService.getLoginTicket(studentId,ticket);
     }
 
     /**
      * 新设备获取ticket后使用学号登录
      * @param ticket 登录令牌
-     * @return Map
+     * @return ok
      */
     @OperateLog("检查ticket并登录")
     @PostMapping("/login/ticket")
-    @DefaultActionState(ActionState.PUBLIC)
-    public Map<String, Object> loginByTicket(@RequestParam String ticket){
-        UserModel userModel = HttpInterceptor.userHolder.get();
-        return loginService.checkTicket(userModel.getStudentId(), ticket);
+    @DefaultActionState(ActionState.LOGIN)
+    public String loginByTicket(@RequestParam String ticket){
+        UserModel user = HttpInterceptor.userHolder.get();
+        loginService.checkTicket(user.getStudentId(), ticket);
+        return "ok";
     }
 
     /**

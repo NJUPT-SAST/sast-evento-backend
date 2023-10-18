@@ -18,9 +18,9 @@ public interface LoginService {
 
     Map<String, Object> getKeyForLogin(String studentId);
 
-    Map<String, Object> getLoginTicket(String studentId);
+    Map<String, Object> getLoginTicket(String studentId,String ticket);
 
-    Map<String, Object> checkTicket(String studentId, String ticket);
+    void checkTicket(String studentId, String ticket);
 
     Map<String, Object> bindPassword(String studentId, String password);
 

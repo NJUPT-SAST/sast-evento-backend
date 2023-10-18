@@ -102,7 +102,9 @@ public class HttpInterceptor implements HandlerInterceptor {
                 }
             }
         }
-        assert (user != null);
+        if(user == null){
+            throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR,"cant check user login info");
+        }
         userHolder.set(user);
         return true;
     }
