@@ -6,6 +6,7 @@ import sast.evento.annotation.DefaultActionState;
 import sast.evento.annotation.OperateLog;
 import sast.evento.common.enums.ActionState;
 import sast.evento.common.enums.ErrorEnum;
+import sast.evento.common.enums.Platform;
 import sast.evento.entitiy.User;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.interceptor.HttpInterceptor;
@@ -62,15 +63,16 @@ public class LoginController {
     /**
      * weChat登录后绑定学号
      * @param studentId 学号
-     * @return ok
+     * @return Map
      */
     @OperateLog("绑定学号")
     @PostMapping("/bind/student")
     @DefaultActionState(ActionState.LOGIN)
-    public String bindStudentId(@RequestParam String studentId){
+    public Map<String,Object> bindStudentId(@RequestParam String studentId,
+                                            @RequestParam(required = false,defaultValue = "false") Boolean force){
         UserModel user = HttpInterceptor.userHolder.get();
-        loginService.bindStudent(user.getId(),studentId);
-        return "ok";
+        return loginService.bindStudentOnWechat(user.getId(),studentId,force);
+
     }
 
     /**
@@ -80,23 +82,22 @@ public class LoginController {
      */
     @OperateLog("获取ticket")
     @GetMapping("/login/ticket")
-    @DefaultActionState(ActionState.LOGIN)
+    @DefaultActionState(ActionState.PUBLIC)
     public Map<String, Object> getTicket(@RequestParam String studentId){
         return loginService.getLoginTicket(studentId);
     }
 
     /**
      * 新设备获取ticket后使用学号登录
-     * @param studentId 学号
      * @param ticket 登录令牌
      * @return Map
      */
     @OperateLog("检查ticket并登录")
     @PostMapping("/login/ticket")
     @DefaultActionState(ActionState.PUBLIC)
-    public Map<String, Object> loginByTicket(@RequestParam String studentId,
-                                             @RequestParam String ticket){
-        return loginService.checkTicket(studentId,ticket);
+    public Map<String, Object> loginByTicket(@RequestParam String ticket){
+        UserModel userModel = HttpInterceptor.userHolder.get();
+        return loginService.checkTicket(userModel.getStudentId(), ticket);
     }
 
     /**
@@ -117,7 +118,7 @@ public class LoginController {
      * @return Map
      */
     @OperateLog("绑定密码")
-    @PostMapping("/bind/pwd")
+    @PostMapping("/bind/password")
     @DefaultActionState(ActionState.LOGIN)
     public Map<String, Object> bindPassword(@RequestParam String password) {
         UserModel user = HttpInterceptor.userHolder.get();
@@ -131,7 +132,7 @@ public class LoginController {
      * @return Map
      */
     @OperateLog("密码登录")
-    @PostMapping("/login/pwd")
+    @PostMapping("/login/password")
     @DefaultActionState(ActionState.PUBLIC)
     public Map<String, Object> loginByPassword(@RequestParam String studentId, @RequestParam String password) {
         return loginService.loginByPassword(studentId, password);

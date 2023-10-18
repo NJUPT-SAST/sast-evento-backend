@@ -21,5 +21,4 @@ public class UserModel {
     private String id;
     private String studentId;
     private String email;
-    private String platform;
 }

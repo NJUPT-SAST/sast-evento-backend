@@ -5,7 +5,6 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sast.evento.common.enums.ErrorEnum;
-import sast.evento.common.enums.Platform;
 import sast.evento.entitiy.User;
 import sast.evento.entitiy.UserPassword;
 import sast.evento.exception.LocalRunTimeException;
@@ -13,7 +12,6 @@ import sast.evento.mapper.UserMapper;
 import sast.evento.mapper.UserPasswordMapper;
 import sast.evento.model.UserModel;
 import sast.evento.model.wxServiceDTO.JsCodeSessionResponse;
-import sast.evento.response.GlobalResponse;
 import sast.evento.service.LoginService;
 import sast.evento.service.WxService;
 import sast.evento.utils.*;
@@ -26,7 +24,7 @@ import sast.sastlink.sdk.service.SastLinkService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static sast.evento.utils.JwtUtil.TOKEN;
 
@@ -54,8 +52,13 @@ public class LoginServiceImpl implements LoginService {
     private RedisUtil redisUtil;
     private static final String LOGIN_KEY = "rsa:";
     private static final String LOGIN_TICKET = "ticket:";
-    private static final long LOGIN_KEY_EXPIRE = 60000;
-    private static final long LOGIN_TICKET_EXPIRE = 60000;
+    private static final long LOGIN_KEY_EXPIRE = 600;
+    private static final long LOGIN_TICKET_EXPIRE = 600;
+
+    /**
+     * 这边逻辑和业务强耦合，建议先熟悉登陆流程再阅读代码
+     */
+
     @Override
     public Map<String, Object> linkLogin(String code, Integer type) throws SastLinkException {
         SastLinkService service = switch (type) {
@@ -65,17 +68,32 @@ public class LoginServiceImpl implements LoginService {
         };
         AccessTokenResponse accessTokenResponse = service.accessToken(code);
         UserInfo userInfo = service.userInfo(accessTokenResponse.getAccess_token());
-        User user = Optional.ofNullable(userMapper.selectOne(Wrappers.lambdaQuery(User.class)
-                .eq(User::getLinkId, userInfo.getUserId()))).orElse(new User());
-        setCommonInfo(user,userInfo);
-        if(user.getId() == null){
-            userMapper.insert(user);
+        User user = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
+                .eq(User::getLinkId, userInfo.getUserId()));
+        //查看学号是否冲突，若冲突则绑定至wx账号
+        if (user == null) {
+            //查看有对应学号的账号
+            User origin = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
+                    .eq(User::getStudentId,userInfo.getUserId()));
+            if (origin != null) {
+                origin.setLinkId(userInfo.getUserId());
+                origin.setStudentId(userInfo.getUserId());
+                userMapper.updateById(origin);
+            }else {
+                user = new User();
+                setCommonInfo(user, userInfo);
+                user.setLinkId(userInfo.getUserId());
+                user.setStudentId(userInfo.getUserId());//link默认直接绑定学号
+                userMapper.insert(user);
+            }
         }
-        String token = addTokenInCache(user,Platform.SastLink);
+        String token = addTokenInCache(user, false);
         return Map.of("token", token, "userInfo", user);
     }
+
     @Override
     public Map<String, Object> wxLogin(String code) {
+        //没有学号冲突的风险
         JsCodeSessionResponse jsCodeSessionResponse = wxService.login(code);
         String openId = jsCodeSessionResponse.getOpenid();
         if (openId == null || openId.isEmpty()) {
@@ -89,77 +107,120 @@ public class LoginServiceImpl implements LoginService {
             user.setUnionId(jsCodeSessionResponse.getUnionid());
             userMapper.insert(user);
         }
-        String token = addTokenInCache(user,Platform.WeChat);
-        return Map.of("unionid", jsCodeSessionResponse.getUnionid(),"userInfo",user,"token",token);
+        String token = addTokenInCache(user, false);
+        return Map.of("unionid", jsCodeSessionResponse.getUnionid(), "userInfo", user, "token", token);
     }
 
     @Override
-    public Map<String,Object> getKeyForLogin(String studentId){
+    public Map<String, Object> getKeyForLogin(String studentId) {
+        studentId = studentId.toLowerCase();
+        if (studentId.isEmpty()) {
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "student id should not be empty");
+        }
+        if (!userMapper.exists(Wrappers.lambdaQuery(User.class)
+                .eq(User::getStudentId, studentId))) {
+            throw new LocalRunTimeException(ErrorEnum.STUDENT_NOT_BIND);
+        }
         //生成公钥密钥
-        Map<String,String> keyPair= RSAUtil.generateKey();
+        Map<String, String> keyPair = RSAUtil.generateKey();
         String publicKeyStr = keyPair.get("publicKeyStr");
         String privateKeyStr = keyPair.get("privateKeyStr");
-        redisUtil.set(LOGIN_KEY+studentId,privateKeyStr,LOGIN_KEY_EXPIRE);
-        return Map.of("expireIn",LOGIN_KEY_EXPIRE,
-                "str",publicKeyStr);
+        redisUtil.set(LOGIN_KEY + studentId, privateKeyStr, LOGIN_KEY_EXPIRE);
+        return Map.of("expireIn", LOGIN_KEY_EXPIRE,
+                "str", publicKeyStr);
     }
 
     @Override
     public Map<String, Object> getLoginTicket(String studentId) {
+        studentId = studentId.toLowerCase();
+        if (!userMapper.exists(Wrappers.lambdaQuery(User.class)
+                .eq(User::getStudentId, studentId))) {
+            throw new LocalRunTimeException(ErrorEnum.STUDENT_NOT_BIND);
+        }
         String ticket = TicketUtil.generateTicket();
-        redisUtil.set(LOGIN_TICKET+studentId,ticket,LOGIN_TICKET_EXPIRE);
-        return Map.of("expireIn",LOGIN_TICKET_EXPIRE,"ticket",ticket);
+        redisUtil.set(LOGIN_TICKET + studentId, ticket, LOGIN_TICKET_EXPIRE);
+        return Map.of("expireIn", LOGIN_TICKET_EXPIRE, "ticket", ticket);
     }
 
     @Override
     public Map<String, Object> checkTicket(String studentId, String ticket) {
-        String localTicket = (String) redisUtil.get(LOGIN_TICKET+studentId);
-        if(localTicket.equals(ticket)){
-            redisUtil.del(LOGIN_TICKET+studentId);
+        studentId = studentId.toLowerCase();
+        String localTicket = (String) redisUtil.get(LOGIN_TICKET + studentId);
+        if (localTicket.equals(ticket)) {
+            redisUtil.del(LOGIN_TICKET + studentId);
         }
         User user = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
-                .eq(User::getStudentId,studentId));
-        String token = addTokenInCache(user,Platform.SastLink);
+                .eq(User::getStudentId, studentId));
+        String token = addTokenInCache(user, false);
         return Map.of("token", token, "userInfo", user);
     }
 
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Map<String,Object> bindPassword(String studentId,String password){
-        String privateKeyStr = (String) redisUtil.get(LOGIN_KEY+studentId);
-        if(privateKeyStr == null||privateKeyStr.isEmpty()){
-            throw new LocalRunTimeException(ErrorEnum.LOGIN_EXPIRE,"login failed please try again");
+    public Map<String, Object> bindPassword(String studentId, String password) {
+        studentId = studentId.toLowerCase();
+        String privateKeyStr = (String) redisUtil.get(LOGIN_KEY + studentId);
+        if (privateKeyStr == null || privateKeyStr.isEmpty()) {
+            throw new LocalRunTimeException(ErrorEnum.LOGIN_EXPIRE, "login failed please try again");
         }
         try {
-            password = RSAUtil.decryptByPrivateKey(password,privateKeyStr);
+            password = RSAUtil.decryptByPrivateKey(password, privateKeyStr);
         } catch (Exception e) {
-            throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR,"login failed please try again");
+            throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR, "login failed please try again");
         }
         String salt = MD5Util.getSalt(5);
         User user = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
-                .eq(User::getStudentId,studentId));
-        if(user == null){
-            throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR,"please use wechat register first");
+                .eq(User::getStudentId, studentId));
+        if (user == null) {
+            throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR, "please register first");
         }
-        UserPassword userPassword = new UserPassword(null,studentId,MD5Util.md5Encode(password,salt),salt);
+        UserPassword userPassword = new UserPassword(null, studentId, MD5Util.md5Encode(password, salt), salt);
         userPasswordMapper.insert(userPassword);
-        String token = addTokenInCache(user,Platform.Password);
+        redisUtil.del(LOGIN_KEY + studentId);
+        String token = addTokenInCache(user, false);
         return Map.of("token", token, "userInfo", user);
     }
 
     @Override
-    public Map<String,Object> loginByPassword(String studentId,String password){
+    public Map<String, Object> loginByPassword(String studentId, String password) {
+        studentId = studentId.toLowerCase();
         checkPassword(studentId, password);
         User user = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
-                .eq(User::getStudentId,studentId));
-        String token = addTokenInCache(user,Platform.SastLink);
+                .eq(User::getStudentId, studentId));
+        redisUtil.del(LOGIN_KEY + studentId);
+        String token = addTokenInCache(user, false);
         return Map.of("token", token, "userInfo", user);
     }
 
     @Override
-    public void bindStudent(String userId,String studentId){
-        userMapper.bindStudentId(userId,studentId);
+    @Transactional(rollbackFor = Exception.class)
+    public Map<String, Object> bindStudentOnWechat(String userId, String studentId, Boolean force) {
+        //此时微信登陆成功已经默认创建新账号，需要将新账号删除并绑定至原有link账号
+        //查看本地是否存在此学号
+        User user = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
+                .eq(User::getStudentId, studentId).last("for update"));
+        if (user != null) {
+            //若已经存在,则使用第一个账号
+            if (force) {
+                User del = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
+                        .eq(User::getId,userId).last("for update"));
+                user.setOpenId(del.getOpenId());
+                user.setUnionId(del.getUnionId());
+                user.setStudentId(studentId);
+                userMapper.deleteById(userId);
+                userMapper.updateById(user);
+                String token = addTokenInCache(user, true);
+                return Map.of("token", token, "userInfo", user);
+            } else {
+                throw new LocalRunTimeException(ErrorEnum.STUDENT_HAS_BEEN_BIND, "force an overwrite on new account or cancel operation");
+            }
+        }
+        userMapper.bindStudentId(userId, studentId);
+        user = userMapper.selectById(userId);
+        String token = addTokenInCache(user, true);
+        return Map.of("token", token, "userInfo", user);
+
     }
 
     @Override
@@ -172,46 +233,54 @@ public class LoginServiceImpl implements LoginService {
         Object o = redisUtil.get(TOKEN + userId);
         if (o != null) {
             String localToken = String.valueOf(o);
-            if (!localToken.isEmpty()) {
+            if (localToken.equals(token)) {
                 return;
             }
         }
         throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "login has expired, please login first");
     }
 
-    private void setCommonInfo(User local,UserInfo userInfo){
+    private void setCommonInfo(User local, UserInfo userInfo) {
         local.setAvatar(userInfo.getAvatar());
         local.setEmail(userInfo.getEmail());
         local.setNickname(userInfo.getNickname());
-        local.setOrganization((userInfo.getOrg() == null||userInfo.getOrg().isEmpty())?null: Organization.valueOf(userInfo.getOrg()).getId());
+        local.setOrganization((userInfo.getOrg() == null || userInfo.getOrg().isEmpty()) ? null : Organization.valueOf(userInfo.getOrg()).getId());
         local.setBiography(userInfo.getBio());
         local.setLink(userInfo.getLink());
     }
 
-    private void checkPassword(String studentId,String password){
-        String privateKeyStr = (String) redisUtil.get(LOGIN_KEY+studentId);
-        if(privateKeyStr == null||privateKeyStr.isEmpty()){
-            throw new LocalRunTimeException(ErrorEnum.LOGIN_EXPIRE,"login failed please try again");
+    private void checkPassword(String studentId, String password) {
+        studentId = studentId.toLowerCase();
+        String privateKeyStr = (String) redisUtil.get(LOGIN_KEY + studentId);
+        if (privateKeyStr == null || privateKeyStr.isEmpty()) {
+            throw new LocalRunTimeException(ErrorEnum.LOGIN_EXPIRE, "login failed please try again");
         }
         try {
-            password = RSAUtil.decryptByPrivateKey(password,privateKeyStr);
+            password = RSAUtil.decryptByPrivateKey(password, privateKeyStr);
         } catch (Exception e) {
-            throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR,"login failed please try again");
+            throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR, "login failed please try again");
         }
         UserPassword userPassword = userPasswordMapper.selectOne(Wrappers.lambdaQuery(UserPassword.class)
-                .eq(UserPassword::getStudentId,studentId));
-        if(userPassword == null){
-            throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR,"please register first");
+                .eq(UserPassword::getStudentId, studentId));
+        if (userPassword == null) {
+            throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR, "please register first");
         }
-        if(!MD5Util.md5Encode(password,userPassword.getSalt()).equals(userPassword.getPassword())){
-            throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR,"error password");
+        if (!MD5Util.md5Encode(password, userPassword.getSalt()).equals(userPassword.getPassword())) {
+            throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR, "error password");
         }
     }
 
-    private String addTokenInCache(User user, Platform platform){
-        UserModel userModel =new UserModel(user.getId(),user.getStudentId(),user.getEmail(),platform.name());
+    private String addTokenInCache(User user, boolean update) {
+        UserModel userModel = new UserModel(user.getId(), user.getStudentId(), user.getEmail());
         String token = generateToken(userModel);
-        redisUtil.set(TOKEN + user.getId(), token, jwtUtil.expiration);
+        if (update) {
+            redisUtil.set(TOKEN + user.getId(), token, jwtUtil.expiration);
+        } else {
+            if (!redisUtil.setnx(TOKEN + user.getId(), token, jwtUtil.expiration, TimeUnit.SECONDS)) {
+                redisUtil.expire(TOKEN + user.getId(), jwtUtil.expiration);
+                token = (String) redisUtil.get(TOKEN + user.getId());
+            }
+        }
         return token;
     }
 
@@ -220,61 +289,6 @@ public class LoginServiceImpl implements LoginService {
         payload.put("user", JsonUtil.toJson(user));
         return jwtUtil.generateToken(payload);
     }
-
-    private User getUserFrom2Client(UserInfo userInfo){
-        User user = null;
-        //若存在两个匹配项优先使用link账号
-        //使用link登录时，若检测到已经存在一个wx账号，就直接合并到link的账号上
-        //若wx账号与link的wx账号不一致则为两个账号
-        if(getUserWeChatId(userInfo)!=null&&!getUserWeChatId(userInfo).isEmpty()) {
-            //从本地寻找匹配账号
-            List<User> userList = userMapper.selectList(Wrappers.lambdaQuery(User.class)
-                    .eq(User::getLinkId, userInfo.getUserId())
-                    .or(wrapper -> wrapper.eq(User::getOpenId, getUserWeChatId(userInfo))));
-            user = switch (userList.size()){
-                case 0 -> new User(userInfo);//直接使用link登录情况
-                case 1 -> {
-                    User local = userList.get(0);
-                    String localLinkId = local.getLinkId();
-                    if(localLinkId!=null&&localLinkId.equals(userInfo.getUserId())){
-                        setCommonInfo(local,userInfo);
-                        yield local;//使用link二次登录
-                    }
-                    String localOpenId = local.getOpenId();
-                    if(localOpenId!=null&&localOpenId.equals(getUserWeChatId(userInfo))){
-                        setCommonInfo(local,userInfo);
-                        local.setLinkId(localLinkId);
-                        yield local;//使用wx登录后转而使用link登录
-                    }
-                    throw new LocalRunTimeException(ErrorEnum.INTERNAL_SERVER_ERROR);
-                }
-                default -> userList.stream()
-                            .filter(u -> u.getLinkId().equals(userInfo.getUserId()))
-                            .findAny()
-                            .orElse(null);//使用link登录发现有wx和link分别对应两个及以上个账号
-            };
-        }else {
-        //从本地寻找匹配账号
-            User local = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
-                    .eq(User::getLinkId, userInfo.getUserId()));
-            String localLinkId = local.getLinkId();
-        String localOpenId = local.getOpenId();
-            if(localLinkId!=null&&localLinkId.equals(userInfo.getUserId())){
-                setCommonInfo(local,userInfo);//使用link二次登录
-            }
-            else if (localOpenId!=null&&localOpenId.equals(getUserWeChatId(userInfo))) {
-                setCommonInfo(local,userInfo);
-                local.setLinkId(localLinkId);//使用wx登录后转而使用link登录
-            }
-            user = local;
-        }
-        return user;
-    }
-
-    private String getUserWeChatId(UserInfo userInfo){
-        return null;
-    }
-
 
 
 }

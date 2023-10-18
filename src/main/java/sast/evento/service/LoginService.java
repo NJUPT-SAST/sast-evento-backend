@@ -1,5 +1,6 @@
 package sast.evento.service;
 
+import sast.evento.common.enums.Platform;
 import sast.sastlink.sdk.exception.SastLinkException;
 
 import java.util.Map;
@@ -13,7 +14,7 @@ public interface LoginService {
 
     void checkLoginState(String userId, String token);
 
-    void bindStudent(String userId, String studentId);
+    Map<String,Object> bindStudentOnWechat(String userId, String studentId, Boolean force);
 
     Map<String, Object> getKeyForLogin(String studentId);
 
