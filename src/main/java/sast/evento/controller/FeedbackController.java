@@ -8,10 +8,7 @@ import sast.evento.annotation.OperateLog;
 import sast.evento.common.enums.ActionState;
 import sast.evento.entitiy.User;
 import sast.evento.interceptor.HttpInterceptor;
-import sast.evento.model.FeedbackModel;
-import sast.evento.model.FeedbackNumModel;
-import sast.evento.model.FeedbacksDTO;
-import sast.evento.model.PageModel;
+import sast.evento.model.*;
 import sast.evento.service.FeedBackService;
 
 import java.util.List;
@@ -56,16 +53,16 @@ public class FeedbackController {
     public String addFeedback(@RequestParam(required = false) String content,
                               @RequestParam Double score,
                               @RequestParam Integer eventId) {
-        User user = HttpInterceptor.userHolder.get();
-        return feedBackService.addFeedback(user.getUserId(), content, score, eventId);
+        UserModel user = HttpInterceptor.userHolder.get();
+        return feedBackService.addFeedback(user.getId(), content, score, eventId);
     }
 
     @OperateLog("用户自己的获取反馈列表")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/user/list")
     public List<FeedbackModel> getListByUserId() {
-        User user = HttpInterceptor.userHolder.get();
-        return feedBackService.getListByUserId(user.getUserId());
+        UserModel user = HttpInterceptor.userHolder.get();
+        return feedBackService.getListByUserId(user.getId());
     }
 
     // 如果返回的是 null，那么表示用户没有反馈这个活动。
@@ -73,8 +70,8 @@ public class FeedbackController {
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/user/info")
     public FeedbackModel getUserFeedback(@RequestParam Integer eventId) {
-        User user = HttpInterceptor.userHolder.get();
-        return feedBackService.getFeedback(user.getUserId(), eventId);
+        UserModel user = HttpInterceptor.userHolder.get();
+        return feedBackService.getFeedback(user.getId(), eventId);
     }
 
     // 如果传进来的 content 为空，则清空数据库的 content 字段。（考虑到有人可能想清空反馈内容，所以这样设计）
@@ -85,16 +82,16 @@ public class FeedbackController {
     public String patchFeedback(@RequestParam(required = false) String content,
                                 @RequestParam(required = false) Double score,
                                 @RequestParam Integer feedbackId) {
-        User user = HttpInterceptor.userHolder.get();
-        return feedBackService.patchFeedback(user.getUserId(), feedbackId, content, score);
+        UserModel user = HttpInterceptor.userHolder.get();
+        return feedBackService.patchFeedback(user.getId(), feedbackId, content, score);
     }
 
     @OperateLog("用户删除反馈")
     @DefaultActionState(ActionState.LOGIN)
     @DeleteMapping("/info")
     public String deleteFeedback(@RequestParam Integer feedbackId) {
-        User user = HttpInterceptor.userHolder.get();
-        return feedBackService.deleteFeedback(user.getUserId(), feedbackId);
+        UserModel user = HttpInterceptor.userHolder.get();
+        return feedBackService.deleteFeedback(user.getId(), feedbackId);
     }
 
     @OperateLog("获取活动反馈列表（该活动的所有人的反馈）")

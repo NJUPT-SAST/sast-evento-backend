@@ -7,9 +7,9 @@ import sast.evento.annotation.DefaultActionState;
 import sast.evento.annotation.OperateLog;
 import sast.evento.common.enums.ActionState;
 import sast.evento.common.enums.ErrorEnum;
-import sast.evento.entitiy.User;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.interceptor.HttpInterceptor;
+import sast.evento.model.UserModel;
 import sast.evento.service.ImageService;
 
 import java.util.List;
@@ -40,7 +40,7 @@ public class PictureController {
     @PostMapping("/info")
     public String addPicture(@RequestParam(defaultValue = "") String dir,
                              MultipartFile picture) {
-        User user = HttpInterceptor.userHolder.get();
+        UserModel user = HttpInterceptor.userHolder.get();
         if (picture == null || picture.isEmpty()) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "picture file should not be empty");
         }

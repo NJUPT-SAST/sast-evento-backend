@@ -11,6 +11,7 @@ import sast.evento.common.enums.ErrorEnum;
 import sast.evento.entitiy.User;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.interceptor.HttpInterceptor;
+import sast.evento.model.UserModel;
 import sast.evento.service.CodeService;
 import sast.evento.service.ParticipateService;
 import sast.evento.utils.RedisUtil;
@@ -33,13 +34,13 @@ public class CheckInController {
     @ResponseBody
     public String CheckIn(@RequestParam @EventId Integer eventId,
                           @RequestParam String code) {
-        User user = HttpInterceptor.userHolder.get();
+        UserModel user = HttpInterceptor.userHolder.get();
         if (code.isEmpty() ){
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR,"code shouldn't be empty");
         }
 
         if (code.equals(codeService.getAuthCode(eventId))){
-            participateService.participate(user.getUserId(),eventId,true);
+            participateService.participate(user.getId(),eventId,true);
             return "签到成功";
         } else {
             throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"验证码不对");

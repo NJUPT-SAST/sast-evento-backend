@@ -3,6 +3,7 @@ package sast.evento.model.wxServiceDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 /**
  * @projectName: sast-evento-backend
@@ -12,10 +13,14 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccessTokenResponse {
+@Accessors(chain = true)
+public class StableTokenRequest {
 
-    private String access_token;
+    private String grant_type = "client_credential";
 
-    /* 任意时刻发起调用获取到的 stable_token 有效期至少为 5 分钟 */
-    private Integer expires_in;
+    private String appid;
+
+    private String secret;
+
+    private Boolean force_refresh = false;
 }

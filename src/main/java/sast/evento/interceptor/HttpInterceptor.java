@@ -17,8 +17,10 @@ import sast.evento.config.ActionRegister;
 import sast.evento.entitiy.User;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.model.Action;
+import sast.evento.model.UserModel;
 import sast.evento.service.LoginService;
 import sast.evento.service.PermissionService;
+import sast.evento.utils.JsonUtil;
 import sast.evento.utils.JwtUtil;
 import sast.sastlink.sdk.model.UserInfo;
 
@@ -37,7 +39,7 @@ import java.util.Optional;
  */
 @Component
 public class HttpInterceptor implements HandlerInterceptor {
-    public static ThreadLocal<User> userHolder = new ThreadLocal<>();
+    public static ThreadLocal<UserModel> userHolder = new ThreadLocal<>();
     @Resource
     private LoginService loginService;
     @Resource
@@ -55,7 +57,7 @@ public class HttpInterceptor implements HandlerInterceptor {
         if (method.getName().equals("error")) throw new LocalRunTimeException(ErrorEnum.INTERNAL_SERVER_ERROR);
         Action action = Optional.ofNullable(ActionRegister.actionName2action.get(method.getName()))
                 .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.METHOD_NOT_EXIST, "unsupported service"));
-        String userId = null;
+        UserModel user = null;
         switch (action.getActionState()) {
             /* 鉴权状态可拓展 */
             case INVISIBLE -> throw new LocalRunTimeException(ErrorEnum.METHOD_NOT_EXIST, "method inVisible");
@@ -64,13 +66,15 @@ public class HttpInterceptor implements HandlerInterceptor {
             }
             case LOGIN -> {
                 Map<String, Claim> map = jwtUtil.getClaims(token);
-                userId = map.get("user_id").asString();
-                loginService.checkLoginState(userId, token);
+                String userJson = map.get("user").asString();
+                user = JsonUtil.fromJson(userJson, UserModel.class);
+                loginService.checkLoginState(user.getId(), token);
             }
             case MANAGER -> {
                 Map<String, Claim> map = jwtUtil.getClaims(token);
-                userId = map.get("user_id").asString();
-                loginService.checkLoginState(userId, token);
+                String userJson = map.get("user").asString();
+                user = JsonUtil.fromJson(userJson, UserModel.class);
+                loginService.checkLoginState(user.getId(), token);
                 EventId eventAnno = Arrays.stream(Optional.ofNullable(method.getParameters()).orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "eventId param is needed")))
                         .filter(param -> AnnotatedElementUtils.hasAnnotation(param, EventId.class))
                         .findAny()
@@ -84,21 +88,24 @@ public class HttpInterceptor implements HandlerInterceptor {
                 } catch (NumberFormatException e) {
                     throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid eventId");
                 }
-                if (!permissionService.checkPermission(userId, eventId, action.getMethodName())) {
+                if (!permissionService.checkPermission(user.getId(), eventId, action.getMethodName())) {
                     throw new LocalRunTimeException(ErrorEnum.PERMISSION_ERROR);
                 }
             }
             case ADMIN -> {
                 Map<String, Claim> map = jwtUtil.getClaims(token);
-                userId = map.get("user_id").asString();
-                loginService.checkLoginState(userId, token);
-                if (!permissionService.checkPermission(userId, 0, action.getMethodName())) {
+                String userJson = map.get("user").asString();
+                user = JsonUtil.fromJson(userJson, UserModel.class);
+                loginService.checkLoginState(user.getId(), token);
+                if (!permissionService.checkPermission(user.getId(), 0, action.getMethodName())) {
                     throw new LocalRunTimeException(ErrorEnum.PERMISSION_ERROR);
                 }
             }
         }
-        UserInfo userInfo = loginService.getUserInfo(userId);
-        userHolder.set(new User(userInfo.getUserId(), userInfo.getWechatId(), userInfo.getEmail()));
+        if(user == null){
+            throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR,"cant check user login info");
+        }
+        userHolder.set(user);
         return true;
     }
 

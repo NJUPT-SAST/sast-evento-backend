@@ -14,4 +14,5 @@ import java.util.List;
 @Mapper
 public interface EventDepartmentMapper extends BaseMapper<EventDepartment> {
     void insertBatch(@Param("list") List<EventDepartment> eventDepartments);
+    List<EventDepartment> selectBatchDepartmentByEventIds(@Param("eventIds") List<Integer> eventIds);
 }

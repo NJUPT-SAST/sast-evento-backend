@@ -12,6 +12,7 @@ import sast.evento.job.WxSubscribeJob;
 import sast.evento.service.SubscribeMessageService;
 import sast.evento.utils.SchedulerUtil;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -62,7 +63,7 @@ public class SubscribeMessageServiceImpl implements SubscribeMessageService {
         if (isClose()) {
             throw new LocalRunTimeException(ErrorEnum.WX_SUBSCRIBE_ERROR, "Wx subscribe message service is close");
         }
-        String cron = SchedulerUtil.simpleDateFormat.format(startTime);
+        String cron = new SimpleDateFormat(SchedulerUtil.simpleDateFormatPattern).format(startTime);
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("eventId", eventId);
         String stringEventId = String.valueOf(eventId);
@@ -75,7 +76,7 @@ public class SubscribeMessageServiceImpl implements SubscribeMessageService {
         if (isClose()) {
             throw new LocalRunTimeException(ErrorEnum.WX_SUBSCRIBE_ERROR, "Wx subscribe message service is close");
         }
-        String cron = SchedulerUtil.simpleDateFormat.format(startTime);
+        String cron = new SimpleDateFormat(SchedulerUtil.simpleDateFormatPattern).format(startTime);
         if(!SchedulerUtil.resetJobTrigger(String.valueOf(eventId), triggerGroupName, cron)){
             addWxSubScribeJob(eventId,startTime);
         }

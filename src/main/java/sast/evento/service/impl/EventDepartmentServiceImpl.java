@@ -1,6 +1,7 @@
 package sast.evento.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import sast.evento.common.enums.ErrorEnum;
@@ -12,7 +13,9 @@ import sast.evento.mapper.EventDepartmentMapper;
 import sast.evento.service.EventDepartmentService;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: Love98
@@ -73,5 +76,18 @@ public class EventDepartmentServiceImpl implements EventDepartmentService {
         QueryWrapper<EventDepartment> eventDepartmentQueryWrapper = new QueryWrapper<>();
         eventDepartmentQueryWrapper.eq("event_id", eventId);
         return eventDepartmentMapper.delete(eventDepartmentQueryWrapper) > 0;
+    }
+
+    @Override
+    public Map<Integer, List<Department>> getEventDepartmentListMap(List<Integer> eventIds) {
+        List<EventDepartment> eventDepartments = eventDepartmentMapper.selectBatchDepartmentByEventIds(eventIds);
+        Map<Integer,List<Department>> res = new HashMap<>();
+        Map<Integer,Department> departmentMap = new HashMap<>();
+        for (EventDepartment eventDepartment: eventDepartments) {
+            List<Department> departments = res.computeIfAbsent(eventDepartment.getEventId(), k -> new ArrayList<>());
+            Department department = departmentMap.computeIfAbsent(eventDepartment.getDepartmentId(),k -> new Department(k, eventDepartment.getDepartmentName()));
+            departments.add(department);
+        }
+        return res;
     }
 }

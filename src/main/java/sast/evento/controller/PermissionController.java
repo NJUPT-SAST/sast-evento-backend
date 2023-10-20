@@ -11,8 +11,10 @@ import sast.evento.entitiy.User;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.interceptor.HttpInterceptor;
 import sast.evento.model.Action;
+import sast.evento.model.UserModel;
 import sast.evento.model.treeDataNodeDTO.TreeDataNode;
 import sast.evento.service.PermissionService;
+import sast.evento.service.UserService;
 
 import java.util.List;
 
@@ -22,6 +24,8 @@ import java.util.List;
 public class PermissionController {
     @Resource
     private PermissionService permissionService;
+    @Resource
+    private UserService userService;
 
     @OperateLog("获取所有后台管理权限")
     @DefaultActionState(ActionState.INVISIBLE)
@@ -55,8 +59,9 @@ public class PermissionController {
     @OperateLog("删除后台管理者")
     @DefaultActionState(value = ActionState.ADMIN, group = "permission")
     @DeleteMapping("/admin")
-    public String deleteAdmin(@RequestParam String userId) {
-        checkUserId(userId);
+    public String deleteAdmin(@RequestParam(required = false) String userId,
+                              @RequestParam(required = false) String studentId) {
+        userId = checkUser(userId, studentId);
         permissionService.deleteAdmin(userId);
         return "ok";
     }
@@ -72,8 +77,9 @@ public class PermissionController {
     @DefaultActionState(value = ActionState.ADMIN, group = "permission")
     @PostMapping("/admin")
     public String addAdmin(@RequestParam List<String> methodNames,
-                           @RequestParam String userId) {
-        checkUserId(userId);
+                           @RequestParam(required = false) String userId,
+                           @RequestParam(required = false) String studentId) {
+        userId = checkUser(userId, studentId);
         permissionService.addAdmin(methodNames, userId);
         return "ok";
     }
@@ -82,8 +88,9 @@ public class PermissionController {
     @DefaultActionState(value = ActionState.ADMIN, group = "permission")
     @PutMapping("/admin")
     public String putAdmin(@RequestParam List<String> methodNames,
-                           @RequestParam String userId) {
-        checkUserId(userId);
+                           @RequestParam(required = false) String userId,
+                           @RequestParam(required = false) String studentId) {
+        userId = checkUser(userId, studentId);
         permissionService.updateAdminPermission(methodNames, userId);
         return "ok";
     }
@@ -91,16 +98,18 @@ public class PermissionController {
     @OperateLog("获取用户具有后台管理权限")
     @DefaultActionState(ActionState.INVISIBLE)
     @GetMapping("/admin/user")
-    public List<Action> getUserAdminPermissions(@RequestParam String userId) {
-        checkUserId(userId);
+    public List<Action> getUserAdminPermissions(@RequestParam(required = false) String userId,
+                                                @RequestParam(required = false) String studentId) {
+        userId = checkUser(userId, studentId);
         return permissionService.getUserAdminPermissions(userId);
     }
 
     @OperateLog("获取用户具有的后台管理权限")
     @DefaultActionState(value = ActionState.ADMIN, group = "permission")
     @GetMapping("/admin/user/list")
-    public List<String> getUserAdminPermissAsList(@RequestParam String userId) {
-        checkUserId(userId);
+    public List<String> getUserAdminPermissAsList(@RequestParam(required = false) String userId,
+                                                  @RequestParam(required = false) String studentId) {
+        userId = checkUser(userId, studentId);
         return permissionService.getUserAdminPermissAsList(userId);
     }
 
@@ -108,9 +117,10 @@ public class PermissionController {
     @DefaultActionState(ActionState.INVISIBLE)
     @GetMapping("/event/manager/user")
     public List<Action> getUserManagerPermissions(@RequestParam @EventId Integer eventId,
-                                                  @RequestParam String userId) {
+                                                  @RequestParam(required = false) String userId,
+                                                  @RequestParam(required = false) String studentId) {
         checkEventId(eventId);
-        checkUserId(userId);
+        userId = checkUser(userId, studentId);
         return permissionService.getUserManagerPermissions(eventId, userId);
     }
 
@@ -118,9 +128,10 @@ public class PermissionController {
     @DefaultActionState(value = ActionState.MANAGER, group = "permission")
     @GetMapping("/event/manager/user/list")
     public List<String> getUserManagerPermissAsList(@RequestParam @EventId Integer eventId,
-                                                    @RequestParam String userId) {
+                                                    @RequestParam(required = false) String userId,
+                                                    @RequestParam(required = false) String studentId) {
         checkEventId(eventId);
-        checkUserId(userId);
+        userId = checkUser(userId, studentId);
         return permissionService.getUserManagerPermissAsList(eventId, userId);
     }
 
@@ -128,9 +139,10 @@ public class PermissionController {
     @DefaultActionState(value = ActionState.MANAGER, group = "permission")
     @DeleteMapping(value = "/event/manager")
     public String deleteManager(@RequestParam @EventId Integer eventId,
-                                @RequestParam String userId) {
+                                @RequestParam(required = false) String userId,
+                                @RequestParam(required = false) String studentId) {
         checkEventId(eventId);
-        checkUserId(userId);
+        userId = checkUser(userId, studentId);
         permissionService.deleteManager(eventId, userId);
         return "ok";
     }
@@ -140,9 +152,10 @@ public class PermissionController {
     @PutMapping(value = "/event/manager")
     public String putManager(@RequestParam List<String> methodNames,
                              @RequestParam @EventId Integer eventId,
-                             @RequestParam String userId) {
+                             @RequestParam(required = false) String userId,
+                             @RequestParam(required = false) String studentId) {
         checkEventId(eventId);
-        checkUserId(userId);
+        userId = checkUser(userId, studentId);
         permissionService.updateManagerPermission(eventId, methodNames, userId);
         return "ok";
     }
@@ -152,9 +165,10 @@ public class PermissionController {
     @PostMapping(value = "/event/manager")
     public String addManager(@RequestParam List<String> methodNames,
                              @RequestParam @EventId Integer eventId,
-                             @RequestParam String userId) {
+                             @RequestParam(required = false) String userId,
+                             @RequestParam(required = false) String studentId) {
         checkEventId(eventId);
-        checkUserId(userId);
+        userId = checkUser(userId, studentId);
         permissionService.addManager(eventId, methodNames, userId);
         return "ok";
     }
@@ -170,8 +184,9 @@ public class PermissionController {
     @OperateLog("获取用户具有哪些活动的管理权限")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping(value = "/manager/events")
-    public List<Integer> getManageEvent(@RequestParam String userId) {
-        checkUserId(userId);
+    public List<Integer> getManageEvent(@RequestParam(required = false) String userId,
+                                        @RequestParam(required = false) String studentId) {
+        userId = checkUser(userId, studentId);
         return permissionService.getManageEvent(userId);
     }
 
@@ -179,8 +194,8 @@ public class PermissionController {
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping(value = "/admin/self")
     public List<String> getSelfAdminPermission() {
-        User user = HttpInterceptor.userHolder.get();
-        return permissionService.getUserAdminPermissAsList(user.getUserId());
+        UserModel user = HttpInterceptor.userHolder.get();
+        return permissionService.getUserAdminPermissAsList(user.getId());
     }
 
     @OperateLog("获取用户自身活动管理权限用于条件渲染")
@@ -188,17 +203,25 @@ public class PermissionController {
     @GetMapping(value = "/event/manager/self")
     public List<String> getSelfManagerPermission(@RequestParam @EventId Integer eventId) {
         checkEventId(eventId);
-        User user = HttpInterceptor.userHolder.get();
-        return permissionService.getUserManagerPermissAsList(eventId, user.getUserId());
+        UserModel user = HttpInterceptor.userHolder.get();
+        return permissionService.getUserManagerPermissAsList(eventId, user.getId());
     }
 
-    void checkUserId(String userId) {
-        if (userId.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid userId");
+    private String checkUser(String userId,String studentId) {
+        if (userId != null && !userId.isEmpty()) {
+           return userId;
         }
+        if(studentId != null && !studentId.isEmpty()){
+            User user = userService.getUserByStudentId(studentId);
+            if(user.getId() == null){
+                throw new LocalRunTimeException(ErrorEnum.STUDENT_NOT_BIND);
+            }
+            return user.getId();
+        }
+        throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid userId or studentId");
     }
 
-    void checkEventId(Integer eventId) {
+    private void checkEventId(Integer eventId) {
         if (eventId == null || eventId <= 0) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid eventId, eventId should be greater than 0");
         }
