@@ -172,7 +172,7 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Map<String, Object> bindPassword(String studentId, String password) {
+    public void bindPassword(String studentId, String password) {
         studentId = studentId.toLowerCase();
         String privateKeyStr = (String) redisUtil.get(LOGIN_KEY + studentId);
         if (privateKeyStr == null || privateKeyStr.isEmpty()) {
@@ -184,16 +184,18 @@ public class LoginServiceImpl implements LoginService {
             throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR, "login failed please try again");
         }
         String salt = MD5Util.getSalt(5);
-        User user = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
-                .eq(User::getStudentId, studentId));
-        if (user == null) {
-            throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR, "please register first");
+        UserPassword userPassword = userPasswordMapper.selectOne(Wrappers.lambdaQuery(UserPassword.class)
+                .eq(UserPassword::getStudentId,studentId)
+                .last("for update"));
+        if(userPassword!=null){
+            userPassword.setPassword(password);
+            userPassword.setSalt(salt);
+            userPasswordMapper.updateById(userPassword);
+        }else {
+            userPassword = new UserPassword(null, studentId, MD5Util.md5Encode(password, salt), salt);
+            userPasswordMapper.insert(userPassword);
         }
-        UserPassword userPassword = new UserPassword(null, studentId, MD5Util.md5Encode(password, salt), salt);
-        userPasswordMapper.insert(userPassword);
         redisUtil.del(LOGIN_KEY + studentId);
-        String token = addTokenInCache(user, false);
-        return Map.of("token", token, "userInfo", user);
     }
 
     @Override

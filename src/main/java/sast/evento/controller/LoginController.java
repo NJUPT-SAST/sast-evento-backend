@@ -122,9 +122,10 @@ public class LoginController {
     @OperateLog("绑定密码")
     @PostMapping("/bind/password")
     @DefaultActionState(ActionState.LOGIN)
-    public Map<String, Object> bindPassword(@RequestParam String password) {
+    public String bindPassword(@RequestParam String password) {
         UserModel user = HttpInterceptor.userHolder.get();
-        return loginService.bindPassword(user.getStudentId(), password);
+        loginService.bindPassword(user.getStudentId(), password);
+        return "ok";
     }
 
     /**

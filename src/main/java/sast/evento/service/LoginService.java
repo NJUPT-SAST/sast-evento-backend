@@ -22,7 +22,7 @@ public interface LoginService {
 
     void checkTicket(String studentId, String ticket);
 
-    Map<String, Object> bindPassword(String studentId, String password);
+    void bindPassword(String studentId, String password);
 
     Map<String, Object> loginByPassword(String studentId, String password);
 
