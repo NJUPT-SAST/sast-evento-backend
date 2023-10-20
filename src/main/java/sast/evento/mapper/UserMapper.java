@@ -7,6 +7,5 @@ import sast.evento.entitiy.User;
 
 @Mapper
 public interface UserMapper extends BaseMapper<User> {
-    void ignoreInsertUser(@Param("user") User user);
     void bindStudentId(@Param("userId") String userId,@Param("studentId") String studentId);
 }
