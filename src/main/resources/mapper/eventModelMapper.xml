@@ -148,21 +148,14 @@
                e.state,
                t.id              AS type_id,
                t.type_name,
-               t.allow_conflict,
-               d.id              AS department_id,
-               d.department_name AS department_name
+               t.allow_conflict
         FROM event AS e
                  LEFT JOIN
              type AS t ON e.type_id = t.id
-                 LEFT JOIN
-             event_department AS ed ON e.id = ed.event_id
-                 LEFT JOIN
-             department AS d ON ed.department_id = d.id
                  JOIN
-             (SELECT id FROM event LIMIT #{index}, #{size}) AS e_ids ON e.id = e_ids.id
-
+             (SELECT id FROM event ORDER BY id DESC LIMIT #{index}, #{size} ) AS e_ids ON e.id = e_ids.id
                  LEFT JOIN
-             (SELECT COUNT(event.id) AS total FROM event) AS t ON 1 = 1;
+             (SELECT COUNT(event.id) AS total FROM event) AS t ON 1 = 1 ;
     </select>
 
     <!--    根据time选出活动列表获取活动列表    -->

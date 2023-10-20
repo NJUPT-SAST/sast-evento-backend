@@ -9,17 +9,24 @@ import sast.evento.common.enums.ActionState;
 import sast.evento.common.enums.ErrorEnum;
 import sast.evento.common.enums.EventState;
 import sast.evento.config.ActionRegister;
+import sast.evento.entitiy.Department;
 import sast.evento.entitiy.Event;
 import sast.evento.entitiy.Location;
 import sast.evento.exception.LocalRunTimeException;
-import sast.evento.mapper.*;
+import sast.evento.mapper.EventMapper;
+import sast.evento.mapper.EventModelMapper;
+import sast.evento.mapper.EventTypeMapper;
+import sast.evento.mapper.LocationMapper;
 import sast.evento.model.Action;
 import sast.evento.model.EventModel;
 import sast.evento.model.PageModel;
 import sast.evento.service.*;
 import sast.evento.utils.TimeUtil;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -102,12 +109,21 @@ public class EventServiceImpl implements EventService {
         if (page == null || page < 0 || size == null || size < 0) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
-
         Integer index = (page - 1) * size;
         PageModel<EventModel> res = eventModelMapper.getEvents(index, size);
+        if (res == null) {
+            res = new PageModel<>();
+            res.setTotal(0);
+            res.setResult(Collections.emptyList());
+        }
         Map<Integer, String> locationNameMap = locationService.getLocationStrMap();
         res.getResult()
                 .forEach(eventModel -> eventModel.setLocation(locationNameMap.get(eventModel.getLocationId())));
+        List<Integer> eventIds = res.getResult().stream()
+                .map(EventModel::getId).toList();
+        Map<Integer, List<Department>> departmentsMap = eventDepartmentService.getEventDepartmentListMap(eventIds);
+        res.getResult()
+                .forEach(eventModel -> eventModel.setDepartments(departmentsMap.get(eventModel.getId())));
         return res;
     }
 
