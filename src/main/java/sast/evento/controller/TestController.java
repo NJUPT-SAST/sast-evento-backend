@@ -16,9 +16,9 @@ import sast.sastlink.sdk.service.SastLinkService;
 @RestController
 @RequestMapping("/test")
 public class TestController {
-    @Value("${test.challenge}")
+    @Value("${test.challenge:}")
     private String challenge;
-    @Value("${test.method}")
+    @Value("${test.method:}")
     private String method;
 
     @Resource
@@ -28,6 +28,9 @@ public class TestController {
     @DefaultActionState(ActionState.PUBLIC)
     @PostMapping("/linklogin")
     public String linkLogin(@RequestParam String email,@RequestParam String password){
+        if(challenge.isEmpty()||method.isEmpty()){
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR);
+        }
         try {
             String token = sastLinkService.login(email,password);
             return sastLinkService.authorize(token,challenge,method);
