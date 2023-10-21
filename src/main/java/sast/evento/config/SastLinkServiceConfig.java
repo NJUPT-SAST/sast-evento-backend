@@ -32,6 +32,13 @@ public class SastLinkServiceConfig {
     @Value("${sast-link-web.client-secret-web}")
     private String clientSecret_web;
 
+    @Value("${sast-link-mobile-dev.redirect-uri-mobile-dev}")
+    private String redirectUri_mobile_dev;
+    @Value("${sast-link-mobile-dev.client-id-mobile-dev}")
+    private String clientId_mobile_dev;
+    @Value("${sast-link-mobile-dev.client-secret-mobile-dev}")
+    private String clientSecret_mobile_dev;
+
     @Bean
     public SastLinkService sastLinkService() {
         return RestTemplateSastLinkService.Builder()
@@ -49,6 +56,17 @@ public class SastLinkServiceConfig {
                 .setRedirectUri(redirectUri_web)
                 .setClientId(clientId_web)
                 .setClientSecret(clientSecret_web)
+                .setCodeVerifier(codeVerifier)
+                .setHostName(linkPath)
+                .build();
+    }
+
+    @Bean
+    public SastLinkService sastLinkServiceMobileDev() {
+        return RestTemplateSastLinkService.Builder()
+                .setRedirectUri(redirectUri_mobile_dev)
+                .setClientId(clientId_mobile_dev)
+                .setClientSecret(clientSecret_mobile_dev)
                 .setCodeVerifier(codeVerifier)
                 .setHostName(linkPath)
                 .build();
