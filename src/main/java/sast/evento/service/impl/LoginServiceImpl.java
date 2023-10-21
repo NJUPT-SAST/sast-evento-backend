@@ -40,6 +40,8 @@ public class LoginServiceImpl implements LoginService {
     @Resource
     private SastLinkService sastLinkServiceWeb;
     @Resource
+    private SastLinkService sastLinkServiceMobileDev;
+    @Resource
     private UserMapper userMapper;
     @Resource
     private UserPasswordMapper userPasswordMapper;
@@ -64,6 +66,7 @@ public class LoginServiceImpl implements LoginService {
         SastLinkService service = switch (type) {
             case 0 -> sastLinkService;
             case 1 -> sastLinkServiceWeb;
+            case 2 -> sastLinkServiceMobileDev;
             default -> throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "error link client type value: " + type);
         };
         AccessTokenResponse accessTokenResponse = service.accessToken(code);
