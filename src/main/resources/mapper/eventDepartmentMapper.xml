@@ -12,7 +12,7 @@
     <select id="selectBatchDepartmentByEventIds" parameterType="list" resultType="sast.evento.entitiy.EventDepartment">
         SELECT ed.id, ed.event_id, ed.department_id , d.department_name
         from event_department ed LEFT JOIN department d on d.id = ed.department_id
-        where ed.id IN (
+        where ed.event_id IN (
         <foreach collection="eventIds" item="item" index="index" separator=",">
             #{item}
         </foreach>
