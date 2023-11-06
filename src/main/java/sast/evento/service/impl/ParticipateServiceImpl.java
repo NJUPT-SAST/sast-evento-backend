@@ -11,6 +11,8 @@ import sast.evento.exception.LocalRunTimeException;
 import sast.evento.mapper.ParticipateMapper;
 import sast.evento.service.ParticipateService;
 
+import static net.sf.jsqlparser.util.validation.metadata.NamedObject.user;
+
 /**
  * @projectName: sast-evento-backend
  * @author: mio
@@ -151,8 +153,10 @@ public class ParticipateServiceImpl implements ParticipateService {
         if (userId == null || eventId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
-        return participateMapper.selectOne(new LambdaQueryWrapper<Participate>()
-                .eq(Participate::getUserId,userId)
-                .and(wrapper -> wrapper.eq(Participate::getEventId,eventId)));
+        Participate userparticipate = participateMapper.selectOne(new LambdaQueryWrapper<Participate>()
+                .eq(Participate::getUserId, userId)
+                .and(wrapper -> wrapper.eq(Participate::getEventId, eventId)));
+        //id不会被json序列化，所以随便传了个
+        return userparticipate != null ? userparticipate : new Participate(1, false, false, false, userId, eventId);
     }
 }
