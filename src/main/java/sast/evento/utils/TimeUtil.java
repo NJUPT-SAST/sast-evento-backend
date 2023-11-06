@@ -43,7 +43,6 @@ public class TimeUtil {
      */
     public List<Date> getDateOfMonday(String time) {
         Calendar date = validTime(time);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         // 设置每周的第一天为星期一
         date.setFirstDayOfWeek(Calendar.MONDAY);
         // 获得当前日期是一个星期的第几天

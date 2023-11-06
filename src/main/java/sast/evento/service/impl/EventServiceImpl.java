@@ -380,12 +380,12 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventModel> postForEvents(List<Integer> typeId, List<Integer> departmentId, String time) {
-        // 如果time为空，则将time赋值为今天的日期
-        if (time.isEmpty()) {
-            time = timeUtil.getTime();
+        String today = timeUtil.getTime();
+        List<Date> date = timeUtil.getDateOfMonday(today);
+        // 如果time不为空，则将date起始日期改为time所设置的日期
+        if (!time.isEmpty()) {
+            date.set(0,timeUtil.validTime(time).getTime());
         }
-
-        List<Date> date = timeUtil.getDateOfMonday(time);
         if (typeId.isEmpty()) {
             if (departmentId.isEmpty()) {
                 return eventModelMapper.getEventByTime(date.get(0), date.get(1));
