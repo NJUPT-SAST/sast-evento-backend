@@ -2,6 +2,7 @@ package sast.evento.controller;
 
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,11 +15,12 @@ import sast.evento.exception.LocalRunTimeException;
 import sast.sastlink.sdk.service.SastLinkService;
 
 @RestController
+@ConditionalOnProperty(prefix = "test",name = "challenge")
 @RequestMapping("/test")
 public class TestController {
-    @Value("${test.challenge:}")
+    @Value("${test.challenge}")
     private String challenge;
-    @Value("${test.method:}")
+    @Value("${test.method}")
     private String method;
 
     @Resource
