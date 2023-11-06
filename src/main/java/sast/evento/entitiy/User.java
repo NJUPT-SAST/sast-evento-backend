@@ -1,14 +1,14 @@
 package sast.evento.entitiy;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.servlet.annotation.HandlesTypes;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import sast.evento.utils.JsonUtil;
 import sast.sastlink.sdk.enums.Organization;
 import sast.sastlink.sdk.model.UserInfo;
 
@@ -48,8 +48,8 @@ public class User {
     @JsonAlias("bio")
     @TableField("bio")
     private String biography;
-
-    private String link;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<String> link;
 
     public User(UserInfo userInfo){
         this.linkId = userInfo.getUserId();
