@@ -18,7 +18,7 @@ import sast.evento.utils.*;
 import sast.sastlink.sdk.enums.Organization;
 import sast.sastlink.sdk.exception.SastLinkException;
 import sast.sastlink.sdk.model.UserInfo;
-import sast.sastlink.sdk.model.response.AccessTokenResponse;
+import sast.sastlink.sdk.model.response.AccessTokenData;
 import sast.sastlink.sdk.service.SastLinkService;
 
 import java.util.HashMap;
@@ -69,8 +69,8 @@ public class LoginServiceImpl implements LoginService {
             case 2 -> sastLinkServiceMobileDev;
             default -> throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "error link client type value: " + type);
         };
-        AccessTokenResponse accessTokenResponse = service.accessToken(code);
-        UserInfo userInfo = service.userInfo(accessTokenResponse.getAccess_token());
+        AccessTokenData accessTokenData = service.accessToken(code);
+        UserInfo userInfo = service.userInfo(accessTokenData.getAccess_token());
         User user = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
                 .eq(User::getLinkId, userInfo.getUserId()));
         //查看学号是否冲突，若冲突则绑定至wx账号
@@ -188,13 +188,13 @@ public class LoginServiceImpl implements LoginService {
         }
         String salt = MD5Util.getSalt(5);
         UserPassword userPassword = userPasswordMapper.selectOne(Wrappers.lambdaQuery(UserPassword.class)
-                .eq(UserPassword::getStudentId,studentId)
+                .eq(UserPassword::getStudentId, studentId)
                 .last("for update"));
-        if(userPassword!=null){
+        if (userPassword != null) {
             userPassword.setPassword(password);
             userPassword.setSalt(salt);
             userPasswordMapper.updateById(userPassword);
-        }else {
+        } else {
             userPassword = new UserPassword(null, studentId, MD5Util.md5Encode(password, salt), salt);
             userPasswordMapper.insert(userPassword);
         }
