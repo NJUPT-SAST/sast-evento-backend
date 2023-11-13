@@ -33,8 +33,9 @@ public class UserController {
     @OperateLog("获取个人信息")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/info")
-    public User getUser(@RequestParam String userId) {
-        return userService.getUserById(userId);
+    public User getUser() {
+        UserModel user = HttpInterceptor.userHolder.get();
+        return userService.getUserById(user.getId());
     }
 
     @OperateLog("更改个人信息")
