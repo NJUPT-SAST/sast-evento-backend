@@ -62,7 +62,8 @@ public class LoginServiceImpl implements LoginService {
      */
 
     @Override
-    public Map<String, Object> linkLogin(String code, Integer type) throws SastLinkException {
+    @Transactional
+    public Map<String, Object> linkLogin(String code, Integer type, Boolean updateUser) throws SastLinkException {
         SastLinkService service = switch (type) {
             case 0 -> sastLinkService;
             case 1 -> sastLinkServiceWeb;
@@ -73,28 +74,34 @@ public class LoginServiceImpl implements LoginService {
         UserInfo userInfo = service.userInfo(accessTokenData.getAccess_token());
         User user = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
                 .eq(User::getLinkId, userInfo.getUserId()));
-        //查看学号是否冲突，若冲突则绑定至wx账号
         if (user == null) {
-            //查看有对应学号的账号
+            //若无对应用户，查看是否存在有对应学号的账号
             User origin = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
                     .eq(User::getStudentId, userInfo.getUserId()));
             if (origin != null) {
+                //学号已经存在，直接绑定到该学号账号上
                 origin.setLinkId(userInfo.getUserId());
                 origin.setStudentId(userInfo.getUserId());
                 userMapper.updateById(origin);
+                user = origin;
             } else {
+                //学号也不存在，创建新的账号
                 user = new User();
                 setCommonInfo(user, userInfo);
                 user.setLinkId(userInfo.getUserId());
                 user.setStudentId(userInfo.getUserId());//link默认直接绑定学号
                 userMapper.insert(user);
             }
+        } else if(updateUser){
+            setCommonInfo(user,userInfo);
+            userMapper.updateById(user);
         }
         String token = addTokenInCache(user, false);
         return Map.of("token", token, "userInfo", user);
     }
 
     @Override
+    @Transactional
     public Map<String, Object> wxLogin(String code) {
         //没有学号冲突的风险
         JsCodeSessionResponse jsCodeSessionResponse = wxService.login(code);

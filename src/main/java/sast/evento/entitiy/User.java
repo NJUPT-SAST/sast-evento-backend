@@ -1,6 +1,7 @@
 package sast.evento.entitiy;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.extension.handlers.GsonTypeHandler;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -22,7 +23,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName(value = "user")
+@TableName(value = "user",autoResultMap = true)
 public class User {
     @TableId(value = "id",type = IdType.ASSIGN_ID)
     private String id;
@@ -48,7 +49,7 @@ public class User {
     @JsonAlias("bio")
     @TableField("bio")
     private String biography;
-    @TableField(typeHandler = JacksonTypeHandler.class)
+    @TableField(value = "link",typeHandler = JacksonTypeHandler.class)
     private List<String> link;
 
     public User(UserInfo userInfo){
