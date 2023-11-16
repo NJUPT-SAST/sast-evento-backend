@@ -80,7 +80,6 @@ public class WxServiceImpl implements WxService {
             throw new LocalRunTimeException(ErrorEnum.WX_SERVICE_ERROR, "null response from wx");
         }
         JsCodeSessionResponse jsCodeSessionResponse = JsonUtil.fromJson(text, JsCodeSessionResponse.class);
-        System.out.println(text);
         if (jsCodeSessionResponse == null ||!jsCodeSessionResponse.getErrmsg().isEmpty()) {
             log.error("error get userInfo: " + text);
             throw new LocalRunTimeException(ErrorEnum.WX_SERVICE_ERROR, "error get userInfo from WeChat");
