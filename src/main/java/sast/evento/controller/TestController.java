@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -61,9 +62,11 @@ public class TestController {
     @OperateLog("addPermissionForTest")
     @DefaultActionState(ActionState.LOGIN)
     @PostMapping("/permission")
+    @Transactional
     public String permission(@RequestParam ActionState type,
                              @RequestParam(required = false) Integer eventId,
                              @RequestParam(required = false) List<String> permission) {
+        //异常丑陋的代码，随他去吧，反正是测试用的（
         UserModel userModel = HttpInterceptor.userHolder.get();
         final List<String> adminPermission = ActionRegister.actionName2action.values().stream()
                 .filter(a -> a.getActionState().equals(ActionState.ADMIN))
@@ -71,21 +74,44 @@ public class TestController {
         final List<String> managerPermission = ActionRegister.actionName2action.values().stream()
                 .filter(a -> a.getActionState().equals(ActionState.MANAGER))
                 .map(Action::getMethodName).toList();
-        switch (type) {
-            case ADMIN ->
-                    permissionService.addAdmin(Objects.requireNonNullElse(permission, adminPermission), userModel.getId());
-            case MANAGER -> {
-                if (eventMapper.exists(Wrappers.lambdaQuery(Event.class).eq(Event::getId, eventId))) {
-                    permissionService.addManager(eventId, Objects.requireNonNullElse(permission, managerPermission), userModel.getId());
-                } else {
-                    return "no such event";
+        if(!permissionService.getUserAdminPermissions(userModel.getId()).isEmpty()){
+            switch (type) {
+                case ADMIN ->{
+                    List<String> addedPermission = permission.isEmpty()?adminPermission:permission;
+                    permissionService.addAdmin(addedPermission, userModel.getId());
+                }
+                case MANAGER -> {
+                    if (eventMapper.exists(Wrappers.lambdaQuery(Event.class).eq(Event::getId, eventId))) {
+                        List<String> addedPermission = permission.isEmpty()?managerPermission:permission;
+                        permissionService.addManager(eventId, addedPermission, userModel.getId());
+                    } else {
+                        return "no such event";
+                    }
+                }
+                default -> {
+                    return "error type";
                 }
             }
-            default -> {
-                return "error type";
+            return "ok";
+        }else {
+            switch (type) {
+                case ADMIN ->{
+                    List<String> addedPermission = permission.isEmpty()?adminPermission:permission;
+                    permissionService.updateAdminPermission(addedPermission, userModel.getId());
+                }
+                case MANAGER -> {
+                    if (eventMapper.exists(Wrappers.lambdaQuery(Event.class).eq(Event::getId, eventId))) {
+                        List<String> addedPermission = permission.isEmpty()?managerPermission:permission;
+                        permissionService.updateManagerPermission(eventId, addedPermission, userModel.getId());
+                    } else {
+                        return "no such event";
+                    }
+                }
+                default -> {
+                    return "error type";
+                }
             }
+            return "ok";
         }
-        return "ok";
     }
-
 }

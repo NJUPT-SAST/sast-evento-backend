@@ -85,10 +85,7 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public void updateAdminPermission(List<String> methodNames, String userId) {
-        System.out.println(methodNames);
-        System.out.println(defaultManagerPermission);
         methodNames.addAll(defaultManagerPermission);
-
         Permission permission = new Permission(null, 0, userId, methodNames, null);
         permissionServiceCacheAble.updatePermission(permission);
     }
