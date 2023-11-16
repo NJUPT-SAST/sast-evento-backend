@@ -24,7 +24,6 @@ import sast.evento.service.PermissionService;
 import sast.sastlink.sdk.service.SastLinkService;
 
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @ConditionalOnProperty(prefix = "test", name = "challenge")
@@ -74,44 +73,32 @@ public class TestController {
         final List<String> managerPermission = ActionRegister.actionName2action.values().stream()
                 .filter(a -> a.getActionState().equals(ActionState.MANAGER))
                 .map(Action::getMethodName).toList();
-        if(!permissionService.getUserAdminPermissions(userModel.getId()).isEmpty()){
-            switch (type) {
-                case ADMIN ->{
-                    List<String> addedPermission = permission.isEmpty()?adminPermission:permission;
+        switch (type) {
+            case ADMIN -> {
+                List<String> addedPermission = permission.isEmpty() ? adminPermission : permission;
+                if (permissionService.getUserAdminPermissions(userModel.getId()).isEmpty()) {
                     permissionService.addAdmin(addedPermission, userModel.getId());
-                }
-                case MANAGER -> {
-                    if (eventMapper.exists(Wrappers.lambdaQuery(Event.class).eq(Event::getId, eventId))) {
-                        List<String> addedPermission = permission.isEmpty()?managerPermission:permission;
-                        permissionService.addManager(eventId, addedPermission, userModel.getId());
-                    } else {
-                        return "no such event";
-                    }
-                }
-                default -> {
-                    return "error type";
-                }
-            }
-            return "ok";
-        }else {
-            switch (type) {
-                case ADMIN ->{
-                    List<String> addedPermission = permission.isEmpty()?adminPermission:permission;
+                } else {
                     permissionService.updateAdminPermission(addedPermission, userModel.getId());
                 }
-                case MANAGER -> {
-                    if (eventMapper.exists(Wrappers.lambdaQuery(Event.class).eq(Event::getId, eventId))) {
-                        List<String> addedPermission = permission.isEmpty()?managerPermission:permission;
-                        permissionService.updateManagerPermission(eventId, addedPermission, userModel.getId());
+            }
+            case MANAGER -> {
+                if (eventMapper.exists(Wrappers.lambdaQuery(Event.class).eq(Event::getId, eventId))) {
+                    List<String> addedPermission = permission.isEmpty() ? managerPermission : permission;
+                    if (permissionService.getUserManagerPermissions(eventId, userModel.getId()).isEmpty()) {
+                        permissionService.addManager(eventId, addedPermission, userModel.getId());
                     } else {
-                        return "no such event";
+                        permissionService.updateManagerPermission(eventId, addedPermission, userModel.getId());
                     }
-                }
-                default -> {
-                    return "error type";
+                } else {
+                    return "no such event";
                 }
             }
-            return "ok";
+            default -> {
+                return "error type";
+            }
         }
+        return "ok";
     }
+
 }
