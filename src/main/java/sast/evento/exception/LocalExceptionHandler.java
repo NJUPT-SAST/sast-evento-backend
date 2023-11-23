@@ -6,6 +6,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpServerErrorException;
 import sast.evento.common.enums.ErrorEnum;
 import sast.evento.response.GlobalResponse;
 
@@ -52,6 +53,11 @@ public class LocalExceptionHandler {
     public <T> GlobalResponse<T> handlerSQLIntegrityConstraintViolationException(SQLIntegrityConstraintViolationException e) {
         ErrorEnum error = ErrorEnum.PARAM_ERROR;
         return GlobalResponse.failure(error,error.getErrMsg() + ", id out of range or key information repeated");
+    }
+
+    @ExceptionHandler(HttpServerErrorException.class)
+    public <T> GlobalResponse<T> handlerHttpServerErrorException(HttpServerErrorException e) {
+        return GlobalResponse.failure(e);
     }
 
 }

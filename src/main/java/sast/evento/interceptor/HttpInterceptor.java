@@ -5,16 +5,17 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 import sast.evento.annotation.EventId;
 import sast.evento.common.enums.ErrorEnum;
 import sast.evento.config.ActionRegister;
-import sast.evento.entitiy.User;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.model.Action;
 import sast.evento.model.UserModel;
@@ -22,7 +23,6 @@ import sast.evento.service.LoginService;
 import sast.evento.service.PermissionService;
 import sast.evento.utils.JsonUtil;
 import sast.evento.utils.JwtUtil;
-import sast.sastlink.sdk.model.UserInfo;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -54,7 +54,7 @@ public class HttpInterceptor implements HandlerInterceptor {
         }
         Method method = ((HandlerMethod) handler).getMethod();
         String token = request.getHeader("TOKEN");
-        if (method.getName().equals("error")) throw new LocalRunTimeException(ErrorEnum.INTERNAL_SERVER_ERROR);
+        if (method.getName().equals("error")) return resolveHttpError(response);
         Action action = Optional.ofNullable(ActionRegister.actionName2action.get(method.getName()))
                 .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.METHOD_NOT_EXIST, "unsupported service"));
         UserModel user = null;
@@ -102,11 +102,19 @@ public class HttpInterceptor implements HandlerInterceptor {
                 }
             }
         }
-        if(user == null){
-            throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR,"cant check user login info");
+        if (user == null) {
+            throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR, "cant check user login info");
         }
         userHolder.set(user);
         return true;
+    }
+
+    private boolean resolveHttpError(HttpServletResponse response) {
+        HttpStatus status = HttpStatus.resolve(response.getStatus());
+        if (status != null) {
+            throw new HttpServerErrorException(status);
+        }
+        return false;
     }
 
     @Override
