@@ -197,11 +197,11 @@ public class SchedulerUtil {
 
     public static void startScheduler() throws SchedulerException {
         Scheduler scheduler = getScheduler();
-        if (scheduler.isShutdown()) {
+        if (!scheduler.isStarted()) {
             scheduler.start();
             log.info("Scheduler start.");
         } else {
-            log.info("Scheduler has start.");
+            log.warn("Scheduler has start.");
         }
     }
 
