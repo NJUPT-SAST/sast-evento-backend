@@ -6,7 +6,8 @@
     <resultMap id="user" type="sast.evento.entitiy.User" autoMapping="true">
         <result column="org" property="organization"/>
         <result column="bio" property="biography"/>
-        <result column="link" property="link" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="link" property="link"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
     </resultMap>
 
     <select id="getUserHasPermissionByEvent" resultMap="user">
@@ -29,5 +30,4 @@
         where user_id = #{user_id}
           and event_id = #{event_id}
     </update>
-
 </mapper>
