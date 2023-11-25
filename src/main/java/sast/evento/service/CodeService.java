@@ -5,5 +5,5 @@ import java.awt.image.BufferedImage;
 public interface CodeService{
 
     /* 获取code */
-    String getAuthCode(Integer eventId);
+    Integer getEventIdFromAuthCode(String code);
 }
