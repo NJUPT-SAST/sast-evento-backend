@@ -4,7 +4,9 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="sast.evento.mapper.PermissionMapper">
     <resultMap id="user" type="sast.evento.entitiy.User" autoMapping="true">
-        <result column="id" property="id"/>
+        <result column="org" property="organization"/>
+        <result column="bio" property="biography"/>
+        <result column="link" property="link" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
     </resultMap>
 
     <select id="getUserHasPermissionByEvent" resultMap="user">
