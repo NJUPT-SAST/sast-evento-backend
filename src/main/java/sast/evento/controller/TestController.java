@@ -24,8 +24,6 @@ import sast.evento.model.UserModel;
 import sast.evento.service.PermissionService;
 import sast.sastlink.sdk.service.SastLinkService;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,6 +39,10 @@ public class TestController {
     @Resource
     private SastLinkService sastLinkService;
     @Resource
+    private SastLinkService sastLinkServiceWeb;
+    @Resource
+    private SastLinkService sastLinkServiceMobileDev;
+    @Resource
     private PermissionService permissionService;
     @Resource
     private PermissionMapper permissionMapper;
@@ -51,14 +53,21 @@ public class TestController {
     @OperateLog("link登录")
     @DefaultActionState(ActionState.PUBLIC)
     @PostMapping("/linklogin")
-    public String linkLogin(@RequestParam String email,
+    public String linkLogin(@RequestParam Integer type,
+                            @RequestParam String email,
                             @RequestParam String password) {
+        SastLinkService service = switch (type) {
+            case 0 -> sastLinkService;
+            case 1 -> sastLinkServiceWeb;
+            case 2 -> sastLinkServiceMobileDev;
+            default -> throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "error link client type value: " + type);
+        };
         if (challenge.isEmpty() || method.isEmpty()) {
             throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR);
         }
         try {
-            String token = sastLinkService.login(email, password);
-            return sastLinkService.authorize(token, challenge, method);
+            String token = service.login(email, password);
+            return service.authorize(token, challenge, method);
         } catch (Exception e) {
             throw new LocalRunTimeException(ErrorEnum.SAST_LINK_SERVICE_ERROR, e.getMessage());
         }

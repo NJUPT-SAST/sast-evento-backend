@@ -1,5 +1,6 @@
 package sast.evento.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import sast.evento.entitiy.User;
 import sast.evento.model.Action;
 import sast.evento.model.treeDataNodeDTO.TreeDataNode;
@@ -20,7 +21,7 @@ public interface PermissionService {
 
     void deleteAdmin(String userId);
 
-    List<User> getAdmins();
+    Page<User> getAdmins(Integer num, Integer size);
 
     void updateAdminPermission(List<String> methodNames, String userId);
 
@@ -32,7 +33,7 @@ public interface PermissionService {
 
     void deleteManager(Integer eventId, String userId);
 
-    List<User> getManagers(Integer eventId);
+    Page<User> getManagers(Integer eventId,Integer num,Integer size);
 
     void updateManagerPermission(Integer eventId, List<String> methodNames, String userId);
 
