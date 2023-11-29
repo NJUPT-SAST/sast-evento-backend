@@ -73,9 +73,8 @@ public class PermissionServiceCacheAbleImpl implements PermissionServiceCacheAbl
     @CachePut(value = "permission", key = "#permission.userId +#permission.eventId")
     public Permission updatePermission(Permission permission) {
         checkValidMethods(permission);
-        permission.updateUpTime();
+        permission.updateUpTime().setId(null);
         permissionMapper.update(permission, Wrappers.lambdaUpdate(Permission.class)
-                .set(Permission::getMethodNames,permission.getMethodNames()).and(wrapper -> wrapper.set(Permission::getUpdateTime,permission.getUpdateTime()))
                 .eq(Permission::getUserId,permission.getUserId()).and(wrapper -> wrapper.eq(Permission::getEventId,permission.getEventId())));
         return permission;
     }
