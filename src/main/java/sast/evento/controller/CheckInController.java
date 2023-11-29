@@ -51,7 +51,7 @@ public class CheckInController {
         //generate a random number between 9999 and 99999
         int authcode = (int) ((Math.random() * 9 + 1) * 10000);
         //save the authcode to Redis,expire in 3 minutes
-        redisUtil.set("AUTHCODE:" + authcode,eventId, 60 * 3, TimeUnit.SECONDS);
+        redisUtil.set("AUTHCODE:" + authcode, eventId.toString(), 60 * 3, TimeUnit.SECONDS);
         return Integer.toString(authcode);
     }
 

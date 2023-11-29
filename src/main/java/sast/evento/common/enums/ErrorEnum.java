@@ -26,7 +26,7 @@ public enum ErrorEnum {
     EVENT_NOT_EXIST(1008,"event not exist"),
     /* 登录异常 */
     LOGIN_ERROR(1009,"login failed"),
-    LOGIN_EXPIRE(1010,"login expire"),
+    LOGIN_EXPIRE(1010,"login expired"),
     NOT_REGISTER(1011,"user info not exist please register first"),
 
     /* 其他服务错误 */
