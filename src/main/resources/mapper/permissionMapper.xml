@@ -3,29 +3,5 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="sast.evento.mapper.PermissionMapper">
-    <resultMap id="user" type="sast.evento.entitiy.User" autoMapping="true">
-        <result column="id" property="userId"/>
-    </resultMap>
-
-    <select id="getUserHasPermissionByEvent" resultMap="user">
-        select u.*
-        from permission p
-                 join user u on u.id = p.user_id
-        where event_id = #{eventId}
-    </select>
-
-    <select id="getManageEvent" resultType="java.lang.Integer">
-        select event_id
-        from permission
-        where user_id = #{userId}
-    </select>
-
-    <update id="updatePermission">
-        update permission
-        set all_method_name = #{all_method_name},
-            gmt_update      = #{update_time,jdbcType=TIMESTAMP}
-        where user_id = #{user_id}
-          and event_id = #{event_id}
-    </update>
 
 </mapper>
