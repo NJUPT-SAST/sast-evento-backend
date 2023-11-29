@@ -168,7 +168,7 @@ public class LoginServiceImpl implements LoginService {
                 .eq(UserPassword::getStudentId, studentId)
                 .last("for update"));
         if (userPassword != null) {
-            userPassword.setPassword(password);
+            userPassword.setPassword(MD5Util.md5Encode(password, salt));
             userPassword.setSalt(salt);
             userPasswordMapper.updateById(userPassword);
         } else {
