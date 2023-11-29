@@ -184,21 +184,13 @@ public class LoginServiceImpl implements LoginService {
     @Transactional(rollbackFor = Exception.class)
     public void bindPassword(String studentId, String password) {
         studentId = studentId.toLowerCase();
-        String privateKeyStr = (String) redisUtil.get(LOGIN_KEY + studentId);
-        if (privateKeyStr == null || privateKeyStr.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.LOGIN_EXPIRE, "login failed please try again");
-        }
-        try {
-            password = RSAUtil.decryptByPrivateKey(password, privateKeyStr);
-        } catch (Exception e) {
-            throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR, "login failed please try again");
-        }
+        password = decryptPassword(studentId,password);
         String salt = MD5Util.getSalt(5);
         UserPassword userPassword = userPasswordMapper.selectOne(Wrappers.lambdaQuery(UserPassword.class)
                 .eq(UserPassword::getStudentId, studentId)
                 .last("for update"));
         if (userPassword != null) {
-            userPassword.setPassword(password);
+            userPassword.setPassword(MD5Util.md5Encode(password, salt));
             userPassword.setSalt(salt);
             userPasswordMapper.updateById(userPassword);
         } else {
@@ -281,15 +273,7 @@ public class LoginServiceImpl implements LoginService {
 
     private void checkPassword(String studentId, String password) {
         studentId = studentId.toLowerCase();
-        String privateKeyStr = (String) redisUtil.get(LOGIN_KEY + studentId);
-        if (privateKeyStr == null || privateKeyStr.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.LOGIN_EXPIRE, "login failed please try again");
-        }
-        try {
-            password = RSAUtil.decryptByPrivateKey(password, privateKeyStr);
-        } catch (Exception e) {
-            throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR, "login failed please try again");
-        }
+        password = decryptPassword(studentId,password);
         UserPassword userPassword = userPasswordMapper.selectOne(Wrappers.lambdaQuery(UserPassword.class)
                 .eq(UserPassword::getStudentId, studentId));
         if (userPassword == null) {
@@ -320,5 +304,17 @@ public class LoginServiceImpl implements LoginService {
         return jwtUtil.generateToken(payload);
     }
 
-
+    // 使用密钥解密密码
+    private String decryptPassword(String studentId, String password){
+        String privateKeyStr = (String) redisUtil.get(LOGIN_KEY + studentId);
+        if (privateKeyStr == null || privateKeyStr.isEmpty()) {
+            throw new LocalRunTimeException(ErrorEnum.LOGIN_EXPIRE, "login expired please try again");
+        }
+        try {
+            password = RSAUtil.decryptByPrivateKey(password, privateKeyStr);
+        } catch (Exception e) {
+            throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR, "login failed please try again");
+        }
+        return password;
+    }
 }
