@@ -19,10 +19,12 @@ public class CodeServiceImpl implements CodeService {
 
     @Override
     public Integer getEventIdFromAuthCode(String code) {
-        Integer eventid = (Integer) redisUtil.get("AUTHCODE:" + code);
-        if (eventid == null) {
-            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "验证码不存在或已过期");
+        String eventId = (String) redisUtil.get("AUTHCODE:" + code);
+        if (eventId == null ){
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"auth-code not exists or has expired");
         }
+        Integer eventid =  Integer.valueOf(eventId);
+        System.out.println(eventid);
         return eventid;
     }
 }
