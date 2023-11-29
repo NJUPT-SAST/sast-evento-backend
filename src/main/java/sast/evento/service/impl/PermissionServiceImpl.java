@@ -92,7 +92,7 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public void updateAdminPermission(List<String> methodNames, String userId) {
-        methodNames.addAll(defaultManagerPermission);
+        methodNames.addAll(defaultAdminPermission);
         Permission permission = new Permission(null, 0, userId, methodNames, null);
         permissionServiceCacheAble.updatePermission(permission);
     }

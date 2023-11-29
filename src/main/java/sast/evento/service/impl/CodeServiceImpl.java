@@ -18,11 +18,11 @@ public class CodeServiceImpl implements CodeService {
     private RedisUtil redisUtil;
 
     @Override
-    public String getAuthCode(Integer eventId) {
-        String authcode = (String) redisUtil.get("AUTHCODE:" + eventId);
-        if (authcode == null) {
+    public Integer getEventIdFromAuthCode(String code) {
+        Integer eventid = (Integer) redisUtil.get("AUTHCODE:" + code);
+        if (eventid == null) {
             throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "验证码不存在或已过期");
         }
-        return authcode;
+        return eventid;
     }
 }
