@@ -22,7 +22,8 @@ import sast.evento.mapper.PermissionMapper;
 import sast.evento.model.Action;
 import sast.evento.model.UserModel;
 import sast.evento.service.PermissionService;
-import sast.sastlink.sdk.service.SastLinkService;
+import sast.sastlink.sdk.test.RestTemplateTestSastLinkService;
+import sast.sastlink.sdk.test.data.Token;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,11 +38,11 @@ public class TestController {
     private String method;
 
     @Resource
-    private SastLinkService sastLinkService;
+    private RestTemplateTestSastLinkService sastLinkService;
     @Resource
-    private SastLinkService sastLinkServiceWeb;
+    private RestTemplateTestSastLinkService sastLinkServiceWeb;
     @Resource
-    private SastLinkService sastLinkServiceMobileDev;
+    private RestTemplateTestSastLinkService sastLinkServiceMobileDev;
     @Resource
     private PermissionService permissionService;
     @Resource
@@ -56,7 +57,7 @@ public class TestController {
     public String linkLogin(@RequestParam Integer type,
                             @RequestParam String email,
                             @RequestParam String password) {
-        SastLinkService service = switch (type) {
+        RestTemplateTestSastLinkService service = switch (type) {
             case 0 -> sastLinkService;
             case 1 -> sastLinkServiceWeb;
             case 2 -> sastLinkServiceMobileDev;
@@ -66,8 +67,8 @@ public class TestController {
             throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR);
         }
         try {
-            String token = service.login(email, password);
-            return service.authorize(token, challenge, method);
+            Token token = service.login(email, password);
+            return service.authorize(token.getLoginToken(), challenge, method);
         } catch (Exception e) {
             throw new LocalRunTimeException(ErrorEnum.SAST_LINK_SERVICE_ERROR, e.getMessage());
         }
