@@ -15,10 +15,9 @@ import sast.evento.model.wxServiceDTO.JsCodeSessionResponse;
 import sast.evento.service.LoginService;
 import sast.evento.service.WxService;
 import sast.evento.utils.*;
-import sast.sastlink.sdk.enums.Organization;
 import sast.sastlink.sdk.exception.SastLinkException;
 import sast.sastlink.sdk.model.UserInfo;
-import sast.sastlink.sdk.model.response.AccessTokenData;
+import sast.sastlink.sdk.model.response.data.AccessToken;
 import sast.sastlink.sdk.service.SastLinkService;
 
 import java.util.HashMap;
@@ -68,8 +67,8 @@ public class LoginServiceImpl implements LoginService {
             case 2 -> sastLinkServiceMobileDev;
             default -> throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "error link client type value: " + type);
         };
-        AccessTokenData accessTokenData = service.accessToken(code);
-        UserInfo userInfo = service.userInfo(accessTokenData.getAccess_token());
+        AccessToken accessToken = service.accessToken(code);
+        UserInfo userInfo = service.user(accessToken.getAccessToken());
         User user = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
                 .eq(User::getLinkId, userInfo.getUserId()));
         if (user == null) {
@@ -90,8 +89,8 @@ public class LoginServiceImpl implements LoginService {
                 user.setStudentId(userInfo.getUserId());//link默认直接绑定学号
                 userMapper.insert(user);
             }
-        } else if(updateUser){
-            setCommonInfo(user,userInfo);
+        } else if (updateUser) {
+            setCommonInfo(user, userInfo);
             userMapper.updateById(user);
         }
         String token = addTokenInCache(user, false);
@@ -242,7 +241,7 @@ public class LoginServiceImpl implements LoginService {
         local.setAvatar(userInfo.getAvatar());
         local.setEmail(userInfo.getEmail());
         local.setNickname(userInfo.getNickname());
-        local.setOrganization((userInfo.getOrg() == null || userInfo.getOrg().isEmpty()) ? null : Organization.valueOf(userInfo.getOrg()).getId());
+        local.setOrganization(userInfo.getOrg());
         local.setBiography(userInfo.getBio());
         local.setLink(userInfo.getLink());
     }

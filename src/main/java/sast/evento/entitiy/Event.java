@@ -9,7 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import sast.evento.common.enums.EventState;
-import sast.evento.common.enums.EventStateTypeHandler;
+import sast.evento.common.typehandler.EventStateTypeHandler;
 import sast.evento.model.EventModel;
 
 import java.util.Date;
