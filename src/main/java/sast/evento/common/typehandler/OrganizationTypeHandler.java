@@ -13,21 +13,26 @@ public class OrganizationTypeHandler extends BaseTypeHandler<String> {
 
     @Override
     public void setNonNullParameter(PreparedStatement preparedStatement, int i, String s, JdbcType jdbcType) throws SQLException {
-        preparedStatement.setInt(i, Organization.getByStr(s).getId());
+        Organization org = Organization.getByStr(s);
+        Integer res = org == null ? null : org.getId();
+        preparedStatement.setObject(i, res, 4);
     }
 
     @Override
     public String getNullableResult(ResultSet resultSet, String s) throws SQLException {
-        return Organization.getById(resultSet.getInt(s)).getOrg();
+        Object o = resultSet.getObject(s);
+        return o == null ? null : Organization.getById((Integer) o).getOrg();
     }
 
     @Override
     public String getNullableResult(ResultSet resultSet, int i) throws SQLException {
-        return Organization.getById(resultSet.getInt(i)).getOrg();
+        Object o = resultSet.getObject(i);
+        return o == null ? null : Organization.getById((Integer) o).getOrg();
     }
 
     @Override
     public String getNullableResult(CallableStatement callableStatement, int i) throws SQLException {
-        return Organization.getById(callableStatement.getInt(i)).getOrg();
+        Object o = callableStatement.getObject(i);
+        return o == null ? null : Organization.getById((Integer) o).getOrg();
     }
 }
