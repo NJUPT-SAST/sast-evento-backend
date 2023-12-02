@@ -213,7 +213,7 @@ public class PermissionController {
         }
         if(studentId != null && !studentId.isEmpty()){
             User user = userService.getUserByStudentId(studentId);
-            if(user.getId() == null){
+            if(user == null || user.getId() == null){
                 throw new LocalRunTimeException(ErrorEnum.STUDENT_NOT_BIND);
             }
             return user.getId();
