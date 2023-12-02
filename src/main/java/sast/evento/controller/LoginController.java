@@ -104,18 +104,6 @@ public class LoginController {
     }
 
     /**
-     * 获取使用密码登录时加密使用的RSA公钥
-     * @param studentId 学号
-     * @return Map
-     */
-    @OperateLog("获取key")
-    @GetMapping("/login/key")
-    @DefaultActionState(ActionState.PUBLIC)
-    public Map<String, Object> getKey(@RequestParam String studentId){
-        return loginService.getKeyForLogin(studentId);
-    }
-
-    /**
      * 给已经使用第三方登陆的用户绑定密码或者修改密码
      * @param password 密码
      * @return Map

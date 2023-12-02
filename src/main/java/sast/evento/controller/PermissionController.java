@@ -1,5 +1,6 @@
 package sast.evento.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 import sast.evento.annotation.DefaultActionState;
@@ -17,6 +18,7 @@ import sast.evento.service.PermissionService;
 import sast.evento.service.UserService;
 
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -69,8 +71,10 @@ public class PermissionController {
     @OperateLog("获取后台管理者列表")
     @DefaultActionState(value = ActionState.ADMIN, group = "permission")
     @GetMapping("/admins")
-    public List<User> getAdmins() {
-        return permissionService.getAdmins();
+    public Map<String, Object> getAdmins(@RequestParam(required = false,defaultValue = "1")Integer current,
+                                         @RequestParam(required = false,defaultValue = "10")Integer size) {
+        Page<User> userPage = permissionService.getAdmins(current, size);
+        return Map.of("users", userPage.getRecords(), "total", userPage.getTotal());
     }
 
     @OperateLog("添加后台管理者")
@@ -176,9 +180,12 @@ public class PermissionController {
     @OperateLog("获取活动管理者列表")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping(value = "/event/managers")
-    public List<User> getManagers(@RequestParam @EventId Integer eventId) {
+    public Map<String, Object> getManagers(@RequestParam @EventId Integer eventId,
+                                           @RequestParam(required = false,defaultValue = "1")Integer current,
+                                           @RequestParam(required = false,defaultValue = "10")Integer size) {
         checkEventId(eventId);
-        return permissionService.getManagers(eventId);
+        Page<User> userPage = permissionService.getManagers(eventId, current, size);
+        return Map.of("users", userPage.getRecords(), "total", userPage.getTotal());
     }
 
     @OperateLog("获取用户具有哪些活动的管理权限")
@@ -207,11 +214,11 @@ public class PermissionController {
         return permissionService.getUserManagerPermissAsList(eventId, user.getId());
     }
 
-    private String checkUser(String userId,String studentId) {
+    private String checkUser(String userId, String studentId) {
         if (userId != null && !userId.isEmpty()) {
-           return userId;
+            return userId;
         }
-        if(studentId != null && !studentId.isEmpty()){
+        if (studentId != null && !studentId.isEmpty()) {
             User user = userService.getUserByStudentId(studentId);
             if(user == null || user.getId() == null){
                 throw new LocalRunTimeException(ErrorEnum.STUDENT_NOT_BIND);

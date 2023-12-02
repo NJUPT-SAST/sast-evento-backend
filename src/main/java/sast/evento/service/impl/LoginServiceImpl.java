@@ -15,10 +15,9 @@ import sast.evento.model.wxServiceDTO.JsCodeSessionResponse;
 import sast.evento.service.LoginService;
 import sast.evento.service.WxService;
 import sast.evento.utils.*;
-import sast.sastlink.sdk.enums.Organization;
 import sast.sastlink.sdk.exception.SastLinkException;
 import sast.sastlink.sdk.model.UserInfo;
-import sast.sastlink.sdk.model.response.AccessTokenData;
+import sast.sastlink.sdk.model.response.data.AccessToken;
 import sast.sastlink.sdk.service.SastLinkService;
 
 import java.util.HashMap;
@@ -51,10 +50,8 @@ public class LoginServiceImpl implements LoginService {
     private JwtUtil jwtUtil;
     @Resource
     private RedisUtil redisUtil;
-    private static final String LOGIN_KEY = "rsa:";
     private static final String LOGIN_TICKET = "ticket:";
     private static final String LOGIN_SUCCESS = "login:";
-    private static final long LOGIN_KEY_EXPIRE = 600;
     private static final long LOGIN_TICKET_EXPIRE = 600;
 
     /**
@@ -70,8 +67,8 @@ public class LoginServiceImpl implements LoginService {
             case 2 -> sastLinkServiceMobileDev;
             default -> throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "error link client type value: " + type);
         };
-        AccessTokenData accessTokenData = service.accessToken(code);
-        UserInfo userInfo = service.userInfo(accessTokenData.getAccess_token());
+        AccessToken accessToken = service.accessToken(code);
+        UserInfo userInfo = service.user(accessToken.getAccessToken());
         User user = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
                 .eq(User::getLinkId, userInfo.getUserId()));
         if (user == null) {
@@ -92,8 +89,8 @@ public class LoginServiceImpl implements LoginService {
                 user.setStudentId(userInfo.getUserId());//link默认直接绑定学号
                 userMapper.insert(user);
             }
-        } else if(updateUser){
-            setCommonInfo(user,userInfo);
+        } else if (updateUser) {
+            setCommonInfo(user, userInfo);
             userMapper.updateById(user);
         }
         String token = addTokenInCache(user, false);
@@ -119,25 +116,6 @@ public class LoginServiceImpl implements LoginService {
         }
         String token = addTokenInCache(user, false);
         return Map.of("unionid", jsCodeSessionResponse.getUnionid(), "userInfo", user, "token", token);
-    }
-
-    @Override
-    public Map<String, Object> getKeyForLogin(String studentId) {
-        studentId = studentId.toLowerCase();
-        if (studentId.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "student id should not be empty");
-        }
-        if (!userMapper.exists(Wrappers.lambdaQuery(User.class)
-                .eq(User::getStudentId, studentId))) {
-            throw new LocalRunTimeException(ErrorEnum.STUDENT_NOT_BIND);
-        }
-        //生成公钥密钥
-        Map<String, String> keyPair = RSAUtil.generateKey();
-        String publicKeyStr = keyPair.get("publicKeyStr");
-        String privateKeyStr = keyPair.get("privateKeyStr");
-        redisUtil.set(LOGIN_KEY + studentId, privateKeyStr, LOGIN_KEY_EXPIRE);
-        return Map.of("expireIn", LOGIN_KEY_EXPIRE,
-                "str", publicKeyStr);
     }
 
     //未登录展示保持连接并等待（检查Ticket更改状态）
@@ -184,28 +162,18 @@ public class LoginServiceImpl implements LoginService {
     @Transactional(rollbackFor = Exception.class)
     public void bindPassword(String studentId, String password) {
         studentId = studentId.toLowerCase();
-        String privateKeyStr = (String) redisUtil.get(LOGIN_KEY + studentId);
-        if (privateKeyStr == null || privateKeyStr.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.LOGIN_EXPIRE, "login failed please try again");
-        }
-        try {
-            password = RSAUtil.decryptByPrivateKey(password, privateKeyStr);
-        } catch (Exception e) {
-            throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR, "login failed please try again");
-        }
         String salt = MD5Util.getSalt(5);
         UserPassword userPassword = userPasswordMapper.selectOne(Wrappers.lambdaQuery(UserPassword.class)
                 .eq(UserPassword::getStudentId, studentId)
                 .last("for update"));
         if (userPassword != null) {
-            userPassword.setPassword(password);
+            userPassword.setPassword(MD5Util.md5Encode(password, salt));
             userPassword.setSalt(salt);
             userPasswordMapper.updateById(userPassword);
         } else {
             userPassword = new UserPassword(null, studentId, MD5Util.md5Encode(password, salt), salt);
             userPasswordMapper.insert(userPassword);
         }
-        redisUtil.del(LOGIN_KEY + studentId);
     }
 
     @Override
@@ -214,7 +182,6 @@ public class LoginServiceImpl implements LoginService {
         checkPassword(studentId, password);
         User user = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
                 .eq(User::getStudentId, studentId));
-        redisUtil.del(LOGIN_KEY + studentId);
         String token = addTokenInCache(user, false);
         return Map.of("token", token, "userInfo", user);
     }
@@ -274,22 +241,13 @@ public class LoginServiceImpl implements LoginService {
         local.setAvatar(userInfo.getAvatar());
         local.setEmail(userInfo.getEmail());
         local.setNickname(userInfo.getNickname());
-        local.setOrganization((userInfo.getOrg() == null || userInfo.getOrg().isEmpty()) ? null : Organization.valueOf(userInfo.getOrg()).getId());
+        local.setOrganization(userInfo.getOrg());
         local.setBiography(userInfo.getBio());
         local.setLink(userInfo.getLink());
     }
 
     private void checkPassword(String studentId, String password) {
         studentId = studentId.toLowerCase();
-        String privateKeyStr = (String) redisUtil.get(LOGIN_KEY + studentId);
-        if (privateKeyStr == null || privateKeyStr.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.LOGIN_EXPIRE, "login failed please try again");
-        }
-        try {
-            password = RSAUtil.decryptByPrivateKey(password, privateKeyStr);
-        } catch (Exception e) {
-            throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR, "login failed please try again");
-        }
         UserPassword userPassword = userPasswordMapper.selectOne(Wrappers.lambdaQuery(UserPassword.class)
                 .eq(UserPassword::getStudentId, studentId));
         if (userPassword == null) {

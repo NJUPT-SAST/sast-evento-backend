@@ -16,7 +16,7 @@
         <result property="location" column="location"/>
         <result property="tag" column="tag"/>
         <result property="state" column="state" javaType="sast.evento.common.enums.EventState"
-                typeHandler="sast.evento.common.enums.EventStateTypeHandler"/>
+                typeHandler="sast.evento.common.typehandler.EventStateTypeHandler"/>
         <association property="eventType" javaType="sast.evento.entitiy.EventType">
             <id property="id" column="type_id"/>
             <result property="typeName" column="type_name"/>

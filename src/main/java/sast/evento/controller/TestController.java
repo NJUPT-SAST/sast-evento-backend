@@ -22,10 +22,9 @@ import sast.evento.mapper.PermissionMapper;
 import sast.evento.model.Action;
 import sast.evento.model.UserModel;
 import sast.evento.service.PermissionService;
-import sast.sastlink.sdk.service.SastLinkService;
+import sast.sastlink.sdk.test.RestTemplateTestSastLinkService;
+import sast.sastlink.sdk.test.data.Token;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,7 +38,11 @@ public class TestController {
     private String method;
 
     @Resource
-    private SastLinkService sastLinkService;
+    private RestTemplateTestSastLinkService sastLinkService;
+    @Resource
+    private RestTemplateTestSastLinkService sastLinkServiceWeb;
+    @Resource
+    private RestTemplateTestSastLinkService sastLinkServiceMobileDev;
     @Resource
     private PermissionService permissionService;
     @Resource
@@ -51,14 +54,21 @@ public class TestController {
     @OperateLog("link登录")
     @DefaultActionState(ActionState.PUBLIC)
     @PostMapping("/linklogin")
-    public String linkLogin(@RequestParam String email,
+    public String linkLogin(@RequestParam Integer type,
+                            @RequestParam String email,
                             @RequestParam String password) {
+        RestTemplateTestSastLinkService service = switch (type) {
+            case 0 -> sastLinkService;
+            case 1 -> sastLinkServiceWeb;
+            case 2 -> sastLinkServiceMobileDev;
+            default -> throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "error link client type value: " + type);
+        };
         if (challenge.isEmpty() || method.isEmpty()) {
             throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR);
         }
         try {
-            String token = sastLinkService.login(email, password);
-            return sastLinkService.authorize(token, challenge, method);
+            Token token = service.login(email, password);
+            return service.authorize(token.getLoginToken(), challenge, method);
         } catch (Exception e) {
             throw new LocalRunTimeException(ErrorEnum.SAST_LINK_SERVICE_ERROR, e.getMessage());
         }
