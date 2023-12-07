@@ -44,6 +44,8 @@ public class DepartmentServiceImpl implements DepartmentService {
     public void deleteDepartment(Integer departmentId) {
         eventDepartmentMapper.delete(Wrappers.lambdaQuery(EventDepartment.class)
                 .eq(EventDepartment::getDepartmentId, departmentId));
+        subscribeDepartmentMapper.delete(Wrappers.lambdaQuery(UserDepartmentSubscribe.class)
+                .eq(UserDepartmentSubscribe::getDepartmentId, departmentId));
         departmentMapper.deleteById(departmentId);
     }
 
