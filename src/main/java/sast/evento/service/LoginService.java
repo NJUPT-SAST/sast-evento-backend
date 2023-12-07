@@ -15,8 +15,6 @@ public interface LoginService {
 
     Map<String, Object> bindStudentOnWechat(String userId, String studentId, Boolean force);
 
-    Map<String, Object> getKeyForLogin(String studentId);
-
     Map<String, Object> getLoginTicket(String studentId, String ticket);
 
     void checkTicket(String studentId, String ticket);

@@ -1,5 +1,7 @@
 package sast.evento.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import sast.evento.common.enums.ActionState;
@@ -15,6 +17,7 @@ import sast.evento.service.PermissionService;
 import sast.evento.service.PermissionServiceCacheAble;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @projectName: sast-evento-backend
@@ -79,8 +82,12 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
-    public List<User> getAdmins() {
-        return permissionMapper.getUserHasPermissionByEvent(0);
+    public Page<User> getAdmins(Integer num,Integer size) {
+        List<String> userIds =  permissionMapper.selectList(Wrappers.lambdaQuery(Permission.class)
+                        .eq(Permission::getEventId,0)).stream()
+                .map(Permission::getUserId).toList();
+        return userMapper.selectPage(new Page<>(num,size),Wrappers.lambdaQuery(User.class)
+                .in(User::getId,userIds));
     }
 
     @Override
@@ -118,8 +125,12 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
-    public List<User> getManagers(Integer eventId) {
-        return permissionMapper.getUserHasPermissionByEvent(eventId);
+    public Page<User> getManagers(Integer eventId,Integer num,Integer size) {
+        List<String> userIds =  permissionMapper.selectList(Wrappers.lambdaQuery(Permission.class)
+                .eq(Permission::getEventId,eventId)).stream()
+                .map(Permission::getUserId).toList();
+        return userMapper.selectPage(new Page<>(num,size),Wrappers.lambdaQuery(User.class)
+                .in(User::getId,userIds));
     }
 
     @Override
@@ -146,7 +157,9 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public List<Integer> getManageEvent(String userId) {
-        return permissionMapper.getManageEvent(userId).stream()
+        return permissionMapper.selectList(Wrappers.lambdaQuery(Permission.class)
+                .eq(Permission::getUserId,userId)).stream()
+                .map(Permission::getEventId)
                 .filter(integer -> !integer.equals(0))
                 .toList();
     }

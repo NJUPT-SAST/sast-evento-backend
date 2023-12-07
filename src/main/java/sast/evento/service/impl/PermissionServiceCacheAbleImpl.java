@@ -1,6 +1,7 @@
 package sast.evento.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import jakarta.annotation.Resource;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -72,10 +73,9 @@ public class PermissionServiceCacheAbleImpl implements PermissionServiceCacheAbl
     @CachePut(value = "permission", key = "#permission.userId +#permission.eventId")
     public Permission updatePermission(Permission permission) {
         checkValidMethods(permission);
-        permissionMapper.updatePermission(permission.getUserId(),
-                permission.getEventId(),
-                JsonUtil.toJson(permission.getMethodNames()),
-                permission.updateUpTime().getUpdateTime());
+        permission.updateUpTime().setId(null);
+        permissionMapper.update(permission, Wrappers.lambdaUpdate(Permission.class)
+                .eq(Permission::getUserId,permission.getUserId()).and(wrapper -> wrapper.eq(Permission::getEventId,permission.getEventId())));
         return permission;
     }
 }

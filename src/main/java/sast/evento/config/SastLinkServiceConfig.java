@@ -3,9 +3,8 @@ package sast.evento.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestTemplate;
 import sast.sastlink.sdk.service.SastLinkService;
-import sast.sastlink.sdk.service.impl.RestTemplateSastLinkService;
+import sast.sastlink.sdk.test.RestTemplateTestSastLinkService;
 
 /**
  * @projectName: sast-evento-backend
@@ -41,7 +40,7 @@ public class SastLinkServiceConfig {
 
     @Bean
     public SastLinkService sastLinkService() {
-        return RestTemplateSastLinkService.Builder()
+        return RestTemplateTestSastLinkService.builder()
                 .setRedirectUri(redirectUri)
                 .setClientId(clientId)
                 .setClientSecret(clientSecret)
@@ -52,7 +51,7 @@ public class SastLinkServiceConfig {
 
     @Bean
     public SastLinkService sastLinkServiceWeb() {
-        return RestTemplateSastLinkService.Builder()
+        return RestTemplateTestSastLinkService.builder()
                 .setRedirectUri(redirectUri_web)
                 .setClientId(clientId_web)
                 .setClientSecret(clientSecret_web)
@@ -63,7 +62,7 @@ public class SastLinkServiceConfig {
 
     @Bean
     public SastLinkService sastLinkServiceMobileDev() {
-        return RestTemplateSastLinkService.Builder()
+        return RestTemplateTestSastLinkService.builder()
                 .setRedirectUri(redirectUri_mobile_dev)
                 .setClientId(clientId_mobile_dev)
                 .setClientSecret(clientSecret_mobile_dev)
