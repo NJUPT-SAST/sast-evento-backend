@@ -1,5 +1,6 @@
 package sast.evento.common.enums;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import sast.evento.exception.LocalRunTimeException;
 
 import java.util.Arrays;
@@ -25,6 +26,7 @@ public enum EventState {
                 .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "Invalid event_state value"));
     }
 
+    @JsonValue
     public Integer getState() {
         return state;
     }
