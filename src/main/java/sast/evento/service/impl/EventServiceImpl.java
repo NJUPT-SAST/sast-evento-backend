@@ -383,9 +383,11 @@ public class EventServiceImpl implements EventService {
     public List<EventModel> postForEvents(List<Integer> typeId, List<Integer> departmentId, String time) {
         String today = timeUtil.getTime();
         List<Date> date = timeUtil.getDateOfMonday(today);
-        // 如果time不为空，则将date起始日期改为time所设置的日期
+        // 如果time不为空，则将date起始日期改为time所设置的日期，结束日期设为无限大，获取的不是Date最大时间而是MySQL中datetime最大时间
         if (!time.isEmpty()) {
             date.set(0,timeUtil.validTime(time).getTime());
+            final Date FINAL_DATE = timeUtil.validTime("9999-12-31").getTime();
+            date.set(1,FINAL_DATE);
         }
         if (typeId.isEmpty()) {
             if (departmentId.isEmpty()) {
