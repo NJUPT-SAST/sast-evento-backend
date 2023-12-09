@@ -3,6 +3,7 @@ package sast.evento.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import sast.evento.common.enums.ErrorEnum;
@@ -10,8 +11,6 @@ import sast.evento.entitiy.Participate;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.mapper.ParticipateMapper;
 import sast.evento.service.ParticipateService;
-
-import static net.sf.jsqlparser.util.validation.metadata.NamedObject.user;
 
 /**
  * @projectName: sast-evento-backend
@@ -158,5 +157,11 @@ public class ParticipateServiceImpl implements ParticipateService {
                 .and(wrapper -> wrapper.eq(Participate::getEventId, eventId)));
         //id不会被json序列化，所以随便传了个
         return userparticipate != null ? userparticipate : new Participate(1, false, false, false, userId, eventId);
+    }
+
+    @Override
+    public void deleteAllParticipateOfEvent(Integer eventId) {
+        participateMapper.delete(Wrappers.lambdaQuery(Participate.class)
+                .eq(Participate::getEventId, eventId));
     }
 }
