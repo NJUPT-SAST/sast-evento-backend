@@ -54,8 +54,7 @@ public class LoginServiceImpl implements LoginService {
     private RedisUtil redisUtil;
     private static final String LOGIN_TICKET = "ticket:";
     private static final String LOGIN_SUCCESS = "login:";
-    private static final long LOGIN_TICKET_EXPIRE = 600;
-    private static final long LOGIN_TIME_OUT = 30;
+    private static final long LOGIN_TICKET_EXPIRE = 60;
 
     /**
      * 这边逻辑和业务强耦合，建议先熟悉登陆流程再阅读代码
