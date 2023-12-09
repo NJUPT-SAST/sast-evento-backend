@@ -1,6 +1,8 @@
 package sast.evento.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +55,7 @@ public class LoginServiceImpl implements LoginService {
     private static final String LOGIN_TICKET = "ticket:";
     private static final String LOGIN_SUCCESS = "login:";
     private static final long LOGIN_TICKET_EXPIRE = 600;
+    private static final long LOGIN_TIME_OUT = 30;
 
     /**
      * 这边逻辑和业务强耦合，建议先熟悉登陆流程再阅读代码
@@ -118,43 +121,40 @@ public class LoginServiceImpl implements LoginService {
         return Map.of("unionid", jsCodeSessionResponse.getUnionid(), "userInfo", user, "token", token);
     }
 
-    //未登录展示保持连接并等待（检查Ticket更改状态）
     @Override
-    public Map<String, Object> getLoginTicket(String studentId, String ticket) {
-        studentId = studentId.toLowerCase();
-        if (!userMapper.exists(Wrappers.lambdaQuery(User.class)
-                .eq(User::getStudentId, studentId))) {
-            throw new LocalRunTimeException(ErrorEnum.STUDENT_NOT_BIND);
+    public Map<String, Object> getLoginTicket(@Nullable String ticket) {
+        if (ticket == null || ticket.isEmpty()) {
+            String key = TicketUtil.generateKey();
+            return Map.of("expireIn", LOGIN_TICKET_EXPIRE, "ticket", generateTicket(key));
         }
-        String local = (String) redisUtil.get(LOGIN_TICKET + studentId);
-        if (ticket != null && !ticket.isEmpty()) {
-            String userJson = (String) redisUtil.get(LOGIN_SUCCESS + studentId);
-            if (ticket.equals(local) && userJson != null) {
-                User user = JsonUtil.fromJson(userJson, User.class);
-                String token = addTokenInCache(user, false);
-                redisUtil.del(LOGIN_TICKET + studentId, LOGIN_SUCCESS + studentId);
-                return Map.of("token", token, "userInfo", user);
-            }
+        String key = TicketUtil.getInfoFromTicket(ticket)[0];
+        String localTicket = (String) redisUtil.get(LOGIN_TICKET + key);
+        if (!ticket.equals(localTicket)) {
+            redisUtil.del(LOGIN_TICKET + key);
+            key = TicketUtil.generateKey();
+            return Map.of("expireIn", LOGIN_TICKET_EXPIRE, "ticket", generateTicket(key));
         }
-        if (local != null) {
-            return Map.of("expireIn", redisUtil.getExpire(LOGIN_TICKET + studentId), "ticket", local);
+        String userJson = (String) redisUtil.get(LOGIN_SUCCESS + key);
+        if (userJson == null || userJson.isEmpty()) {
+            return Map.of("expireIn", redisUtil.getExpire(LOGIN_TICKET + key), "ticket", ticket);
         }
-        ticket = TicketUtil.generateTicket();
-        redisUtil.set(LOGIN_TICKET + studentId, ticket, LOGIN_TICKET_EXPIRE);
-        return Map.of("expireIn", LOGIN_TICKET_EXPIRE, "ticket", ticket);
+        User user = JsonUtil.fromJson(userJson, User.class);
+        String token = addTokenInCache(user, false);
+        redisUtil.del(LOGIN_TICKET + key, LOGIN_SUCCESS + key);
+        return Map.of("token", token, "userInfo", user);
     }
 
-    //检查Ticket更改状态
     @Override
-    public void checkTicket(String studentId, String ticket) {
-        studentId = studentId.toLowerCase();
-        String localTicket = (String) redisUtil.get(LOGIN_TICKET + studentId);
-        if (localTicket != null && localTicket.equals(ticket)) {
-            redisUtil.del(LOGIN_TICKET + studentId);
-        }
+    public void checkLoginTicket(String ticket, String userId) {
+        if (ticket == null || ticket.isEmpty())
+            throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR, "ticket should not be null");
+        String key = TicketUtil.getInfoFromTicket(ticket)[0];
+        String localTicket = (String) redisUtil.get(LOGIN_TICKET + key);
+        if (!ticket.equals(localTicket))
+            throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR, "error ticket please try again");
         User user = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
-                .eq(User::getStudentId, studentId));
-        redisUtil.set(LOGIN_SUCCESS + studentId, JsonUtil.toJson(user));
+                .eq(User::getId, userId));
+        redisUtil.set(LOGIN_SUCCESS + key, JsonUtil.toJson(user));
     }
 
 
@@ -276,6 +276,30 @@ public class LoginServiceImpl implements LoginService {
         Map<String, String> payload = new HashMap<>();
         payload.put("user", JsonUtil.toJson(user));
         return jwtUtil.generateToken(payload);
+    }
+
+    private String getTicket(@Nonnull String ticket) {
+        String key = TicketUtil.generateKey();
+        return (!checkTicket(ticket)) ? generateTicket(key) : ticket;
+    }
+
+    private String generateTicket(String key) {
+        int times = 0;
+        String ticket = TicketUtil.generateTicket(key);
+        while (!redisUtil.setnx(LOGIN_TICKET + key, ticket, LOGIN_TICKET_EXPIRE, TimeUnit.SECONDS) && times < 5) {
+            key = TicketUtil.generateKey();
+            ticket = TicketUtil.generateTicket(key);
+            times++;
+        }
+        if (times == 5) throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "please try again later");
+        return ticket;
+    }
+
+    private boolean checkTicket(String ticket) {
+        String[] info = TicketUtil.getInfoFromTicket(ticket);
+        String key = info[0];
+        String localTicket = (String) redisUtil.get(LOGIN_TICKET + key);
+        return localTicket != null && localTicket.equals(ticket);
     }
 
 
