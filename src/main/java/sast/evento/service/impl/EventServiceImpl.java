@@ -13,10 +13,7 @@ import sast.evento.entitiy.Department;
 import sast.evento.entitiy.Event;
 import sast.evento.entitiy.Location;
 import sast.evento.exception.LocalRunTimeException;
-import sast.evento.mapper.EventMapper;
-import sast.evento.mapper.EventModelMapper;
-import sast.evento.mapper.EventTypeMapper;
-import sast.evento.mapper.LocationMapper;
+import sast.evento.mapper.*;
 import sast.evento.model.Action;
 import sast.evento.model.EventModel;
 import sast.evento.model.PageModel;
@@ -53,6 +50,9 @@ public class EventServiceImpl implements EventService {
 
     @Resource
     private EventDepartmentService eventDepartmentService;
+
+    @Resource
+    private ParticipateService participateService;
 
     @Resource
     private PermissionService permissionService;
@@ -202,6 +202,7 @@ public class EventServiceImpl implements EventService {
         if (!eventDepartmentService.deleteEventDepartmentsByEventId(eventId)) {
             throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "delete eventDepartment failed");
         }
+        participateService.deleteAllParticipateOfEvent(eventId);
         boolean isSuccess = eventMapper.deleteById(eventId) > 0;
         if (isSuccess) {
             eventStateScheduleService.removeJobs(eventId);

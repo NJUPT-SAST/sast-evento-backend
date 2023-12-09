@@ -20,4 +20,6 @@ public interface ParticipateService {
     // 获取个人的活动的状态
     Participate getParticipation(String userId, Integer eventId);
 
+    void deleteAllParticipateOfEvent(Integer eventId);
+
 }
