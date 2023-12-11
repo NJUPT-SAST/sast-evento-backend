@@ -1,6 +1,5 @@
 package sast.evento.interceptor;
 
-import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.MDC;
@@ -9,9 +8,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
+import sast.evento.annotation.OperateLog;
+import sast.evento.config.ActionRegister;
 import sast.evento.model.TraceLog;
-import sast.evento.service.ActionService;
 
+import java.lang.reflect.Method;
 import java.util.UUID;
 
 /**
@@ -23,22 +24,19 @@ import java.util.UUID;
 
 @Component
 public class LogInterceptor implements HandlerInterceptor {
-    @Resource
-    ActionService actionService;
     public static ThreadLocal<TraceLog> logHolder = new ThreadLocal<>();
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        if(handler instanceof ResourceHttpRequestHandler){
+        if (handler instanceof ResourceHttpRequestHandler) {
             return true;
         }
-        HandlerMethod handlerMethod = (HandlerMethod) handler;
+        Method method = ((HandlerMethod) handler).getMethod();
         MDC.put("TRACE_ID", UUID.randomUUID().toString());
         TraceLog preTraceLog = new TraceLog();
-        String description = actionService.getAction(handlerMethod.getMethod().getName()).getDescription();
         preTraceLog.setUri(request.getRequestURI());
         preTraceLog.setMethod(request.getMethod());
-        preTraceLog.setDescription(description == null ? "" : description);
+        preTraceLog.setDescription(ActionRegister.actionName2action.get(method.getName()).getDescription());
         preTraceLog.setStartTime(System.currentTimeMillis());
         logHolder.set(preTraceLog);
         return true;

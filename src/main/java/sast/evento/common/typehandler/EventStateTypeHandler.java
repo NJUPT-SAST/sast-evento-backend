@@ -1,7 +1,8 @@
-package sast.evento.common.enums;
+package sast.evento.common.typehandler;
 
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
+import sast.evento.common.enums.EventState;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
@@ -16,7 +17,7 @@ import java.sql.SQLException;
 public class EventStateTypeHandler extends BaseTypeHandler<EventState> {
     @Override
     public void setNonNullParameter(PreparedStatement preparedStatement, int i, EventState eventState, JdbcType jdbcType) throws SQLException {
-        preparedStatement.setInt(i,eventState.getState());
+        preparedStatement.setInt(i, eventState.getState());
     }
 
     @Override

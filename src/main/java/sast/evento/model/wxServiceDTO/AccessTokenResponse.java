@@ -16,6 +16,6 @@ public class AccessTokenResponse {
 
     private String access_token;
 
-    /* 任意时刻发起调用获取到的 access_token 有效期至少为 5 分钟 */
+    /* 任意时刻发起调用获取到的 stable_token 有效期至少为 5 分钟 */
     private Integer expires_in;
 }

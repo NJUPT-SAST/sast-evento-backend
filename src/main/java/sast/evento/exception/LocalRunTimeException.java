@@ -22,8 +22,9 @@ public class LocalRunTimeException extends RuntimeException {
         super(errorEnum.getErrMsg());
         this.errorEnum = errorEnum;
     }
-    public LocalRunTimeException(ErrorEnum errorEnum,String message) {
-        super(errorEnum.getErrMsg()+", "+message);
+
+    public LocalRunTimeException(ErrorEnum errorEnum, String message) {
+        super(errorEnum.getErrMsg() + ", " + message);
         this.errorEnum = errorEnum;
     }
 }

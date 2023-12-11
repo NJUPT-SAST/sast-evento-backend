@@ -9,7 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import sast.evento.common.enums.EventState;
-import sast.evento.common.enums.EventStateTypeHandler;
+import sast.evento.common.typehandler.EventStateTypeHandler;
+import sast.evento.model.EventModel;
 
 import java.util.Date;
 
@@ -55,4 +56,17 @@ public class Event {
     @TableField(typeHandler = EventStateTypeHandler.class)
     private EventState state;
 
+    public Event(EventModel eventModel) {
+        this.id = eventModel.getId();
+        this.title = eventModel.getTitle();
+        this.description = eventModel.getDescription();
+        this.gmtEventStart = eventModel.getGmtEventStart();
+        this.gmtEventEnd = eventModel.getGmtEventEnd();
+        this.gmtRegistrationStart = eventModel.getGmtRegistrationStart();
+        this.gmtRegistrationEnd = eventModel.getGmtRegistrationEnd();
+        this.typeId = eventModel.getTypeId();
+        this.locationId = eventModel.getLocationId();
+        this.tag = eventModel.getTag();
+        this.state = eventModel.getState();
+    }
 }

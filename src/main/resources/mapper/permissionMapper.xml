@@ -4,15 +4,4 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="sast.evento.mapper.PermissionMapper">
 
-<select id="getUserHasPermissionByEvent" resultType="sast.evento.entitiy.User">
-    select u.* from permission p
-    join user u on u.id = p.user_id
-    where event_id=#{eventId}
-</select>
-
-<select id="getManageEvent" resultType="java.lang.Integer">
-    select event_id
-    from permission
-    where user_id = #{userId}
-</select>
 </mapper>

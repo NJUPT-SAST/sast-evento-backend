@@ -3,6 +3,7 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+!src/main/resources/application.yaml
 
 ### STS ###
 .apt_generated
@@ -33,3 +34,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# GitHub
+!.github/**/*

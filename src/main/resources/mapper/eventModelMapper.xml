@@ -12,10 +12,11 @@
         <result property="gmtEventEnd" column="gmt_event_end"/>
         <result property="gmtRegistrationStart" column="gmt_registration_start"/>
         <result property="gmtRegistrationEnd" column="gmt_registration_end"/>
-        <result property="location" column="location_id"/>
+        <result property="locationId" column="location_id"/>
+        <result property="location" column="location"/>
         <result property="tag" column="tag"/>
         <result property="state" column="state" javaType="sast.evento.common.enums.EventState"
-                typeHandler="sast.evento.common.enums.EventStateTypeHandler"/>
+                typeHandler="sast.evento.common.typehandler.EventStateTypeHandler"/>
         <association property="eventType" javaType="sast.evento.entitiy.EventType">
             <id property="id" column="type_id"/>
             <result property="typeName" column="type_name"/>
@@ -27,11 +28,12 @@
         </collection>
     </resultMap>
 
-    <resultMap id="pageModelMap" type="sast.evento.model.PageMdoel">
+    <resultMap id="pageModelMap" type="sast.evento.model.PageModel">
         <result property="total" column="total"/>
         <collection property="result" ofType="sast.evento.model.EventModel" resultMap="eventModelMap"/>
     </resultMap>
 
+    <!--    将重复的SELECT和FROM语句放在这里，精简sql代码，用于引用   -->
     <sql id="selectFrom">
         SELECT e.id,
                e.title,
@@ -41,12 +43,32 @@
                e.gmt_registration_start,
                e.gmt_registration_end,
                e.location_id,
+               (
+                   WITH RECURSIVE location_tree (id, location_name, parent_id, full_location) AS (SELECT l1.id,
+                                                                                                         l1.location_name,
+                                                                                                         l1.parent_id,
+                                                                                                         CAST(location_name AS CHAR(200))
+                                                                                                  FROM location l1
+                                                                                                  WHERE l1.id = e.location_id
+                                                                                                  UNION ALL
+                                                                                                  SELECT l.id,
+                                                                                                         l.location_name,
+                                                                                                         l.parent_id,
+                                                                                                         CONCAT(l.location_name, lt.full_location)
+                                                                                                  FROM location l
+                                                                                                           INNER JOIN
+                                                                                                       location_tree lt ON l.id = lt.parent_id)
+
+                   SELECT full_location
+                   FROM location_tree
+                   WHERE parent_id = 0
+                   )             AS location,
                e.tag,
                e.state,
-               t.id AS type_id,
+               t.id              AS type_id,
                t.type_name,
                t.allow_conflict,
-               d.id AS department_id,
+               d.id              AS department_id,
                d.department_name AS department_name
         FROM event AS e
                  LEFT JOIN
@@ -57,19 +79,47 @@
              department AS d ON ed.department_id = d.id
     </sql>
 
-<!--    获取活动详情-->
+    <!--    根据time选出活动列表获取活动列表的sql片段    -->
+    <sql id="byTime">
+        <if test="true">
+            e.gmt_event_start BETWEEN
+            #{monday}
+            AND
+            #{next_monday}
+        </if>
+    </sql>
+
+    <!--    根据departmentId选出活动列表的sql片段    -->
+    <sql id="byDepartmentId">
+        e.id IN
+        (
+        SELECT ed.event_id FROM event_department AS ed WHERE ed.department_id IN
+        <foreach collection="department_id" item="department_id" open="(" separator="," close=")">
+            #{department_id}
+        </foreach>
+        )
+    </sql>
+
+    <!--    根据typeId选出活动列表的sql片段    -->
+    <sql id="byTypeId">
+        e.type_id IN
+        <foreach collection="type_id" item="type_id" open="(" separator="," close=")">
+            #{type_id}
+        </foreach>
+    </sql>
+
     <select id="getById" resultMap="eventModelMap">
         <include refid="selectFrom" />
         WHERE e.id = #{eventId}
     </select>
 
-<!--    正在进行的活动列表-->
+    <!--    正在进行的活动列表-->
     <select id="getConducting" resultMap="eventModelMap">
         <include refid="selectFrom" />
         WHERE e.state = 3
     </select>
 
-<!--    查看用户历史活动列表（参加过已结束）-->
+    <!--    查看用户历史活动列表（参加过已结束）-->
     <select id="getHistory" resultMap="eventModelMap">
         <include refid="selectFrom" />
         LEFT JOIN
@@ -77,17 +127,16 @@
         WHERE p.user_id = #{userId} AND p.is_participate = 1
     </select>
 
-<!--    最新的活动列表（按开始时间正序排列未开始的活动）-->
+    <!--    最新的活动列表（按开始时间正序排列未开始的活动）-->
     <select id="getNewest" resultMap="eventModelMap">
         <include refid="selectFrom" />
         WHERE e.state = 1
         ORDER BY e.gmt_event_start ASC
     </select>
 
-<!--    获取活动列表(分页）-->
     <select id="getEvents" resultMap="pageModelMap">
-        SELECT t.total,
-               e.id,
+        SELECT  t.total,
+                e.id,
                e.title,
                e.description,
                e.gmt_event_start,
@@ -97,23 +146,52 @@
                e.location_id,
                e.tag,
                e.state,
-               t.id AS type_id,
+               t.id              AS type_id,
                t.type_name,
-               t.allow_conflict,
-               d.id AS department_id,
-               d.department_name AS department_name
+               t.allow_conflict
         FROM event AS e
                  LEFT JOIN
              type AS t ON e.type_id = t.id
-                 LEFT JOIN
-             event_department AS ed ON e.id = ed.event_id
-                 LEFT JOIN
-             department AS d ON ed.department_id = d.id
                  JOIN
-             (SELECT id FROM event LIMIT #{index}, #{size}) AS e_ids ON e.id = e_ids.id
-
+             (SELECT id FROM event ORDER BY id DESC LIMIT #{index}, #{size} ) AS e_ids ON e.id = e_ids.id
                  LEFT JOIN
-             (SELECT COUNT(event.id) AS total FROM event) AS t ON 1 = 1;
+             (SELECT COUNT(event.id) AS total FROM event) AS t ON 1 = 1 ;
+    </select>
+
+    <!--    根据time选出活动列表获取活动列表    -->
+    <select id="getEventByTime" resultMap="eventModelMap">
+        <include refid="selectFrom"/>
+        WHERE
+        <include refid="byTime"/>
+    </select>
+
+    <!--    根据departmentId和time选出活动列表   -->
+    <select id="getEventByDepartmentIdAndTime" resultMap="eventModelMap">
+        <include refid="selectFrom"/>
+        WHERE
+        <include refid="byTime"/>
+        AND
+        <include refid="byDepartmentId"/>
+    </select>
+
+    <!--    根据typeId和time选出活动列表    -->
+    <select id="getEventByTypeIdAndTime" resultMap="eventModelMap">
+        <include refid="selectFrom"/>
+        WHERE
+        <include refid="byTypeId"/>
+        AND
+        <include refid="byTime"/>
+    </select>
+
+    <!--    根据三个筛选条件选出活动列表    -->
+    <select id="postForEventsByAll" resultMap="eventModelMap">
+        <include refid="selectFrom"/>
+        WHERE
+        <include refid="byTime"/>
+        AND
+        <include refid="byTypeId"/>
+        AND
+        <include refid="byDepartmentId"/>
     </select>
 
 <!--    获取已订阅的活动列表-->
@@ -131,5 +209,4 @@
             participate AS p ON e.id = p.event_id
         WHERE p.user_id = #{userId} AND p.is_registration = 1
     </select>
-
 </mapper>

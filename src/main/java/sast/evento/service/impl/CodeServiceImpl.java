@@ -1,16 +1,10 @@
 package sast.evento.service.impl;
-
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import sast.evento.common.enums.ErrorEnum;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.service.CodeService;
-import sast.evento.utils.QRCodeUtil;
-import sast.evento.utils.StringUtil;
-
-import java.awt.image.BufferedImage;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import sast.evento.utils.RedisUtil;
 
 /**
  * @projectName: sast-evento-backend
@@ -19,55 +13,18 @@ import java.util.Random;
  */
 @Service
 public class CodeServiceImpl implements CodeService {
-    /* 基础的二维码和验证服务 */
-    private static final Map<Integer, String> eventId2Code = new HashMap<>();
-    private static final Map<Integer, BufferedImage> eventId2QrCode = new HashMap<>();
-    /* 刷新是交给job负责的,使用时最好只访问get */
-    @Override
-    public BufferedImage refreshCode(Integer eventId) {
-        String code = StringUtil.getRandomString(10, new Random());
-        BufferedImage bufferedImage = null;
-        try {
-            bufferedImage = QRCodeUtil.generateQrCode(code);
-        } catch (Exception e) {
-            throw new LocalRunTimeException(ErrorEnum.QRCODE_ERROR);
-        }
-        if (eventId2QrCode.get(eventId) == null) {
-            eventId2Code.put(eventId, code);
-            eventId2QrCode.put(eventId, bufferedImage);
-        } else {
-            eventId2Code.replace(eventId, code);
-            eventId2QrCode.replace(eventId, bufferedImage);
-        }
-        return bufferedImage;
-    }
 
-    /* 第一次访问get前，需要手动刷新一次Codrene */
-    @Override
-    public String getCode(Integer eventId) {
-        String code = eventId2Code.get(eventId);
-        if (code.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "no match eventId");
-        }
-        return code;
-    }
+    @Resource
+    private RedisUtil redisUtil;
 
     @Override
-    public BufferedImage getQrCode(Integer eventId) {
-        BufferedImage bufferedImage = eventId2QrCode.get(eventId);
-        if (bufferedImage == null) {
-            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "no match eventId");
+    public Integer getEventIdFromAuthCode(String code) {
+        String eventId = (String) redisUtil.get("AUTHCODE:" + code);
+        if (eventId == null ){
+            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR,"auth-code not exists or has expired");
         }
-        return bufferedImage;
-    }
-
-    @Override
-    public void deleteCode(Integer eventId) {
-        if(!eventId2Code.containsKey(eventId)){
-            throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "no match eventId");
-        }
-        eventId2Code.remove(eventId);
-        eventId2QrCode.remove(eventId);
-
+        Integer eventid =  Integer.valueOf(eventId);
+        System.out.println(eventid);
+        return eventid;
     }
 }

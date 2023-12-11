@@ -19,12 +19,13 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class JwtUtil {
 
+    private final RedisUtil redisUtil;
     @Value("${jwt.secret}")
     private String secret;
-
     @Value("${jwt.expiration}")
-    private Integer expiration;
-    private final RedisUtil redisUtil;
+    public Integer expiration;
+    public static final String TOKEN = "token:";
+
 
     public JwtUtil(RedisUtil redisUtil) {
         this.redisUtil = redisUtil;
@@ -46,25 +47,25 @@ public class JwtUtil {
 
     public Map<String, Claim> getClaims(String token) {
         if (token == null) {
-            throw new LocalRunTimeException(ErrorEnum.TOKEN_ERROR,"Token is null.");
+            throw new LocalRunTimeException(ErrorEnum.TOKEN_ERROR, "Token is null.");
         }
         try {
             JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secret)).build();
             DecodedJWT decodedJWT = verifier.verify(token);
             return decodedJWT.getClaims();
         } catch (JWTVerificationException e) {
-            throw new LocalRunTimeException(ErrorEnum.TOKEN_ERROR,e.getMessage());
+            throw new LocalRunTimeException(ErrorEnum.TOKEN_ERROR, e.getMessage());
         }
     }
 
     public Boolean isExpired(String userId, String token) {
-        Long expire = redisUtil.getExpire("TOKEN:" + userId);
-        String oriToken = (String) redisUtil.hget("TOKEN:", userId);
+        Long expire = redisUtil.getExpire(TOKEN + userId);
+        String oriToken = (String) redisUtil.hget(TOKEN, userId);
         return (expire <= 0) && oriToken.equals(token);
     }
 
     public void reFreshToken(String userId) {
-        redisUtil.expire("TOKEN:" + userId, 3, TimeUnit.DAYS);
+        redisUtil.expire(TOKEN + userId, 3, TimeUnit.DAYS);
     }
 
 

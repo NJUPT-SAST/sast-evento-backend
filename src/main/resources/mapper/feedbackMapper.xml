@@ -1,8 +1,71 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper
-        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="sast.evento.mapper.FeedbackMapper">
+    <resultMap id="feedbacksDTOResultMap" type="sast.evento.model.FeedbacksDTO">
+        <result property="average" column="average"/>
+        <result property="subscribeNum" column="subscribeNum"/>
+        <result property="registrationNum" column="registrationNum"/>
+        <result property="participantNum" column="participantNum"/>
+        <collection property="feedbacks" ofType="sast.evento.model.FeedbackModel">
+            <id property="id" column="feedback_id"/>
+            <result property="content" column="content"/>
+            <result property="score" column="score"/>
+        </collection>
+    </resultMap>
+
+    <resultMap id="feedbackNumModelMap" type="sast.evento.model.FeedbackNumModel">
+        <result property="eventId" column="event_id"/>
+        <result property="feedbackCount" column="feedback_count"/>
+        <result property="title" column="title"/>
+    </resultMap>
+
+    <resultMap id="pageModelMap" type="sast.evento.model.PageModel">
+        <result property="total" column="total"/>
+        <collection property="result" ofType="sast.evento.model.FeedbackNumModel" resultMap="feedbackNumModelMap"/>
+    </resultMap>
+
+    <select id="getFeedbackEvents" resultMap="pageModelMap">
+        SELECT t.total, e.id AS event_id, fc.feedback_count, e.title
+        FROM event e
+                 LEFT JOIN participate p ON e.id = p.event_id
+                 LEFT JOIN feedback f ON p.id = f.participate_id
+                 LEFT JOIN (SELECT COUNT(f.id) AS feedback_count,e.id AS event_id
+                            FROM event e LEFT JOIN participate p ON e.id = p.event_id
+                            LEFT JOIN feedback f ON p.id = f.participate_id GROUP BY e.id)
+                        AS fc ON e.id = fc.event_id
+                 JOIN
+                 (SELECT id FROM event LIMIT #{index}, #{size}) AS e_ids ON e.id = e_ids.id
+                 LEFT JOIN
+                 (SELECT COUNT(event.id) AS total FROM event) AS t ON 1 = 1;
+    </select>
+
+    <select id="getFeedback" resultMap="feedbacksDTOResultMap">
+        SELECT e.id,
+               sub_query.average,
+               sub_query.subscribeNum,
+               sub_query.registrationNum,
+               sub_query.participantNum,
+               f.score   AS score,
+               f.content AS content,
+               f.id      AS feedback_id
+
+        FROM event e
+                 LEFT JOIN participate p ON e.id = p.event_id
+                 LEFT JOIN feedback f ON p.id = f.participate_id
+                 JOIN (SELECT e.id                         AS eventId,
+                              AVG(f.score)                 AS average,
+                              COUNT(p.is_subscribe = 1)    AS subscribeNum,
+                              COUNT(p.is_registration = 1) AS registrationNum,
+                              COUNT(p.is_participate = 1)  AS participantNum
+
+                       FROM event e
+                                LEFT JOIN participate p ON e.id = p.event_id
+                                LEFT JOIN feedback f ON p.id = f.participate_id
+                       WHERE e.id = #{event_id}) AS sub_query ON sub_query.eventId = e.id
+
+        WHERE e.id = #{event_id}
+    </select>
 
     <insert id="addFeedback">
         INSERT INTO feedback (score, content, participate_id, user_id)

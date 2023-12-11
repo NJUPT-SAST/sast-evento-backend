@@ -1,6 +1,7 @@
 package sast.evento.entitiy;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -17,12 +18,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @TableName(value = "event_department")
 public class EventDepartment {
-    @TableId(value = "id",type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
     private Integer eventId;
 
     private Integer departmentId;
 
-
+    @TableField(exist = false)
+    private String departmentName;
 }

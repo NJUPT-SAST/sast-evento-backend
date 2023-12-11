@@ -1,7 +1,9 @@
 package sast.evento.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import sast.evento.entitiy.User;
 import sast.evento.model.Action;
+import sast.evento.model.treeDataNodeDTO.TreeDataNode;
 
 import java.util.List;
 
@@ -9,29 +11,37 @@ public interface PermissionService {
     /* 对Permission拓展操作，不设置缓存 */
     List<Action> getAllAdminPermissions();
 
+    List<TreeDataNode> getAllAdminPermissionsAsTree();
+
     List<Action> getAllManagerPermissions();
 
-    void addAdmin(List<String> methodNames, String userId, String studentId);
+    List<TreeDataNode> getAllManagerPermissionsAsTree();
 
-    void deleteAdmin(String userId, String studentId);
+    void addAdmin(List<String> methodNames, String userId);
 
-    List<User> getAdmins();
+    void deleteAdmin(String userId);
 
-    void updateAdminPermission(List<String> methodNames, String userId, String studentId);
+    Page<User> getAdmins(Integer num, Integer size);
 
-    List<Action> getUserAdminPermissions(String userId, String studentId);
+    void updateAdminPermission(List<String> methodNames, String userId);
 
-    void addManager(Integer eventId, List<String> methodNames, String userId, String studentId);
+    List<Action> getUserAdminPermissions(String userId);
 
-    void deleteManager(Integer eventId, String userId, String studentId);
+    List<String> getUserAdminPermissAsList(String userId);
 
-    List<User> getManagers(Integer eventId);
+    void addManager(Integer eventId, List<String> methodNames, String userId);
 
-    void updateManagerPermission(Integer eventId, List<String> methodNames, String userId, String studentId);
+    void deleteManager(Integer eventId, String userId);
 
-    List<Action> getUserManagerPermissions(Integer eventId, String userId, String studentId);
+    Page<User> getManagers(Integer eventId,Integer num,Integer size);
 
-    List<Integer> getManageEvent(String userId, String studentId);
+    void updateManagerPermission(Integer eventId, List<String> methodNames, String userId);
+
+    List<Action> getUserManagerPermissions(Integer eventId, String userId);
+
+    List<String> getUserManagerPermissAsList(Integer eventId, String userId);
+
+    List<Integer> getManageEvent(String userId);
 
     List<Action> getPublicActions();
 

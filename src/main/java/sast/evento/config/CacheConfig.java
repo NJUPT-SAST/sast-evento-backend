@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
-import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -29,17 +28,18 @@ import java.time.Duration;
 @EnableCaching
 @Configuration
 public class CacheConfig {
-    @Value("${cache.duration}")
-    private int duration;
-
     private static final ObjectMapper objectMapper = new ObjectMapper();
+
     static {
         objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
         objectMapper.activateDefaultTyping(
-                LaissezFaireSubTypeValidator.instance ,
+                LaissezFaireSubTypeValidator.instance,
                 ObjectMapper.DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.WRAPPER_ARRAY);
     }
+
+    @Value("${cache.duration}")
+    private int duration;
 
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory factory) {

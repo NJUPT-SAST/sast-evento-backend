@@ -3,6 +3,7 @@ package sast.evento.response;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.web.client.HttpStatusCodeException;
 import sast.evento.common.enums.ErrorEnum;
 
 /**
@@ -53,4 +54,32 @@ public class GlobalResponse<T> {
         response.setData(null);
         return response;
     }
+
+    public static <T> GlobalResponse<T> failure(ErrorEnum errorEnum, String message) {
+        GlobalResponse<T> response = new GlobalResponse<>();
+        response.setSuccess(false);
+        response.setErrCode(errorEnum.getErrCode());
+        response.setErrMsg(message);
+        response.setData(null);
+        return response;
+    }
+
+    public static <T> GlobalResponse<T> failure(ErrorEnum errorEnum, String message, T data) {
+        GlobalResponse<T> response = new GlobalResponse<>();
+        response.setSuccess(false);
+        response.setErrCode(errorEnum.getErrCode());
+        response.setErrMsg(message);
+        response.setData(data);
+        return response;
+    }
+
+    public static <T, E extends HttpStatusCodeException> GlobalResponse<T> failure(E httpStatusCodeException) {
+        GlobalResponse<T> response = new GlobalResponse<>();
+        response.setSuccess(false);
+        response.setErrCode(httpStatusCodeException.getStatusCode().value());
+        response.setErrMsg(httpStatusCodeException.getMessage());
+        response.setData(null);
+        return response;
+    }
+
 }

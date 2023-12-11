@@ -1,30 +1,28 @@
 package sast.evento.config;
 
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.AnnotatedElementUtils;
-import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import sast.evento.annotation.DefaultActionState;
 import sast.evento.annotation.OperateLog;
 import sast.evento.common.enums.ErrorEnum;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.model.Action;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @projectName: sast-evento-backend
@@ -33,89 +31,44 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 @Component
-public class ActionRegister implements ApplicationListener<ContextRefreshedEvent> {
-
-    public static Map<String, Action> actionName2action = new ConcurrentHashMap<>();
+public class ActionRegister implements BeanFactoryAware, CommandLineRunner {
+    public ListableBeanFactory beanFactory;
+    public static Map<String, Action> actionName2action = new HashMap<>();
     public static Set<String> actionNameSet;
-    private static final String PACKAGE_PATH = "classpath*:sast/evento/controller";
-    private static final String defaultGroupName = "default";
 
-    @Value("${evento.host}")
-    private String host;
-    @Value("${evento.port}")
-    private Integer port;
-    @Value("${evento.protocol}")
-    private String protocol;
-
-    @SneakyThrows
     @Override
-    public void onApplicationEvent(ContextRefreshedEvent event) {
-        parseAll(getAllClass(PACKAGE_PATH));
-        actionNameSet = actionName2action.keySet();
-        log.info("Scan of action is over. Final actionName2action map is:{}", actionName2action);
-        log.info("and final actionName set is:{} total action num:{}",actionNameSet,actionNameSet.size());
+    public void setBeanFactory(@NonNull BeanFactory beanFactory) throws BeansException {
+        this.beanFactory = (ListableBeanFactory) beanFactory;
     }
 
-    @SneakyThrows
-    private void parseAll(Set<Class> set) {
+    @Override
+    public void run(String... args) {
+        Map<String, Object> beansWithRestController = beanFactory.getBeansWithAnnotation(RestController.class);
+        Map<String, Object> beansWithController = beanFactory.getBeansWithAnnotation(Controller.class);
+        Set<Class> set = beansWithController.values().stream().map(Object::getClass).collect(Collectors.toSet());
+        set.addAll(beansWithRestController.values().stream().map(Object::getClass).collect(Collectors.toSet()));
         for (Class c : set) {
-            RequestMapping preMap = AnnotationUtils.findAnnotation(c, RequestMapping.class);
-            String pre = (preMap == null) ? "" : preMap.path()[0];
             Method[] declaredMethods = c.getDeclaredMethods();
             for (Method m : declaredMethods) {
+                OperateLog ano = AnnotatedElementUtils.findMergedAnnotation(m, OperateLog.class);
                 RequestMapping r = AnnotatedElementUtils.findMergedAnnotation(m, RequestMapping.class);
                 DefaultActionState d = AnnotatedElementUtils.findMergedAnnotation(m, DefaultActionState.class);
                 if (r == null) {
                     continue;
                 }
                 if (d == null) {
+                    if (m.getName().equals("error") || m.getName().equals("errorHtml")) {
+                        continue;
+                    }
                     throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "run failed,the annotation defaultActionState is needed on Mapping method");
                 }
-                URL url = new URL(protocol, host, port, pre + r.path()[0]);
-                OperateLog logAnno = AnnotatedElementUtils.findMergedAnnotation(m, OperateLog.class);
-                String description = (logAnno == null) ? "" : logAnno.description();
                 String methodName = m.getName();
-                actionName2action.put(methodName, new Action(description, methodName, r.method()[0].name(), String.valueOf(url), defaultGroupName, d.value()));
+
+                actionName2action.put(methodName, new Action(m.getName(), d.group(), d.value(),ano.value()));
             }
         }
+        actionNameSet = actionName2action.keySet();
+        //log.info("Scan of action is over. Final actionName2action map is:{}", actionName2action);
+        log.info("Scan of action is over. Final actionName set is:{} total action num:{}", actionNameSet, actionNameSet.size());
     }
-
-    public Set<Class> getAllClass(String packagePath) throws IOException, ClassNotFoundException {
-        Set<Class> set = new HashSet<>();
-        PathMatchingResourcePatternResolver pathMatchingResourcePatternResolver = new PathMatchingResourcePatternResolver();
-        Resource[] resources = pathMatchingResourcePatternResolver.getResources(packagePath);
-        for (Resource resource :
-                resources) {
-            URL url = resource.getURL();
-            if ("file".equals(url.getProtocol())) {
-                String filePath = URLDecoder.decode(url.getFile(), StandardCharsets.UTF_8);
-                File dir = new File(filePath);
-                List<File> files = new ArrayList<>();
-                fetchFileList(dir, files);
-                for (File file :
-                        files) {
-                    String fileAbsolutePath = file.getAbsolutePath();
-                    if (fileAbsolutePath.endsWith(".class")) {
-                        String noSuffixFileName = fileAbsolutePath.substring(8 + fileAbsolutePath.lastIndexOf("classes"), fileAbsolutePath.indexOf(".class"));
-                        String filePackage = noSuffixFileName.replaceAll("\\\\", ".");
-                        Class clazz = Class.forName(filePackage);
-                        set.add(clazz);
-
-                    }
-                }
-            }
-        }
-        return set;
-    }
-
-    private void fetchFileList(File dir, List<File> fileList) {
-        if (dir.isDirectory()) {
-            for (File f : Objects.requireNonNull(dir.listFiles())) {
-                fetchFileList(f, fileList);
-            }
-        } else {
-            fileList.add(dir);
-        }
-    }
-
 }

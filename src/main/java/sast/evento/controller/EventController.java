@@ -7,16 +7,17 @@ import sast.evento.annotation.EventId;
 import sast.evento.annotation.OperateLog;
 import sast.evento.common.enums.ActionState;
 import sast.evento.common.enums.ErrorEnum;
+import sast.evento.entitiy.Department;
 import sast.evento.entitiy.Event;
+import sast.evento.entitiy.User;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.interceptor.HttpInterceptor;
 import sast.evento.model.EventModel;
-import sast.evento.model.PageMdoel;
-import sast.evento.model.UserProFile;
+import sast.evento.model.PageModel;
+import sast.evento.model.UserModel;
+import sast.evento.service.DepartmentService;
 import sast.evento.service.EventService;
 
-import java.awt.image.BufferedImage;
-import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -26,56 +27,45 @@ public class EventController {
     @Resource
     private EventService eventService;
 
-    /* 由后端生成部分信息置于二维码，userId需要前端填充 */
-    @OperateLog("签到")
-    @DefaultActionState(ActionState.LOGIN)/* 这里为public,eventId注解没什么用 */
-    @GetMapping("/checkIn")
-    public String CheckIn(@RequestParam @EventId Integer eventId,
-                          @RequestParam String userId,
-                          @RequestParam String code) {
-        return null;
-    }
+    @Resource
+    private DepartmentService departmentService;
 
-    @OperateLog("获取活动签到二维码")
-    @DefaultActionState(ActionState.ADMIN)/* 这里为admin,eventId注解没什么用 */
-    @GetMapping("/qrcode")
-    public BufferedImage eventQrcodeGet(@RequestParam @EventId Integer eventId) {
-        return null;
-    }
-
-    @OperateLog("查看所有正在进行的活动列表")
+    @OperateLog("查看正在进行活动列表")
     @DefaultActionState(ActionState.PUBLIC)
     @GetMapping("/conducting")
     public List<EventModel> getConducting() {
         return eventService.getConducting();
     }
 
-    @OperateLog("查看最新活动列表（按开始时间正序排列未开始的活动）")
+
+    @OperateLog("查看最新活动列表")
     @DefaultActionState(ActionState.PUBLIC)
     @GetMapping("/newest")
     public List<EventModel> getNewest() {
         return eventService.getNewest();
     }
 
-    @OperateLog("查看用户历史活动列表（参加过已结束）")
+    @OperateLog("查看用户历史活动列表")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/history")
     public List<EventModel> getHistory() {
-        UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        if (userProFile == null) {
-            return null;
-        }
-        String userIdStr = userProFile.getUserId();
-        Integer userIdInt = Integer.valueOf(userIdStr);
-        return eventService.getHistory(userIdInt);
+        UserModel user = HttpInterceptor.userHolder.get();
+        return eventService.getHistory(user.getId());
     }
 
+    /**
+     * 删除活动
+     *
+     * @param eventId 活动id
+     * @return 是否成功
+     */
     @OperateLog("删除活动")
-    @DefaultActionState(ActionState.MANAGER)
+    @DefaultActionState(value = ActionState.MANAGER, group = "event")
     @DeleteMapping("/info")
     public String deleteEvent(@RequestParam @EventId Integer eventId) {
-        return null;
+        return eventService.deleteEvent(eventId).toString();
     }
+
 
     @OperateLog("获取活动详情")
     @DefaultActionState(ActionState.PUBLIC)/* 这里为public,eventId注解没什么用 */
@@ -84,52 +74,75 @@ public class EventController {
         return eventService.getEvent(eventId);
     }
 
-    @OperateLog("取消活动（部分修改活动信息）")
-    @DefaultActionState(ActionState.MANAGER)
+    /**
+     * 取消活动
+     *
+     * @param eventId 活动id
+     * @param event   活动信息
+     * @return 是否成功
+     */
+    @OperateLog("取消活动")
+    @DefaultActionState(value = ActionState.MANAGER, group = "event")
     @PatchMapping("/info")
-    public String patchEvent(@RequestParam @EventId Integer eventId,
-                             @RequestBody Event event) {
+    public String cancelEvent(@RequestParam @EventId Integer eventId,
+                              @RequestBody Event event) {
         if (!event.getId().equals(eventId)) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid id.");
-        return null;
+        return eventService.cancelEvent(eventId).toString();
     }
 
-    @OperateLog("发起活动（添加活动）")
-    @DefaultActionState(ActionState.ADMIN)
+    /**
+     * 发起活动（添加活动）
+     *
+     * @param eventModel 活动信息
+     * @return 活动id
+     */
+    @OperateLog("发起活动")
+    @DefaultActionState(value = ActionState.ADMIN, group = "event")
     @PostMapping("/info")
-    public Integer addEvent(@RequestBody Event event) {
-        if (event.getId() != null) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "id should be null.");
-        UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        /* 记得给自己加活动权限鸭喵 */
-        /* 检测内容不为null的部分添加 */
-        return null;
+    public String addEvent(@RequestBody EventModel eventModel) {
+        UserModel user = HttpInterceptor.userHolder.get();
+        Integer eventId = eventService.addEvent(eventModel, user.getId());
+        return eventId.toString();
     }
 
+    /**
+     * 修改活动
+     *
+     * @param eventId    活动id
+     * @param eventModel 活动信息
+     * @return 是否成功
+     */
     @OperateLog("修改活动")
-    @DefaultActionState(ActionState.MANAGER)
+    @DefaultActionState(value = ActionState.MANAGER, group = "event")
     @PutMapping("/info")
     public String putEvent(@RequestParam @EventId Integer eventId,
-                           @RequestBody Event event) {
-        if (!event.getId().equals(eventId)) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid id.");
-        return null;
+                           @RequestBody EventModel eventModel) {
+        if (!eventModel.getId().equals(eventId)) throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid id.");
+        return eventService.updateEvent(eventModel).toString();
     }
 
     @OperateLog("获取活动列表")
     @DefaultActionState(ActionState.PUBLIC)
     @GetMapping("/list")
-    public PageMdoel<EventModel> getEvents(@RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
-                                                 @RequestParam(value = "size", required = false, defaultValue = "10") Integer size) {
+    public PageModel<EventModel> getEvents(@RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+                                           @RequestParam(value = "size", required = false, defaultValue = "10") Integer size) {
         return eventService.getEvents(page, size);
     }
 
-    @OperateLog("获取活动列表(筛选)")
+    @OperateLog("筛选获取课表")
     @DefaultActionState(ActionState.PUBLIC)
     @PostMapping("/list")
-    public List<EventModel> postForEvents(@RequestParam(required = false) Boolean filterByUser,
-                                          @RequestParam(required = false) List<Integer> typeId,
+    public List<EventModel> postForEvents(@RequestParam(required = false) List<Integer> typeId,
                                           @RequestParam(required = false) List<Integer> departmentId,
-                                          @RequestParam(required = false) Date time) {
-        UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        return null;
+                                          @RequestParam(required = false) String time) {
+        return eventService.postForEvents(typeId, departmentId, time);
     }
 
+    @OperateLog("获取全部组织部门(filter)")
+    @DefaultActionState(value = ActionState.PUBLIC, group = "event")
+    @GetMapping("/departments")
+    public List<Department> getDepartmentsWithFilter() {
+        // TODO: 屏蔽部分部门
+        return departmentService.getDepartments();
+    }
 }

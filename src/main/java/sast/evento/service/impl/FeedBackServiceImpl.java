@@ -9,9 +9,13 @@ import sast.evento.exception.LocalRunTimeException;
 import sast.evento.mapper.FeedbackMapper;
 import sast.evento.mapper.FeedbackModelMapper;
 import sast.evento.model.FeedbackModel;
-import sast.evento.service.FeedbackService;
+import sast.evento.model.FeedbackNumModel;
+import sast.evento.model.FeedbacksDTO;
+import sast.evento.model.PageModel;
+import sast.evento.service.FeedBackService;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @projectName: sast-evento-backend
@@ -19,11 +23,22 @@ import java.util.List;
  * @date: 2023/8/10 22:51
  */
 @Service
-public class FeedbackServiceImpl implements FeedbackService {
+public class FeedBackServiceImpl implements FeedBackService {
     @Resource
     private FeedbackMapper feedbackMapper;
     @Resource
     private FeedbackModelMapper feedbackModelMapper;
+
+    // 管理获取活动反馈详情
+    @Override
+    public FeedbacksDTO getFeedback(Integer eventId) {
+        FeedbacksDTO feedbacksDTO = feedbackMapper.getFeedback(eventId);
+        if(feedbacksDTO == null){
+            throw new LocalRunTimeException(ErrorEnum.EVENT_NOT_EXIST);
+        }
+        feedbacksDTO.setEventId(eventId);
+        return feedbacksDTO;
+    }
 
     // 用户添加反馈
     @Override
@@ -43,7 +58,7 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     // 用户获取自己的反馈列表
     @Override
-    public List<FeedbackModel> getListByUserId(Integer userId) {
+    public List<FeedbackModel> getListByUserId(String userId) {
         if (userId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
@@ -52,7 +67,7 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     // 用户获取自己的对于某活动的反馈详情（可判断是否反馈）
     @Override
-    public FeedbackModel getFeedback(Integer userId, Integer eventId) {
+    public FeedbackModel getFeedback(String userId, Integer eventId) {
         if (userId == null || eventId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
@@ -65,7 +80,7 @@ public class FeedbackServiceImpl implements FeedbackService {
      * score 为五分制，一位小数。如果传进来的为空，则不做修改。
      */
     @Override
-    public String patchFeedback(Integer userId, Integer feedbackId, String content, Double scoreDou) {
+    public String patchFeedback(String userId, Integer feedbackId, String content, Double scoreDou) {
         if (userId == null || feedbackId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
@@ -91,7 +106,7 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     // 用户删除反馈
     @Override
-    public String deleteFeedback(Integer userId, Integer feedbackId) {
+    public String deleteFeedback(String userId, Integer feedbackId) {
         if (userId == null || feedbackId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
@@ -111,5 +126,12 @@ public class FeedbackServiceImpl implements FeedbackService {
             return null;
         }
         return feedbackModelMapper.getListByEventId(eventId);
+    }
+
+    // 管理端获取活动及其反馈数量列表
+    @Override
+    public PageModel<FeedbackNumModel> getFeedbackEvents(Integer page, Integer size) {
+        Integer index = (page - 1) * size;
+        return feedbackMapper.getFeedbackEvents(index, size);
     }
 }

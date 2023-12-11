@@ -22,5 +22,4 @@ public class AccessTokenRequest {
 
     private String secret;
 
-    private Boolean force_refresh = false;
 }

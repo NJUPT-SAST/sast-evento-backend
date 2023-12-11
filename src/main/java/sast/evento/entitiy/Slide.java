@@ -3,6 +3,7 @@ package sast.evento.entitiy;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @TableName(value = "slide")
 public class Slide {
-    @TableId(value = "id",type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
     private String title;
@@ -25,7 +26,7 @@ public class Slide {
     private String link;
 
     private String url;
-
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer eventId;
 
 }

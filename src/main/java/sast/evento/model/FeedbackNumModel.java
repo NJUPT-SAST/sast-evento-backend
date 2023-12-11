@@ -4,20 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 /**
  * @projectName: sast-evento-backend
- * @author: mio
- * @date: 2023/8/27 20:50
+ * @author Aiden
+ * @date 2023/9/12 21:32
  */
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class PageMdoel<T> {
-
-    private Integer total;
-
-    private List<T> result;
-
+@NoArgsConstructor
+public class FeedbackNumModel {
+    private Integer eventId;
+    private Integer feedbackCount;
+    private String title;
 }

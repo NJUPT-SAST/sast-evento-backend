@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="sast.evento.mapper.EventDepartmentMapper">
+    <insert id="insertBatch" parameterType="java.util.List">
+        INSERT INTO event_department (event_id, department_id)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.eventId}, #{item.departmentId})
+        </foreach>
+    </insert>
+
+    <select id="selectBatchDepartmentByEventIds" parameterType="list" resultType="sast.evento.entitiy.EventDepartment">
+        SELECT ed.id, ed.event_id, ed.department_id , d.department_name
+        from event_department ed LEFT JOIN department d on d.id = ed.department_id
+        where ed.event_id IN (
+        <foreach collection="eventIds" item="item" index="index" separator=",">
+            #{item}
+        </foreach>
+        )
+    </select>
+</mapper>

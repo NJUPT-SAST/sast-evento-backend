@@ -5,19 +5,23 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 import sast.evento.annotation.EventId;
 import sast.evento.common.enums.ErrorEnum;
+import sast.evento.config.ActionRegister;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.model.Action;
-import sast.evento.model.UserProFile;
-import sast.evento.service.ActionService;
+import sast.evento.model.UserModel;
+import sast.evento.service.LoginService;
 import sast.evento.service.PermissionService;
-import sast.evento.service.SastLinkServiceCacheAble;
+import sast.evento.utils.JsonUtil;
 import sast.evento.utils.JwtUtil;
 
 import java.lang.reflect.Method;
@@ -35,26 +39,25 @@ import java.util.Optional;
  */
 @Component
 public class HttpInterceptor implements HandlerInterceptor {
+    public static ThreadLocal<UserModel> userHolder = new ThreadLocal<>();
     @Resource
-    private ActionService actionService;
-    @Resource
-    private SastLinkServiceCacheAble sastLinkServiceCacheAble;
+    private LoginService loginService;
     @Resource
     private PermissionService permissionService;
     @Resource
     private JwtUtil jwtUtil;
-    public static ThreadLocal<UserProFile> userProFileHolder = new ThreadLocal<>();
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) {
         if (handler instanceof ResourceHttpRequestHandler) {
             return true;
         }
         Method method = ((HandlerMethod) handler).getMethod();
         String token = request.getHeader("TOKEN");
-        Action action = Optional.ofNullable(actionService.getAction(method.getName()))
+        if (method.getName().equals("error")) return resolveHttpError(response);
+        Action action = Optional.ofNullable(ActionRegister.actionName2action.get(method.getName()))
                 .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.METHOD_NOT_EXIST, "unsupported service"));
-        String userId = null;
+        UserModel user = null;
         switch (action.getActionState()) {
             /* 鉴权状态可拓展 */
             case INVISIBLE -> throw new LocalRunTimeException(ErrorEnum.METHOD_NOT_EXIST, "method inVisible");
@@ -63,40 +66,67 @@ public class HttpInterceptor implements HandlerInterceptor {
             }
             case LOGIN -> {
                 Map<String, Claim> map = jwtUtil.getClaims(token);
-                userId = map.get("user_id").asString();
+                String userJson = map.get("user").asString();
+                user = JsonUtil.fromJson(userJson, UserModel.class);
+                loginService.checkLoginState(user.getId(), token);
             }
             case MANAGER -> {
                 Map<String, Claim> map = jwtUtil.getClaims(token);
-                userId = map.get("user_id").asString();
+                String userJson = map.get("user").asString();
+                user = JsonUtil.fromJson(userJson, UserModel.class);
+                loginService.checkLoginState(user.getId(), token);
                 EventId eventAnno = Arrays.stream(Optional.ofNullable(method.getParameters()).orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "eventId param is needed")))
                         .filter(param -> AnnotatedElementUtils.hasAnnotation(param, EventId.class))
                         .findAny()
                         .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "annotation EventId on requestParam is needed"))
                         .getAnnotation(EventId.class);
-                String eventId = Optional.ofNullable(request.getParameter(eventAnno.name()))
-                        .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "eventId in requestParam should not be null"));
-                if (!permissionService.checkPermission(userId, Integer.parseInt(eventId), action.getMethodName())) {
+                int eventId;
+                try {
+                    String stringEventId = Optional.ofNullable(request.getParameter(eventAnno.name()))
+                            .orElseThrow(() -> new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "eventId in requestParam should not be null"));
+                    eventId = Integer.parseInt(stringEventId);
+                } catch (NumberFormatException e) {
+                    throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR, "invalid eventId");
+                }
+                if (!permissionService.checkPermission(user.getId(), eventId, action.getMethodName())) {
                     throw new LocalRunTimeException(ErrorEnum.PERMISSION_ERROR);
                 }
             }
             case ADMIN -> {
                 Map<String, Claim> map = jwtUtil.getClaims(token);
-                userId = map.get("user_id").asString();
-                if (!permissionService.checkPermission(userId, 0, action.getMethodName())) {
+                String userJson = map.get("user").asString();
+                user = JsonUtil.fromJson(userJson, UserModel.class);
+                loginService.checkLoginState(user.getId(), token);
+                if (!permissionService.checkPermission(user.getId(), 0, action.getMethodName())) {
                     throw new LocalRunTimeException(ErrorEnum.PERMISSION_ERROR);
                 }
             }
         }
+<<<<<<< HEAD
 //        UserProFile userProFile = sastLinkServiceCacheAble.getUserProFile(userId);//todo 等待对接sastLink
         UserProFile userProFile = new UserProFile();
         userProFile.setUserId("mio");
         userProFileHolder.set(userProFile);
+=======
+        if (user == null) {
+            throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR, "cant check user login info");
+        }
+        userHolder.set(user);
+>>>>>>> main
         return true;
     }
 
+    private boolean resolveHttpError(HttpServletResponse response) {
+        HttpStatus status = HttpStatus.resolve(response.getStatus());
+        if (status != null) {
+            throw new HttpServerErrorException(status);
+        }
+        return false;
+    }
+
     @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response,
-                                Object handler, @Nullable Exception ex) {
-        userProFileHolder.remove();
+    public void afterCompletion(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
+                                @NonNull Object handler, @Nullable Exception ex) {
+        userHolder.remove();
     }
 }

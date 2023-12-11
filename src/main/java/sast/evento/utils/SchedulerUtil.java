@@ -6,13 +6,9 @@ import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.impl.matchers.KeyMatcher;
 import org.quartz.impl.triggers.CronTriggerImpl;
 import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @projectName: Test
@@ -20,15 +16,13 @@ import java.util.Set;
  * @date: 2023/7/26 22:35
  */
 @Slf4j
-@Component
 public class SchedulerUtil {
-    public static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("ss mm HH dd MM ? yyyy");
+    public static final String simpleDateFormatPattern = "ss mm HH dd MM ? yyyy";
     private static final StdSchedulerFactory schedulerFactory = new StdSchedulerFactory();
 
     public static Scheduler getScheduler() throws SchedulerException {
         return schedulerFactory.getScheduler();
     }
-
 
     public static void addJob(String jobName, String jobGroupName, String triggerName, String triggerGroupName, Class<? extends org.quartz.Job> jobClass, @Nullable JobDataMap jobDataMap, String cron) throws SchedulerException {
         Scheduler scheduler = getScheduler();
@@ -46,7 +40,8 @@ public class SchedulerUtil {
                 .build();
         scheduler.scheduleJob(jobDetail, trigger);
     }
-    public static void addRepeatJob(String jobName, String jobGroupName, String triggerName, String triggerGroupName, Class<? extends org.quartz.Job> jobClass, @Nullable JobDataMap jobDataMap, String cron, Date start,Date end) throws SchedulerException {
+
+    public static void addRepeatJob(String jobName, String jobGroupName, String triggerName, String triggerGroupName, Class<? extends org.quartz.Job> jobClass, @Nullable JobDataMap jobDataMap, String cron, Date start, Date end) throws SchedulerException {
         Scheduler scheduler = getScheduler();
         if (scheduler.isShutdown()) {
             throw new RuntimeException("Please contact admin to start the scheduler first.");
@@ -64,65 +59,129 @@ public class SchedulerUtil {
         scheduler.scheduleJob(jobDetail, trigger);
     }
 
-    public static void resetJobCron(String triggerName, String triggerGroupName, String cron) throws Exception {
+    public static void addJob(String jobName, String jobGroupName, String triggerName, String triggerGroupName, Class<? extends org.quartz.Job> jobClass, @Nullable JobDataMap jobDataMap, Date date) throws SchedulerException {
+        Scheduler scheduler = getScheduler();
+        if (scheduler.isShutdown()) {
+            throw new RuntimeException("Please contact admin to start the scheduler first.");
+        }
+        log.info("""
+                jobName: {}
+                jobGroup: {}
+                triggerName: {}
+                triggerGroupName: {}""", jobName, jobGroupName, triggerName, triggerGroupName);
+
+        JobDetail jobDetail = JobBuilder.newJob(jobClass)
+                .withIdentity(jobName, jobGroupName)
+                .setJobData(jobDataMap)
+                .build();
+        SimpleTrigger simpleTrigger = (SimpleTrigger) TriggerBuilder.newTrigger()
+                .withIdentity(triggerName, triggerGroupName)
+                .startAt(date)
+                .build();
+        scheduler.scheduleJob(jobDetail, simpleTrigger);
+    }
+
+
+    public static Boolean resetJobTrigger(String triggerName, String triggerGroupName, String cron) throws Exception {
         Scheduler scheduler = getScheduler();
         TriggerKey triggerKey = new TriggerKey(triggerName, triggerGroupName);
         CronTriggerImpl trigger = (CronTriggerImpl) scheduler.getTrigger(triggerKey);
+        if(trigger == null){
+            log.error("resetRepeatJobFailed:"+triggerGroupName+":"+triggerName);
+            return false;
+        }
+
         if (!trigger.getCronExpression().equalsIgnoreCase(cron)) {
             trigger.setCronExpression(cron);
             scheduler.rescheduleJob(triggerKey, trigger);
         }
+        return true;
     }
 
-    public static void resetRepeatJob(String triggerName, String triggerGroupName, String cron,Date start,Date end) throws Exception {
+    public static Boolean resetJobTrigger(String triggerName, String triggerGroupName, Date date) throws Exception {
+        Scheduler scheduler = getScheduler();
+        TriggerKey triggerKey = new TriggerKey(triggerName, triggerGroupName);
+        SimpleTrigger trigger = (SimpleTrigger) scheduler.getTrigger(triggerKey);
+        if(trigger == null){
+            log.error("resetRepeatJobFailed:"+triggerGroupName+":"+triggerName);
+            return false;
+        }
+
+        if (!trigger.getStartTime().equals(date)) {
+            SimpleTrigger simpleTrigger = (SimpleTrigger) TriggerBuilder.newTrigger()
+                    .withIdentity(triggerKey)
+                    .startAt(date)
+                    .build();
+            scheduler.rescheduleJob(triggerKey, simpleTrigger);
+        }
+        return true;
+    }
+
+    public static Boolean resetRepeatJob(String triggerName, String triggerGroupName, String cron, Date start, Date end) throws Exception {
         Scheduler scheduler = getScheduler();
         TriggerKey triggerKey = new TriggerKey(triggerName, triggerGroupName);
         CronTriggerImpl trigger = (CronTriggerImpl) scheduler.getTrigger(triggerKey);
+        if(trigger == null){
+            log.error("resetRepeatJobFailed:"+triggerGroupName+":"+triggerName);
+            return false;
+        }
+
         if (!trigger.getCronExpression().equalsIgnoreCase(cron)) {
             trigger.setCronExpression(cron);
         }
-        if(start != null){
+        if (start != null) {
             trigger.setStartTime(start);
         }
-        if (end != null){
+        if (end != null) {
             trigger.setEndTime(end);
         }
         scheduler.rescheduleJob(triggerKey, trigger);
+        return true;
     }
 
-    public static void addJobListener(String jobName,String jobGroup, JobListener listener) throws SchedulerException{
+    public static void addJobListener(String jobName, String jobGroup, JobListener listener) throws SchedulerException {
         Scheduler scheduler = getScheduler();
-        JobKey jobKey = new JobKey(jobName,jobGroup);
+        JobKey jobKey = new JobKey(jobName, jobGroup);
         Matcher<JobKey> matcher = KeyMatcher.keyEquals(jobKey);
-        scheduler.getListenerManager().addJobListener(listener,matcher);
+        scheduler.getListenerManager().addJobListener(listener, matcher);
     }
-    public static void removeJobListener(String name,String jobName,String jobGroup) throws SchedulerException{
-        JobKey jobKey = new JobKey(jobName,jobGroup);
+
+    public static void removeJobListener(String name, String jobName, String jobGroup) throws SchedulerException {
+        JobKey jobKey = new JobKey(jobName, jobGroup);
         Matcher<JobKey> matcher = KeyMatcher.keyEquals(jobKey);
         Scheduler scheduler = getScheduler();
-        scheduler.getListenerManager().removeJobListenerMatcher(name,matcher);
+        scheduler.getListenerManager().removeJobListenerMatcher(name, matcher);
     }
 
-    public static void addTriggerListener(String triggerName,String triggerGroup, TriggerListener listener) throws SchedulerException{
+    public static void addTriggerListener(String triggerName, String triggerGroup, TriggerListener listener) throws SchedulerException {
         Scheduler scheduler = getScheduler();
-        TriggerKey triggerKey = new TriggerKey(triggerName,triggerGroup);
+        TriggerKey triggerKey = new TriggerKey(triggerName, triggerGroup);
         Matcher<TriggerKey> matcher = KeyMatcher.keyEquals(triggerKey);
-        scheduler.getListenerManager().addTriggerListener(listener,matcher);
+        scheduler.getListenerManager().addTriggerListener(listener, matcher);
     }
 
-    public static void removeTriggerListener(String name,String triggerName,String triggerGroup) throws SchedulerException{
-        TriggerKey triggerKey = new TriggerKey(triggerName,triggerGroup);
+    public static void removeTriggerListener(String name, String triggerName, String triggerGroup) throws SchedulerException {
+        TriggerKey triggerKey = new TriggerKey(triggerName, triggerGroup);
         Matcher<TriggerKey> matcher = KeyMatcher.keyEquals(triggerKey);
         Scheduler scheduler = getScheduler();
-        scheduler.getListenerManager().removeTriggerListenerMatcher(name,matcher);
+        scheduler.getListenerManager().removeTriggerListenerMatcher(name, matcher);
     }
 
     public static void removeJob(String jobName, String jobGroupName, String triggerName, String triggerGroupName) throws SchedulerException {
         Scheduler scheduler = getScheduler();
+        if (!isJobExist(jobName, jobGroupName, triggerName, triggerGroupName)) {
+            log.info("Job: {} is not exist.", jobName);
+            return;
+        }
         TriggerKey triggerKey = new TriggerKey(triggerName, triggerGroupName);
         scheduler.pauseTrigger(triggerKey);
         scheduler.unscheduleJob(triggerKey);
         scheduler.deleteJob(new JobKey(jobName, jobGroupName));
+    }
+
+    public static Boolean isJobExist(String jobName, String jobGroupName, String triggerName, String triggerGroupName) throws SchedulerException {
+        Scheduler scheduler = getScheduler();
+        return scheduler.checkExists(new JobKey(jobName, jobGroupName)) && scheduler.checkExists(new TriggerKey(triggerName, triggerGroupName));
     }
 
     public static void shutdownScheduler() throws SchedulerException {
@@ -138,11 +197,11 @@ public class SchedulerUtil {
 
     public static void startScheduler() throws SchedulerException {
         Scheduler scheduler = getScheduler();
-        if (scheduler.isShutdown()) {
+        if (!scheduler.isStarted()) {
             scheduler.start();
             log.info("Scheduler start.");
         } else {
-            log.info("Scheduler has start.");
+            log.warn("Scheduler has start.");
         }
     }
 

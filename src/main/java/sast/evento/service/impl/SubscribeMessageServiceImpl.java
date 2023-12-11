@@ -12,6 +12,7 @@ import sast.evento.job.WxSubscribeJob;
 import sast.evento.service.SubscribeMessageService;
 import sast.evento.utils.SchedulerUtil;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -26,15 +27,15 @@ public class SubscribeMessageServiceImpl implements SubscribeMessageService {
     /* 可以定时发送消息的微信订阅消息服务 */
 
     /* 流程如下：
-    * 创建活动时创建定时任务
-    * 修改活动时修改定时任务时间
-    * 取消活动或删除活动时删除定时任务
-    *
-    * 定时任务会在startTime开始读取数据库中订阅某活动的用户（只允许从微信订阅,一定有openId）
-    * 并获取微信stable_access_token,根据模板id和一定的格式发送消息
-    *
-    * 可以选择是否开启这一功能
-    */
+     * 创建活动时创建定时任务
+     * 修改活动时修改定时任务时间
+     * 取消活动或删除活动时删除定时任务
+     *
+     * 定时任务会在startTime开始读取数据库中订阅某活动的用户（只允许从微信订阅,一定有openId）
+     * 并获取微信stable_access_token,根据模板id和一定的格式发送消息
+     *
+     * 可以选择是否开启这一功能
+     */
     private static final String jobGroupName = "job_wx_subscribe";
     private static final String triggerGroupName = "trigger_wx_subscribe";
     @Getter
@@ -60,9 +61,9 @@ public class SubscribeMessageServiceImpl implements SubscribeMessageService {
     @SneakyThrows
     public void addWxSubScribeJob(Integer eventId, Date startTime) {
         if (isClose()) {
-            throw new LocalRunTimeException(ErrorEnum.WX_SUBSCRIBE_ERROR,"Wx subscribe message service is close");
+            throw new LocalRunTimeException(ErrorEnum.WX_SUBSCRIBE_ERROR, "Wx subscribe message service is close");
         }
-        String cron = SchedulerUtil.simpleDateFormat.format(startTime);
+        String cron = new SimpleDateFormat(SchedulerUtil.simpleDateFormatPattern).format(startTime);
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("eventId", eventId);
         String stringEventId = String.valueOf(eventId);
@@ -73,20 +74,22 @@ public class SubscribeMessageServiceImpl implements SubscribeMessageService {
     @SneakyThrows
     public void updateWxSubScribeJob(Integer eventId, Date startTime) {
         if (isClose()) {
-            throw new LocalRunTimeException(ErrorEnum.WX_SUBSCRIBE_ERROR,"Wx subscribe message service is close");
+            throw new LocalRunTimeException(ErrorEnum.WX_SUBSCRIBE_ERROR, "Wx subscribe message service is close");
         }
-        String cron = SchedulerUtil.simpleDateFormat.format(startTime);
-        SchedulerUtil.resetJobCron(String.valueOf(eventId),triggerGroupName, cron);
+        String cron = new SimpleDateFormat(SchedulerUtil.simpleDateFormatPattern).format(startTime);
+        if(!SchedulerUtil.resetJobTrigger(String.valueOf(eventId), triggerGroupName, cron)){
+            addWxSubScribeJob(eventId,startTime);
+        }
     }
 
     /* 删除任务 */
     @SneakyThrows
     public void removeWxSubScribeJob(Integer eventId) {
         if (isClose()) {
-            throw new LocalRunTimeException(ErrorEnum.WX_SUBSCRIBE_ERROR,"Wx subscribe message service is close.");
+            throw new LocalRunTimeException(ErrorEnum.WX_SUBSCRIBE_ERROR, "Wx subscribe message service is close.");
         }
         String stringEventId = String.valueOf(eventId);
-        SchedulerUtil.removeJob(stringEventId,jobGroupName,stringEventId,triggerGroupName);
+        SchedulerUtil.removeJob(stringEventId, jobGroupName, stringEventId, triggerGroupName);
     }
 
 }
