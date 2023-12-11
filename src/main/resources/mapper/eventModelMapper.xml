@@ -130,7 +130,9 @@
     <!--    最新的活动列表（按开始时间正序排列未开始的活动）-->
     <select id="getNewest" resultMap="eventModelMap">
         <include refid="selectFrom" />
-        WHERE e.state = 1
+        <!-- state 小于等于 2。 -->
+        <!-- 未开始 或 报名中 的活动。 -->
+        WHERE e.state &lt;= 2
         ORDER BY e.gmt_event_start ASC
     </select>
 
