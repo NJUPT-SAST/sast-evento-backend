@@ -27,7 +27,7 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     // 用户添加反馈
     @Override
-    public String addFeedback(Integer userId, String content, Double scoreDou, Integer eventId) {
+    public String addFeedback(String userId, String content, Double scoreDou, Integer eventId) {
         if (userId == null || eventId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }

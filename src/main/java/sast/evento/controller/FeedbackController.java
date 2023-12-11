@@ -49,9 +49,21 @@ public class FeedbackController {
             return null;
         }
 
-        String userIdStr = userProFile.getUserId();
-        Integer userIdInt = Integer.valueOf(userIdStr);
-        return feedbackService.addFeedback(userIdInt, content, score, eventId);
+        return feedbackService.addFeedback(userProFile.getUserId(), content, score, eventId);
+    }
+
+    @OperateLog("用户添加反馈")
+    @DefaultActionState(ActionState.LOGIN)
+    @GetMapping("/info")
+    public String addFeed(@RequestParam(required = false) String content,
+                              @RequestParam Double score,
+                              @RequestParam Integer eventId) {
+        UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
+        if (userProFile == null) {
+            return null;
+        }
+
+        return feedbackService.addFeedback(userProFile.getUserId(), content, score, eventId);
     }
 
     @OperateLog("用户获取自己的反馈列表")

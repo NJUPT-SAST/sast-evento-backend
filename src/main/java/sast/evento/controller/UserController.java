@@ -73,7 +73,7 @@ public class UserController {
         return eventService.getSubscribed(userIdInt);
     }
 
-    @OperateLog("报名活动")
+    @OperateLog("报名活动 / 取消报名")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/register")
     public String register(@RequestParam Integer eventId,

@@ -13,6 +13,6 @@ import java.util.List;
 @Repository
 public interface FeedbackMapper extends BaseMapper<Feedback> {
 
-    Integer addFeedback(@Param("userId") Integer userId, @Param("content") String content, @Param("score") Integer score, @Param("eventId") Integer eventId);
+    Integer addFeedback(@Param("userId") String userId, @Param("content") String content, @Param("score") Integer score, @Param("eventId") Integer eventId);
 
 }

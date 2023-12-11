@@ -12,7 +12,7 @@ import java.util.List;
 public interface FeedbackService {
 
     // 用户添加反馈
-    String addFeedback(Integer userId, String content, Double score, Integer eventId);
+    String addFeedback(String userId, String content, Double score, Integer eventId);
 
     // 用户获取自己的反馈列表
     List<FeedbackModel> getListByUserId(Integer userId);
