@@ -102,17 +102,10 @@ public class HttpInterceptor implements HandlerInterceptor {
                 }
             }
         }
-<<<<<<< HEAD
-//        UserProFile userProFile = sastLinkServiceCacheAble.getUserProFile(userId);//todo 等待对接sastLink
-        UserProFile userProFile = new UserProFile();
-        userProFile.setUserId("mio");
-        userProFileHolder.set(userProFile);
-=======
         if (user == null) {
             throw new LocalRunTimeException(ErrorEnum.LOGIN_ERROR, "cant check user login info");
         }
         userHolder.set(user);
->>>>>>> main
         return true;
     }
 

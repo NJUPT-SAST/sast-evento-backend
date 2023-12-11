@@ -26,8 +26,6 @@ public interface FeedbackMapper extends BaseMapper<Feedback> {
     @MapKey("event_id")
     PageModel<FeedbackNumModel> getFeedbackEvents(@Param("index") Integer index, @Param("size") Integer size);
 
-<<<<<<< HEAD
-=======
     /**
      * @param eventId 活动id
      * @return FeedbacksDTO
@@ -36,7 +34,6 @@ public interface FeedbackMapper extends BaseMapper<Feedback> {
     FeedbacksDTO getFeedback(@Param("event_id") Integer eventId);
 
 
->>>>>>> main
     Integer addFeedback(@Param("userId") String userId, @Param("content") String content, @Param("score") Integer score, @Param("eventId") Integer eventId);
 
 }

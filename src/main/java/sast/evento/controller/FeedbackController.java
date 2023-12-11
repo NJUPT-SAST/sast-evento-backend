@@ -51,35 +51,10 @@ public class FeedbackController {
     @DefaultActionState(ActionState.LOGIN)
     @PostMapping("/info")
     public String addFeedback(@RequestParam(required = false) String content,
-<<<<<<< HEAD
-                               @RequestParam Double score,
-                               @RequestParam Integer eventId) {
-        UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        if (userProFile == null) {
-            return null;
-        }
-
-        return feedbackService.addFeedback(userProFile.getUserId(), content, score, eventId);
-    }
-
-    @OperateLog("用户添加反馈")
-    @DefaultActionState(ActionState.LOGIN)
-    @GetMapping("/info")
-    public String addFeed(@RequestParam(required = false) String content,
-                              @RequestParam Double score,
-                              @RequestParam Integer eventId) {
-        UserProFile userProFile = HttpInterceptor.userProFileHolder.get();
-        if (userProFile == null) {
-            return null;
-        }
-
-        return feedbackService.addFeedback(userProFile.getUserId(), content, score, eventId);
-=======
                               @RequestParam Double score,
                               @RequestParam Integer eventId) {
         UserModel user = HttpInterceptor.userHolder.get();
         return feedBackService.addFeedback(user.getId(), content, score, eventId);
->>>>>>> main
     }
 
     @OperateLog("用户自己的获取反馈列表")
