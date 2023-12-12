@@ -77,10 +77,14 @@ public interface EventModelMapper {
                                         @Param("next_monday") Date nextMonday);
 
 
-    // 获取已订阅的活动列表
-    List<EventModel> getSubscribed(@Param("userId") String userId);
+    // 获取已订阅的活动列表（本周和未来的活动）
+    List<EventModel> getSubscribed(@Param("userId") String userId,
+                                   @Param("monday") Date monday,
+                                   @Param("next_monday") Date nextMonday);
 
-    // 获取已报名的活动列表
-    List<EventModel> getRegistered(@Param("userId") String userId);
+    // 获取已报名的活动列表（本周和未来的活动）
+    List<EventModel> getRegistered(@Param("userId") String userId,
+                                   @Param("monday") Date monday,
+                                   @Param("next_monday") Date nextMonday);
 
 }

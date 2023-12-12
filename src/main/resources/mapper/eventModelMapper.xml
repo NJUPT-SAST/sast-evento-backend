@@ -196,19 +196,31 @@
         <include refid="byDepartmentId"/>
     </select>
 
-<!--    获取已订阅的活动列表-->
+<!--    获取已订阅的活动列表（本周和未来的活动）-->
     <select id="getSubscribed" resultMap="eventModelMap">
-        <include refid="selectFrom" />
+        <include refid="selectFrom"/>
         LEFT JOIN
             participate AS p ON e.id = p.event_id
-        WHERE p.user_id = #{userId} AND p.is_subscribe = 1
+        WHERE
+        p.user_id = #{userId}
+        AND
+        p.is_subscribe = 1
+        AND
+        <include refid="byTime"/>
+        ORDER BY e.gmt_event_start DESC
     </select>
 
-    <!--    获取已报名的活动列表-->
+    <!--    获取已报名的活动列表（本周和未来的活动）-->
     <select id="getRegistered" resultMap="eventModelMap">
-        <include refid="selectFrom" />
+        <include refid="selectFrom"/>
         LEFT JOIN
             participate AS p ON e.id = p.event_id
-        WHERE p.user_id = #{userId} AND p.is_registration = 1
+        WHERE
+        p.user_id = #{userId}
+        AND
+        p.is_registration = 1
+        AND
+        <include refid="byTime"/>
+        ORDER BY e.gmt_event_start DESC
     </select>
 </mapper>

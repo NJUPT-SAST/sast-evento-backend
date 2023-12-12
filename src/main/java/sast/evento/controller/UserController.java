@@ -57,6 +57,7 @@ public class UserController {
         return participateService.subscribe(user.getId(), eventId, isSubscribe);
     }
 
+    // 本周和未来的活动
     @OperateLog("获取已订阅的活动列表")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/subscribed")
@@ -74,6 +75,7 @@ public class UserController {
         return participateService.register(user.getId(), eventId, isRegister);
     }
 
+    // 本周和未来的活动
     @OperateLog("获取已报名的活动列表")
     @DefaultActionState(ActionState.LOGIN)
     @GetMapping("/registered")
