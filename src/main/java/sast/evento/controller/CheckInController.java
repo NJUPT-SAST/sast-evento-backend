@@ -39,8 +39,7 @@ public class CheckInController {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR,"code shouldn't be empty");
         }
         Integer eventId = codeService.getEventIdFromAuthCode(code);
-        participateService.participate(user.getId(),eventId,true);
-        return "签到成功";
+        return participateService.participate(user.getId(),eventId,true);
     }
 
     @OperateLog("生成活动签到二维码的验证码")
