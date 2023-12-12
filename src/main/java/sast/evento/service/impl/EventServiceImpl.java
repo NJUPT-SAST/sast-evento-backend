@@ -127,13 +127,21 @@ public class EventServiceImpl implements EventService {
         return res;
     }
 
-    // 获取已订阅的活动列表
+    // 获取已订阅的活动列表（本周和未来的活动）
     @Override
     public List<EventModel> getSubscribed(String userId) {
         if (userId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
-        return eventModelMapper.getSubscribed(userId);
+        String time = timeUtil.getTime();
+        List<Date> dates = timeUtil.getDateOfMonday(time);
+        if(dates == null || dates.isEmpty()) {
+            throw new LocalRunTimeException(ErrorEnum.TIME_ERROR);
+        }
+        // 结束日期设为无限大，获取的不是Date最大时间而是MySQL中datetime最大时间
+        final Date FINAL_DATE = timeUtil.validTime("9999-12-31").getTime();
+        dates.set(1, FINAL_DATE);
+        return eventModelMapper.getSubscribed(userId, dates.get(0), dates.get(1));
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -401,12 +409,21 @@ public class EventServiceImpl implements EventService {
         return eventModelMapper.postForEventsByAll(typeId, departmentId, date.get(0), date.get(1));
     }
 
+    // 获取已报名的活动列表（本周和未来的活动）
     @Override
     public List<EventModel> getRegistered(String userId) {
         if (userId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
         }
-        return eventModelMapper.getRegistered(userId);
+        String time = timeUtil.getTime();
+        List<Date> dates = timeUtil.getDateOfMonday(time);
+        if(dates == null || dates.isEmpty()) {
+            throw new LocalRunTimeException(ErrorEnum.TIME_ERROR);
+        }
+        // 结束日期设为无限大，获取的不是Date最大时间而是MySQL中datetime最大时间
+        final Date FINAL_DATE = timeUtil.validTime("9999-12-31").getTime();
+        dates.set(1, FINAL_DATE);
+        return eventModelMapper.getRegistered(userId, dates.get(0), dates.get(1));
     }
 
     private EventState getMatchState(Date registrationStart, Date registrationEnd, Date eventStart, Date eventEnd) {

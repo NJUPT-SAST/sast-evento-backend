@@ -28,10 +28,10 @@ public interface EventService {
     // 获取活动列表
     PageModel<EventModel> getEvents(Integer page, Integer size);
 
-    // 获取已订阅的活动列表
+    // 获取已订阅的活动列表（本周和未来的活动）
     List<EventModel> getSubscribed(String userId);
 
-    // 获取已报名的活动列表
+    // 获取已报名的活动列表（本周和未来的活动）
     List<EventModel> getRegistered(String userId);
 
     // 发起活动（添加活动）
