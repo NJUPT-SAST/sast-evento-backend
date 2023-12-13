@@ -7,7 +7,6 @@ import org.quartz.impl.matchers.KeyMatcher;
 import org.quartz.impl.triggers.CronTriggerImpl;
 import org.springframework.lang.Nullable;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -86,8 +85,8 @@ public class SchedulerUtil {
         Scheduler scheduler = getScheduler();
         TriggerKey triggerKey = new TriggerKey(triggerName, triggerGroupName);
         CronTriggerImpl trigger = (CronTriggerImpl) scheduler.getTrigger(triggerKey);
-        if(trigger == null){
-            log.error("resetRepeatJobFailed:"+triggerGroupName+":"+triggerName);
+        if (trigger == null) {
+            log.error("resetRepeatJobFailed:" + triggerGroupName + ":" + triggerName);
             return false;
         }
 
@@ -102,8 +101,8 @@ public class SchedulerUtil {
         Scheduler scheduler = getScheduler();
         TriggerKey triggerKey = new TriggerKey(triggerName, triggerGroupName);
         SimpleTrigger trigger = (SimpleTrigger) scheduler.getTrigger(triggerKey);
-        if(trigger == null){
-            log.error("resetRepeatJobFailed:"+triggerGroupName+":"+triggerName);
+        if (trigger == null) {
+            log.error("resetRepeatJobFailed:" + triggerGroupName + ":" + triggerName);
             return false;
         }
 
@@ -121,8 +120,8 @@ public class SchedulerUtil {
         Scheduler scheduler = getScheduler();
         TriggerKey triggerKey = new TriggerKey(triggerName, triggerGroupName);
         CronTriggerImpl trigger = (CronTriggerImpl) scheduler.getTrigger(triggerKey);
-        if(trigger == null){
-            log.error("resetRepeatJobFailed:"+triggerGroupName+":"+triggerName);
+        if (trigger == null) {
+            log.error("resetRepeatJobFailed:" + triggerGroupName + ":" + triggerName);
             return false;
         }
 

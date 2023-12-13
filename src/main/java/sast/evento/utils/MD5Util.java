@@ -12,11 +12,11 @@ public class MD5Util {
     private static final String HEX_DIGITS[] = {"0", "1", "2", "3", "4", "5",
             "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"};
 
-    public static String md5Encode(String origin,String salt) {
+    public static String md5Encode(String origin, String salt) {
 
         String resultString = null;
         try {
-            resultString = salt+origin;
+            resultString = salt + origin;
             MessageDigest md = MessageDigest.getInstance("MD5");
             resultString = byteArrayToHexString(md.digest(resultString
                     .getBytes(UTF_8)));
@@ -26,11 +26,11 @@ public class MD5Util {
         return resultString;
     }
 
-    public static String getSalt(Integer size){
+    public static String getSalt(Integer size) {
         char[] chars = ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" +
                 "1234567890!@#$%^&*()_+").toCharArray();
         StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < size; i++){
+        for (int i = 0; i < size; i++) {
             //Random().nextInt()返回值为[0,n)
             char aChar = chars[ThreadLocalRandom.current().nextInt(chars.length)];
             sb.append(aChar);

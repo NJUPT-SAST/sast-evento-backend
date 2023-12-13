@@ -19,12 +19,12 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class JwtUtil {
 
+    public static final String TOKEN = "token:";
     private final RedisUtil redisUtil;
-    @Value("${jwt.secret}")
-    private String secret;
     @Value("${jwt.expiration}")
     public Integer expiration;
-    public static final String TOKEN = "token:";
+    @Value("${jwt.secret}")
+    private String secret;
 
 
     public JwtUtil(RedisUtil redisUtil) {

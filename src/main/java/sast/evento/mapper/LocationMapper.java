@@ -14,5 +14,5 @@ public interface LocationMapper extends BaseMapper<Location> {
     // 结果为以空格分割的完整字符串，例：“中国 江苏省 南京市 栖霞区 南邮”
     String getLocationName(@Param("locationId") Integer locationId);
 
-    void updateLocationName(@Param("id") Integer id,@Param("location_name")String locationName);
+    void updateLocationName(@Param("id") Integer id, @Param("location_name") String locationName);
 }

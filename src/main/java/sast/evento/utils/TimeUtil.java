@@ -17,6 +17,8 @@ import java.util.List;
  */
 @Component
 public class TimeUtil {
+    // 结束日期设为无限大，获取的不是Date最大时间而是MySQL中datetime最大时间
+    public final Date FINAL_DATE = validTime("9999-12-31").getTime();
 
     /**
      * @param time String类型
@@ -68,7 +70,7 @@ public class TimeUtil {
      * @return String 获取当前yyyy-MM-dd格式的日期
      * @author Aiden
      */
-    public String getTime(){
+    public String getTime() {
         Date date = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         return dateFormat.format(date);
