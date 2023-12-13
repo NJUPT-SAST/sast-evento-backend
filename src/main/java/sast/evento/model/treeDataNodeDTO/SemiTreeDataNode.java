@@ -1,6 +1,5 @@
 package sast.evento.model.treeDataNodeDTO;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SemiTreeDataNode extends AbstractTreeDataNode{
+public class SemiTreeDataNode extends AbstractTreeDataNode {
 
     private String label;
 

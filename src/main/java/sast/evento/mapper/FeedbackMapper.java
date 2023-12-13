@@ -6,10 +6,6 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 import sast.evento.entitiy.Feedback;
-
-import java.util.List;
-import java.util.Map;
-
 import sast.evento.model.FeedbackNumModel;
 import sast.evento.model.FeedbacksDTO;
 import sast.evento.model.PageModel;

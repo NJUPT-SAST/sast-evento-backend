@@ -18,10 +18,10 @@ public class TicketUtil {
     }
 
 
-    public static String[] getInfoFromTicket(String ticket){
+    public static String[] getInfoFromTicket(String ticket) {
         int p1 = ticket.indexOf(':');
         int p2 = ticket.lastIndexOf(':');
-        return new String[]{ticket.substring(0,p1),ticket.substring(p1+2,p2-1),ticket.substring(p1+1)};
+        return new String[]{ticket.substring(0, p1), ticket.substring(p1 + 2, p2 - 1), ticket.substring(p1 + 1)};
     }
 
     public static String generateRandomStr() {

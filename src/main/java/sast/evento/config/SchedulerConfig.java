@@ -22,7 +22,7 @@ public class SchedulerConfig implements ApplicationListener<ContextRefreshedEven
             log.info("Start Scheduler");
             SchedulerUtil.startScheduler();
         } catch (SchedulerException e) {
-            throw new LocalRunTimeException(ErrorEnum.SCHEDULER_ERROR,"error start");
+            throw new LocalRunTimeException(ErrorEnum.SCHEDULER_ERROR, "error start");
         }
     }
 }

@@ -165,6 +165,7 @@
         <include refid="selectFrom"/>
         WHERE
         <include refid="byTime"/>
+        ORDER BY e.gmt_event_start DESC
     </select>
 
     <!--    根据departmentId和time选出活动列表   -->
@@ -174,6 +175,7 @@
         <include refid="byTime"/>
         AND
         <include refid="byDepartmentId"/>
+        ORDER BY e.gmt_event_start DESC
     </select>
 
     <!--    根据typeId和time选出活动列表    -->
@@ -183,6 +185,7 @@
         <include refid="byTypeId"/>
         AND
         <include refid="byTime"/>
+        ORDER BY e.gmt_event_start DESC
     </select>
 
     <!--    根据三个筛选条件选出活动列表    -->
@@ -194,6 +197,7 @@
         <include refid="byTypeId"/>
         AND
         <include refid="byDepartmentId"/>
+        ORDER BY e.gmt_event_start DESC
     </select>
 
 <!--    获取已订阅的活动列表（本周和未来的活动）-->

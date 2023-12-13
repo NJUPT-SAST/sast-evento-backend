@@ -44,7 +44,7 @@ public class CosUtil {
         if (originalFileName == null || originalFileName.isEmpty()) {
             throw new IllegalArgumentException("name of upload file is empty.");
         }
-        if(!originalFileName.contains(".")){
+        if (!originalFileName.contains(".")) {
             throw new IllegalArgumentException("error originalFileName");
         }
         int idx = originalFileName.lastIndexOf(".");
@@ -102,7 +102,7 @@ public class CosUtil {
                 .toList();
     }
 
-    public static String changeKey2URL(String key){
+    public static String changeKey2URL(String key) {
         return "https://" + bucketName + ".cos." + COS_REGION + ".myqcloud.com/" + key;
     }
 

@@ -32,9 +32,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class ActionRegister implements BeanFactoryAware, CommandLineRunner {
-    public ListableBeanFactory beanFactory;
     public static Map<String, Action> actionName2action = new HashMap<>();
     public static Set<String> actionNameSet;
+    public ListableBeanFactory beanFactory;
 
     @Override
     public void setBeanFactory(@NonNull BeanFactory beanFactory) throws BeansException {
@@ -64,7 +64,7 @@ public class ActionRegister implements BeanFactoryAware, CommandLineRunner {
                 }
                 String methodName = m.getName();
 
-                actionName2action.put(methodName, new Action(m.getName(), d.group(), d.value(),ano.value()));
+                actionName2action.put(methodName, new Action(m.getName(), d.group(), d.value(), ano.value()));
             }
         }
         actionNameSet = actionName2action.keySet();
