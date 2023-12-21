@@ -1,6 +1,7 @@
 package sast.evento.service.impl;
 
 
+import jakarta.annotation.Resource;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -10,10 +11,12 @@ import sast.evento.common.enums.ErrorEnum;
 import sast.evento.exception.LocalRunTimeException;
 import sast.evento.job.WxSubscribeJob;
 import sast.evento.service.SubscribeMessageService;
-import sast.evento.utils.SchedulerUtil;
+import sast.evento.utils.SchedulerService;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import static sast.evento.utils.SchedulerService.simpleDateFormatPattern;
 
 /**
  * @projectName: Test
@@ -40,6 +43,8 @@ public class SubscribeMessageServiceImpl implements SubscribeMessageService {
     private static final String triggerGroupName = "trigger_wx_subscribe";
     @Getter
     private static Boolean isOpen = true;
+    @Resource
+    private SchedulerService schedulerService;
 
     /* 开启任务 */
     public void open() {
@@ -54,7 +59,7 @@ public class SubscribeMessageServiceImpl implements SubscribeMessageService {
     /* 查看任务是否关闭 */
     @SneakyThrows
     public Boolean isClose() {
-        return (!isOpen) || SchedulerUtil.isShutdown();
+        return (!isOpen) || schedulerService.isShutdown();
     }
 
     /* 添加定时读取并发送活动提醒任务 */
@@ -63,11 +68,11 @@ public class SubscribeMessageServiceImpl implements SubscribeMessageService {
         if (isClose()) {
             throw new LocalRunTimeException(ErrorEnum.WX_SUBSCRIBE_ERROR, "Wx subscribe message service is close");
         }
-        String cron = new SimpleDateFormat(SchedulerUtil.simpleDateFormatPattern).format(startTime);
+        String cron = new SimpleDateFormat(simpleDateFormatPattern).format(startTime);
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("eventId", eventId);
         String stringEventId = String.valueOf(eventId);
-        SchedulerUtil.addJob(stringEventId, jobGroupName, stringEventId, triggerGroupName, WxSubscribeJob.class, jobDataMap, cron);
+        schedulerService.addJob(stringEventId, jobGroupName, stringEventId, triggerGroupName, WxSubscribeJob.class, jobDataMap, cron);
     }
 
     /* 更新任务时间 */
@@ -76,9 +81,9 @@ public class SubscribeMessageServiceImpl implements SubscribeMessageService {
         if (isClose()) {
             throw new LocalRunTimeException(ErrorEnum.WX_SUBSCRIBE_ERROR, "Wx subscribe message service is close");
         }
-        String cron = new SimpleDateFormat(SchedulerUtil.simpleDateFormatPattern).format(startTime);
-        if(!SchedulerUtil.resetJobTrigger(String.valueOf(eventId), triggerGroupName, cron)){
-            addWxSubScribeJob(eventId,startTime);
+        String cron = new SimpleDateFormat(simpleDateFormatPattern).format(startTime);
+        if (!schedulerService.resetJobTrigger(String.valueOf(eventId), triggerGroupName, cron)) {
+            addWxSubScribeJob(eventId, startTime);
         }
     }
 
@@ -89,7 +94,7 @@ public class SubscribeMessageServiceImpl implements SubscribeMessageService {
             throw new LocalRunTimeException(ErrorEnum.WX_SUBSCRIBE_ERROR, "Wx subscribe message service is close.");
         }
         String stringEventId = String.valueOf(eventId);
-        SchedulerUtil.removeJob(stringEventId, jobGroupName, stringEventId, triggerGroupName);
+        schedulerService.removeJob(stringEventId, jobGroupName, stringEventId, triggerGroupName);
     }
 
 }
