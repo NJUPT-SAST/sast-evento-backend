@@ -15,6 +15,7 @@ import sast.evento.model.treeDataNodeDTO.AntDesignTreeDataNode;
 import sast.evento.model.treeDataNodeDTO.TreeDataNode;
 import sast.evento.service.PermissionService;
 import sast.evento.service.PermissionServiceCacheAble;
+import sast.sastlink.sdk.enums.Organization;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -213,4 +214,18 @@ public class PermissionServiceImpl implements PermissionService {
                         List::addAll);
     }
 
+    @Override
+    public Page<User> getUsers(Integer current, Integer size) {
+        return userMapper.selectPage(new Page<>(current,size),Wrappers.lambdaQuery(User.class));
+    }
+
+    @Override
+    public Page<User> searchUsers(String keyword, Integer current, Integer size){
+        List<Integer> orgs = Arrays.stream(Organization.values())
+                .filter(organization -> organization.getOrg().contains(keyword))
+                .map(Organization::getId).toList();
+        return userMapper.selectPage(new Page<>(current,size),Wrappers.lambdaQuery(User.class)
+                .like(User::getStudentId,keyword).or().like(User::getNickname,keyword).or()
+                .in(User::getOrganization,orgs).orderByDesc(User::getId));
+    }
 }
