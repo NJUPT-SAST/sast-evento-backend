@@ -49,4 +49,7 @@ public interface PermissionService {
 
     Boolean checkPermission(String userId, Integer eventId, String methodName);
 
+    Page<User> getUsers( Integer current, Integer size);
+
+    Page<User> searchUsers(String keyword, Integer current, Integer size);
 }
