@@ -15,7 +15,6 @@ import sast.evento.model.PageModel;
 import sast.evento.service.FeedBackService;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @projectName: sast-evento-backend
@@ -33,7 +32,7 @@ public class FeedBackServiceImpl implements FeedBackService {
     @Override
     public FeedbacksDTO getFeedback(Integer eventId) {
         FeedbacksDTO feedbacksDTO = feedbackMapper.getFeedback(eventId);
-        if(feedbacksDTO == null){
+        if (feedbacksDTO == null) {
             throw new LocalRunTimeException(ErrorEnum.EVENT_NOT_EXIST);
         }
         feedbacksDTO.setEventId(eventId);
@@ -92,7 +91,7 @@ public class FeedBackServiceImpl implements FeedBackService {
                 return "分数不正确，请输入 0~5 之间的数字";
             }
             // 将 score 扩大十倍并转化为 Integer 存入数据库
-            Integer scoreInt = (int)(scoreDou * 10);
+            Integer scoreInt = (int) (scoreDou * 10);
             feedback.setScore(scoreInt);
         }
 
@@ -122,9 +121,6 @@ public class FeedBackServiceImpl implements FeedBackService {
     // 获取活动反馈列表（该活动的所有人的反馈）
     @Override
     public List<FeedbackModel> getListByEventId(Integer eventId) {
-        if (eventId == null) {
-            return null;
-        }
         return feedbackModelMapper.getListByEventId(eventId);
     }
 

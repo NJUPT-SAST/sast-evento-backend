@@ -6,13 +6,11 @@ import sast.evento.annotation.DefaultActionState;
 import sast.evento.annotation.EventId;
 import sast.evento.annotation.OperateLog;
 import sast.evento.common.enums.ActionState;
-import sast.evento.entitiy.User;
 import sast.evento.interceptor.HttpInterceptor;
 import sast.evento.model.*;
 import sast.evento.service.FeedBackService;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/feedback")
@@ -26,7 +24,7 @@ public class FeedbackController {
      * @author Aiden
      */
     @OperateLog("获取某活动反馈详情")
-    @DefaultActionState(value = ActionState.ADMIN,group = "feedback")
+    @DefaultActionState(value = ActionState.ADMIN, group = "feedback")
     @GetMapping("/event")
     public FeedbacksDTO getFeedback(@RequestParam @EventId Integer eventId) {
         return feedBackService.getFeedback(eventId);
@@ -39,7 +37,7 @@ public class FeedbackController {
      * @author Aiden
      */
     @OperateLog("获取活动及其反馈数量列表")
-    @DefaultActionState(value = ActionState.ADMIN,group = "feedback")
+    @DefaultActionState(value = ActionState.ADMIN, group = "feedback")
     @GetMapping("/num")
     public PageModel<FeedbackNumModel> getFeedbackEvents(
             @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,

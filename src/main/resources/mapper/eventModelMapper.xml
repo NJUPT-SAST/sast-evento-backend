@@ -43,33 +43,31 @@
                e.gmt_registration_start,
                e.gmt_registration_end,
                e.location_id,
-               (
-                   WITH RECURSIVE location_tree (id, location_name, parent_id, full_location) AS (SELECT l1.id,
-                                                                                                         l1.location_name,
-                                                                                                         l1.parent_id,
-                                                                                                         CAST(location_name AS CHAR(200))
-                                                                                                  FROM location l1
-                                                                                                  WHERE l1.id = e.location_id
-                                                                                                  UNION ALL
-                                                                                                  SELECT l.id,
-                                                                                                         l.location_name,
-                                                                                                         l.parent_id,
-                                                                                                         CONCAT(l.location_name, lt.full_location)
-                                                                                                  FROM location l
-                                                                                                           INNER JOIN
-                                                                                                       location_tree lt ON l.id = lt.parent_id)
+               (WITH RECURSIVE location_tree (id, location_name, parent_id, full_location) AS (SELECT l1.id,
+                                                                                                      l1.location_name,
+                                                                                                      l1.parent_id,
+                                                                                                      CAST(location_name AS CHAR(200))
+                                                                                               FROM location l1
+                                                                                               WHERE l1.id = e.location_id
+                                                                                               UNION ALL
+                                                                                               SELECT l.id,
+                                                                                                      l.location_name,
+                                                                                                      l.parent_id,
+                                                                                                      CONCAT(l.location_name, lt.full_location)
+                                                                                               FROM location l
+                                                                                                        INNER JOIN
+                                                                                                    location_tree lt ON l.id = lt.parent_id)
 
-                   SELECT full_location
-                   FROM location_tree
-                   WHERE parent_id = 0
-                   )             AS location,
+                SELECT full_location
+                FROM location_tree
+                WHERE parent_id = 0) AS location,
                e.tag,
                e.state,
-               t.id              AS type_id,
+               t.id                  AS type_id,
                t.type_name,
                t.allow_conflict,
-               d.id              AS department_id,
-               d.department_name AS department_name
+               d.id                  AS department_id,
+               d.department_name     AS department_name
         FROM event AS e
                  LEFT JOIN
              type AS t ON e.type_id = t.id
@@ -109,27 +107,27 @@
     </sql>
 
     <select id="getById" resultMap="eventModelMap">
-        <include refid="selectFrom" />
+        <include refid="selectFrom"/>
         WHERE e.id = #{eventId}
     </select>
 
     <!--    正在进行的活动列表-->
     <select id="getConducting" resultMap="eventModelMap">
-        <include refid="selectFrom" />
+        <include refid="selectFrom"/>
         WHERE e.state = 3
     </select>
 
     <!--    查看用户历史活动列表（参加过已结束）-->
     <select id="getHistory" resultMap="eventModelMap">
-        <include refid="selectFrom" />
+        <include refid="selectFrom"/>
         LEFT JOIN
-            participate AS p ON e.id = p.event_id
+        participate AS p ON e.id = p.event_id
         WHERE p.user_id = #{userId} AND p.is_participate = 1
     </select>
 
     <!--    最新的活动列表（按开始时间正序排列未开始的活动）-->
     <select id="getNewest" resultMap="eventModelMap">
-        <include refid="selectFrom" />
+        <include refid="selectFrom"/>
         <!-- state 小于等于 2。 -->
         <!-- 未开始 或 报名中 的活动。 -->
         WHERE e.state &lt;= 2
@@ -137,8 +135,8 @@
     </select>
 
     <select id="getEvents" resultMap="pageModelMap">
-        SELECT  t.total,
-                e.id,
+        SELECT t.total,
+               e.id,
                e.title,
                e.description,
                e.gmt_event_start,
@@ -148,16 +146,16 @@
                e.location_id,
                e.tag,
                e.state,
-               t.id              AS type_id,
+               t.id AS type_id,
                t.type_name,
                t.allow_conflict
         FROM event AS e
                  LEFT JOIN
              type AS t ON e.type_id = t.id
                  JOIN
-             (SELECT id FROM event ORDER BY id DESC LIMIT #{index}, #{size} ) AS e_ids ON e.id = e_ids.id
+                 (SELECT id FROM event ORDER BY id DESC LIMIT #{index}, #{size}) AS e_ids ON e.id = e_ids.id
                  LEFT JOIN
-             (SELECT COUNT(event.id) AS total FROM event) AS t ON 1 = 1 ;
+                 (SELECT COUNT(event.id) AS total FROM event) AS t ON 1 = 1;
     </select>
 
     <!--    根据time选出活动列表获取活动列表    -->
@@ -200,11 +198,11 @@
         ORDER BY e.gmt_event_start DESC
     </select>
 
-<!--    获取已订阅的活动列表（本周和未来的活动）-->
+    <!--    获取已订阅的活动列表（本周和未来的活动）-->
     <select id="getSubscribed" resultMap="eventModelMap">
         <include refid="selectFrom"/>
         LEFT JOIN
-            participate AS p ON e.id = p.event_id
+        participate AS p ON e.id = p.event_id
         WHERE
         p.user_id = #{userId}
         AND
@@ -218,7 +216,7 @@
     <select id="getRegistered" resultMap="eventModelMap">
         <include refid="selectFrom"/>
         LEFT JOIN
-            participate AS p ON e.id = p.event_id
+        participate AS p ON e.id = p.event_id
         WHERE
         p.user_id = #{userId}
         AND
