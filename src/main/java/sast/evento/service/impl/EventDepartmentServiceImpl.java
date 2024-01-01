@@ -1,7 +1,6 @@
 package sast.evento.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import sast.evento.common.enums.ErrorEnum;
@@ -81,11 +80,11 @@ public class EventDepartmentServiceImpl implements EventDepartmentService {
     @Override
     public Map<Integer, List<Department>> getEventDepartmentListMap(List<Integer> eventIds) {
         List<EventDepartment> eventDepartments = eventDepartmentMapper.selectBatchDepartmentByEventIds(eventIds);
-        Map<Integer,List<Department>> res = new HashMap<>();
-        Map<Integer,Department> departmentMap = new HashMap<>();
-        for (EventDepartment eventDepartment: eventDepartments) {
+        Map<Integer, List<Department>> res = new HashMap<>();
+        Map<Integer, Department> departmentMap = new HashMap<>();
+        for (EventDepartment eventDepartment : eventDepartments) {
             List<Department> departments = res.computeIfAbsent(eventDepartment.getEventId(), k -> new ArrayList<>());
-            Department department = departmentMap.computeIfAbsent(eventDepartment.getDepartmentId(),k -> new Department(k, eventDepartment.getDepartmentName()));
+            Department department = departmentMap.computeIfAbsent(eventDepartment.getDepartmentId(), k -> new Department(k, eventDepartment.getDepartmentName()));
             departments.add(department);
         }
         return res;

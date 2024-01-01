@@ -1,8 +1,10 @@
 package sast.evento.model;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import sast.evento.common.typehandler.FeedbackScoreTypeHandler;
 
 /**
  * @projectName: sast-evento-backend
@@ -18,6 +20,7 @@ public class FeedbackModel {
 
     private String content;
 
+    @TableField(typeHandler = FeedbackScoreTypeHandler.class)
     private Double score;
 
     private Integer eventId;

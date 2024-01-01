@@ -1,8 +1,10 @@
 package sast.evento.model;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import sast.evento.common.typehandler.FeedbackScoreTypeHandler;
 
 import java.util.List;
 
@@ -16,6 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 public class FeedbacksDTO {
     private Integer eventId;
+    @TableField(typeHandler = FeedbackScoreTypeHandler.class)
     private Double average;
     private Integer subscribeNum;
     private Integer registrationNum;
