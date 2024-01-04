@@ -7,11 +7,11 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import fun.feellmoose.model.UserInfo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import sast.evento.common.typehandler.OrganizationTypeHandler;
-import sast.sastlink.sdk.model.UserInfo;
 
 import java.util.List;
 
