@@ -1,6 +1,8 @@
 package sast.evento.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import fun.feellmoose.test.TestSastLinkServiceAdapter;
+import fun.feellmoose.test.data.Token;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -22,8 +24,7 @@ import sast.evento.mapper.PermissionMapper;
 import sast.evento.model.Action;
 import sast.evento.model.UserModel;
 import sast.evento.service.PermissionService;
-import sast.sastlink.sdk.test.RestTemplateTestSastLinkService;
-import sast.sastlink.sdk.test.data.Token;
+
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,11 +39,11 @@ public class TestController {
     private String method;
 
     @Resource
-    private RestTemplateTestSastLinkService sastLinkService;
+    private TestSastLinkServiceAdapter sastLinkService;
     @Resource
-    private RestTemplateTestSastLinkService sastLinkServiceWeb;
+    private TestSastLinkServiceAdapter sastLinkServiceWeb;
     @Resource
-    private RestTemplateTestSastLinkService sastLinkServiceMobileDev;
+    private TestSastLinkServiceAdapter sastLinkServiceMobileDev;
     @Resource
     private PermissionService permissionService;
     @Resource
@@ -57,7 +58,7 @@ public class TestController {
     public String linkLogin(@RequestParam Integer type,
                             @RequestParam String email,
                             @RequestParam String password) {
-        RestTemplateTestSastLinkService service = switch (type) {
+        TestSastLinkServiceAdapter service = switch (type) {
             case 0 -> sastLinkService;
             case 1 -> sastLinkServiceWeb;
             case 2 -> sastLinkServiceMobileDev;
