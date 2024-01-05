@@ -1,9 +1,7 @@
 package sast.evento.service;
 
-import org.springframework.stereotype.Service;
 import sast.evento.entitiy.Department;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -13,8 +11,12 @@ import java.util.Map;
  */
 public interface EventDepartmentService {
     Boolean addEventDepartment(Integer eventId, Integer departmentId);
+
     Boolean deleteEventDepartment(Integer id);
+
     Boolean addEventDepartments(Integer eventId, List<Department> departmentIds);
+
     Boolean deleteEventDepartmentsByEventId(Integer eventId);
-    Map<Integer,List<Department>> getEventDepartmentListMap(List<Integer> eventIds);
+
+    Map<Integer, List<Department>> getEventDepartmentListMap(List<Integer> eventIds);
 }

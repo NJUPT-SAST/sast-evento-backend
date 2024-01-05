@@ -1,8 +1,8 @@
 package sast.evento.common.typehandler;
 
+import fun.feellmoose.enums.Organization;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
-import sast.sastlink.sdk.enums.Organization;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;

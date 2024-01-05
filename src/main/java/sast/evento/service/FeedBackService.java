@@ -6,7 +6,6 @@ import sast.evento.model.FeedbacksDTO;
 import sast.evento.model.PageModel;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @projectName: sast-evento-backend

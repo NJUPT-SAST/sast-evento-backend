@@ -13,7 +13,10 @@ import sast.evento.entitiy.Department;
 import sast.evento.entitiy.Event;
 import sast.evento.entitiy.Location;
 import sast.evento.exception.LocalRunTimeException;
-import sast.evento.mapper.*;
+import sast.evento.mapper.EventMapper;
+import sast.evento.mapper.EventModelMapper;
+import sast.evento.mapper.EventTypeMapper;
+import sast.evento.mapper.LocationMapper;
 import sast.evento.model.Action;
 import sast.evento.model.EventModel;
 import sast.evento.model.PageModel;
@@ -135,7 +138,7 @@ public class EventServiceImpl implements EventService {
         }
         String time = timeUtil.getTime();
         List<Date> dates = timeUtil.getDateOfMonday(time);
-        if(dates == null || dates.isEmpty()) {
+        if (dates == null || dates.isEmpty()) {
             throw new LocalRunTimeException(ErrorEnum.TIME_ERROR);
         }
         dates.set(1, timeUtil.FINAL_DATE);
@@ -391,8 +394,8 @@ public class EventServiceImpl implements EventService {
         List<Date> dates = timeUtil.getDateOfMonday(today);
         // 如果time不为空，则将dates起始日期改为time所设置的日期
         if (!time.isEmpty()) {
-            dates.set(0,timeUtil.validTime(time).getTime());
-            dates.set(1,timeUtil.FINAL_DATE);
+            dates.set(0, timeUtil.validTime(time).getTime());
+            dates.set(1, timeUtil.FINAL_DATE);
         }
         if (typeId.isEmpty()) {
             if (departmentId.isEmpty()) {
@@ -414,7 +417,7 @@ public class EventServiceImpl implements EventService {
         }
         String time = timeUtil.getTime();
         List<Date> dates = timeUtil.getDateOfMonday(time);
-        if(dates == null || dates.isEmpty()) {
+        if (dates == null || dates.isEmpty()) {
             throw new LocalRunTimeException(ErrorEnum.TIME_ERROR);
         }
         dates.set(1, timeUtil.FINAL_DATE);

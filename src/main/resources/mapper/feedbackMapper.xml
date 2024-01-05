@@ -3,14 +3,17 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="sast.evento.mapper.FeedbackMapper">
     <resultMap id="feedbacksDTOResultMap" type="sast.evento.model.FeedbacksDTO">
-        <result property="average" column="average"/>
-        <result property="subscribeNum" column="subscribeNum"/>
-        <result property="registrationNum" column="registrationNum"/>
-        <result property="participantNum" column="participantNum"/>
+        <result property="average" column="average"
+                typeHandler="sast.evento.common.typehandler.FeedbackScoreTypeHandler"/>
+        <result property="subscribeNum" column="subscribe_num"/>
+        <result property="registrationNum" column="registration_num"/>
+        <result property="participantNum" column="participant_num"/>
         <collection property="feedbacks" ofType="sast.evento.model.FeedbackModel">
             <id property="id" column="feedback_id"/>
             <result property="content" column="content"/>
-            <result property="score" column="score"/>
+            <result property="score" column="score"
+                    typeHandler="sast.evento.common.typehandler.FeedbackScoreTypeHandler"/>
+            <result property="eventId" column="event_id"/>
         </collection>
     </resultMap>
 
@@ -30,10 +33,12 @@
         FROM event e
                  LEFT JOIN participate p ON e.id = p.event_id
                  LEFT JOIN feedback f ON p.id = f.participate_id
-                 LEFT JOIN (SELECT COUNT(f.id) AS feedback_count,e.id AS event_id
-                            FROM event e LEFT JOIN participate p ON e.id = p.event_id
-                            LEFT JOIN feedback f ON p.id = f.participate_id GROUP BY e.id)
-                        AS fc ON e.id = fc.event_id
+                 LEFT JOIN (SELECT COUNT(f.id) AS feedback_count, e.id AS event_id
+                            FROM event e
+                                     LEFT JOIN participate p ON e.id = p.event_id
+                                     LEFT JOIN feedback f ON p.id = f.participate_id
+                            GROUP BY e.id)
+            AS fc ON e.id = fc.event_id
                  JOIN
                  (SELECT id FROM event LIMIT #{index}, #{size}) AS e_ids ON e.id = e_ids.id
                  LEFT JOIN
@@ -41,40 +46,39 @@
     </select>
 
     <select id="getFeedback" resultMap="feedbacksDTOResultMap">
-        SELECT e.id,
-               sub_query.average,
-               sub_query.subscribeNum,
-               sub_query.registrationNum,
-               sub_query.participantNum,
+        SELECT sub_query.average,
+               sub_query.subscribe_num,
+               sub_query.registration_num,
+               sub_query.participant_num,
                f.score   AS score,
                f.content AS content,
-               f.id      AS feedback_id
+               f.id      AS feedback_id,
+               e.id      AS event_id
 
         FROM event e
                  LEFT JOIN participate p ON e.id = p.event_id
                  LEFT JOIN feedback f ON p.id = f.participate_id
-                 JOIN (SELECT e.id                         AS eventId,
-                              AVG(f.score)                 AS average,
-                              COUNT(p.is_subscribe = 1)    AS subscribeNum,
-                              COUNT(p.is_registration = 1) AS registrationNum,
-                              COUNT(p.is_participate = 1)  AS participantNum
+                 JOIN (SELECT e.id                                      AS event_id,
+                              AVG(f.score)                              AS average,
+                              COUNT(IF(p.is_subscribe = 1, 1, NULL))    AS subscribe_num,
+                              COUNT(IF(p.is_registration = 1, 1, NULL)) AS registration_num,
+                              COUNT(IF(p.is_participate = 1, 1, NULL))  AS participant_num
 
                        FROM event e
                                 LEFT JOIN participate p ON e.id = p.event_id
                                 LEFT JOIN feedback f ON p.id = f.participate_id
-                       WHERE e.id = #{event_id}) AS sub_query ON sub_query.eventId = e.id
-
+                       WHERE e.id = #{event_id}) AS sub_query ON sub_query.event_id = e.id
         WHERE e.id = #{event_id}
+          AND f.id IS NOT NULL
     </select>
 
     <insert id="addFeedback">
         INSERT INTO feedback (score, content, participate_id, user_id)
         SELECT #{score}, #{content}, p.id, #{userId}
         FROM participate AS p
-            LEFT JOIN feedback AS f
-            ON p.id = f.participate_id AND f.user_id = #{userId}
-        WHERE
-            p.user_id = #{userId}
+                 LEFT JOIN feedback AS f
+                           ON p.id = f.participate_id AND f.user_id = #{userId}
+        WHERE p.user_id = #{userId}
           AND p.event_id = #{eventId}
           AND f.participate_id IS NULL
     </insert>
