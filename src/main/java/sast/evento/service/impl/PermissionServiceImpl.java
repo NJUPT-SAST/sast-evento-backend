@@ -2,6 +2,7 @@ package sast.evento.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import fun.feellmoose.enums.Organization;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import sast.evento.common.enums.ActionState;
@@ -15,7 +16,6 @@ import sast.evento.model.treeDataNodeDTO.AntDesignTreeDataNode;
 import sast.evento.model.treeDataNodeDTO.TreeDataNode;
 import sast.evento.service.PermissionService;
 import sast.evento.service.PermissionServiceCacheAble;
-import sast.sastlink.sdk.enums.Organization;
 
 import java.util.*;
 import java.util.stream.Collectors;

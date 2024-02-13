@@ -3,6 +3,8 @@ package sast.evento.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import jakarta.annotation.Resource;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sast.evento.common.enums.ActionState;
@@ -108,6 +110,7 @@ public class EventServiceImpl implements EventService {
 
     // 获取活动列表(分页）
     @Override
+    @Cacheable(value = "event", key = "#page + #size")
     public PageModel<EventModel> getEvents(Integer page, Integer size) {
         if (page == null || page < 0 || size == null || size < 0) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
@@ -147,6 +150,7 @@ public class EventServiceImpl implements EventService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
+    @CacheEvict(value = "event")
     public Integer addEvent(EventModel eventModel, String userId) {
         Event event = new Event(eventModel);
         /* 检测必需参数是否存在 */
@@ -204,6 +208,7 @@ public class EventServiceImpl implements EventService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
+    @CacheEvict(value = "event")
     public Boolean deleteEvent(Integer eventId) {
         if (eventId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
@@ -313,6 +318,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @CacheEvict(value = "event")
     public void updateEvent(Event event) {
         UpdateWrapper<Event> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("id", event.getId());
@@ -321,6 +327,7 @@ public class EventServiceImpl implements EventService {
 
 
     @Override
+    @CacheEvict(value = "event")
     public Boolean cancelEvent(Integer eventId) {
         if (eventId == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
