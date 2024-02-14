@@ -37,7 +37,7 @@
             <artifactId>sast-link-SDK</artifactId>
             <version>0.1.2</version>
         </dependency>
-·
+
         <!-- quartz -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
