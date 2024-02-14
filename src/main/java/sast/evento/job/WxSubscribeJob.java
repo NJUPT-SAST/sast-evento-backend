@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
  * @date: 2023/7/26 22:11
  */
 
+// 定时任务
 @Slf4j
 public class WxSubscribeJob implements Job {
 

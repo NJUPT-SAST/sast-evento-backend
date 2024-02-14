@@ -49,33 +49,6 @@ public class LoginController {
     }
 
     /**
-     * 使用weChat第三方登录
-     * @param code weChat验证code
-     * @return Map
-     */
-    @OperateLog("微信登录")
-    @PostMapping("/login/wx")
-    @DefaultActionState(ActionState.PUBLIC)
-    public Map<String, Object> wxLogin(@RequestParam String code) {
-        return loginService.wxLogin(code);
-    }
-
-    /**
-     * weChat登录后绑定学号
-     * @param studentId 学号
-     * @return Map
-     */
-    @OperateLog("绑定学号")
-    @PostMapping("/bind/student")
-    @DefaultActionState(ActionState.LOGIN)
-    public Map<String,Object> bindStudentId(@RequestParam String studentId,
-                                            @RequestParam(required = false,defaultValue = "false") Boolean force){
-        UserModel user = HttpInterceptor.userHolder.get();
-        return loginService.bindStudentOnWechat(user.getId(),studentId,force);
-
-    }
-
-    /**
      * 获取授权给新设备登录的ticket
      * @return Map
      */
