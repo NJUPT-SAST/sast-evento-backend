@@ -57,36 +57,6 @@ public class WxServiceImpl implements WxService {
         throw new LocalRunTimeException(ErrorEnum.WX_SERVICE_ERROR, "response or access_token is empty");
     }
 
-    @Override
-    public AccessTokenResponse getAccessToken() {
-        Map<String, Object> map = restTemplate.getForEntity(Constant.wxAccessTokenURL, Map.class, appid, secret).getBody();
-        if (map == null) {
-            throw new LocalRunTimeException(ErrorEnum.WX_SERVICE_ERROR, "response is empty");
-        }
-        AccessTokenResponse response = new AccessTokenResponse();
-        response.setAccess_token((String) map.get("access_token"));
-        if (response.getAccess_token() == null) {
-            log.error("error response: " + map);
-            throw new LocalRunTimeException(ErrorEnum.WX_SERVICE_ERROR, "access_token is empty");
-        }
-        response.setExpires_in((Integer) map.get("expires_in"));
-        return response;
-    }
-
-    @Override
-    public JsCodeSessionResponse login(String code) {
-        String text = restTemplate.getForEntity(Constant.jsCode2Session, String.class, appid, secret, code).getBody();
-        if (text == null) {
-            throw new LocalRunTimeException(ErrorEnum.WX_SERVICE_ERROR, "null response from wx");
-        }
-        JsCodeSessionResponse jsCodeSessionResponse = JsonUtil.fromJson(text, JsCodeSessionResponse.class);
-        if (jsCodeSessionResponse == null ||!jsCodeSessionResponse.getErrmsg().isEmpty()) {
-            log.error("error get userInfo: " + text);
-            throw new LocalRunTimeException(ErrorEnum.WX_SERVICE_ERROR, "error get userInfo from WeChat");
-        }
-        return jsCodeSessionResponse;
-    }
-
 
     @Override
     /* 发送wx模板消息内容 */

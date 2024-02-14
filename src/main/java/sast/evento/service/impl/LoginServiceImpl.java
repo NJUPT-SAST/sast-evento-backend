@@ -47,7 +47,7 @@ public class LoginServiceImpl implements LoginService {
     private UserMapper userMapper;
     @Resource
     private UserPasswordMapper userPasswordMapper;
-    @Resource
+    @Resource // todo 待删除
     private WxService wxService;
     @Resource
     private JwtUtil jwtUtil;
@@ -98,27 +98,6 @@ public class LoginServiceImpl implements LoginService {
         }
         String token = addTokenInCache(user, false);
         return Map.of("token", token, "userInfo", user);
-    }
-
-    @Override
-    @Transactional
-    public Map<String, Object> wxLogin(String code) {
-        //没有学号冲突的风险
-        JsCodeSessionResponse jsCodeSessionResponse = wxService.login(code);
-        String openId = jsCodeSessionResponse.getOpenid();
-        if (openId == null || openId.isEmpty()) {
-            throw new LocalRunTimeException(ErrorEnum.WX_SERVICE_ERROR, "wx login failed");
-        }
-        User user = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
-                .eq(User::getOpenId, openId));
-        if (user == null) {
-            user = new User();
-            user.setOpenId(openId);
-            user.setUnionId(jsCodeSessionResponse.getUnionid());
-            userMapper.insert(user);
-        }
-        String token = addTokenInCache(user, false);
-        return Map.of("unionid", jsCodeSessionResponse.getUnionid(), "userInfo", user, "token", token);
     }
 
     @Override
@@ -186,39 +165,6 @@ public class LoginServiceImpl implements LoginService {
         return Map.of("token", token, "userInfo", user);
     }
 
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Map<String, Object> bindStudentOnWechat(String userId, String studentId, Boolean force) {
-        //此时微信登陆成功已经默认创建新账号，需要将新账号删除并绑定至原有link账号
-        //查看本地是否存在此学号
-        User user = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
-                .eq(User::getStudentId, studentId).last("for update"));
-        if (user != null) {
-            //若已经存在,则使用第一个账号(本账号已经绑定过也算在这里，所以只可以绑定一次学号，否则去联系管理员)
-            if (force) {
-                User del = userMapper.selectOne(Wrappers.lambdaQuery(User.class)
-                        .eq(User::getId, userId).last("for update"));
-                if (user.getOpenId() != null || del.getLinkId() != null) {
-                    //微信已经绑定过学号也在这里报错
-                    throw new LocalRunTimeException(ErrorEnum.ACCOUNT_HAS_BEEN_BIND, "please contact administrator");
-                }
-                user.setOpenId(del.getOpenId());
-                user.setUnionId(del.getUnionId());
-                user.setStudentId(studentId);
-                userMapper.deleteById(userId);
-                userMapper.updateById(user);
-                String token = addTokenInCache(user, true);
-                return Map.of("token", token, "userInfo", user);
-            } else {
-                throw new LocalRunTimeException(ErrorEnum.STUDENT_HAS_BEEN_BIND, "force an overwrite on new account or cancel operation");
-            }
-        }
-        userMapper.bindStudentId(userId, studentId);
-        user = userMapper.selectById(userId);
-        String token = addTokenInCache(user, true);
-        return Map.of("token", token, "userInfo", user);
-
-    }
 
     @Override
     public void logout(String userId) throws SastLinkException {
@@ -259,8 +205,11 @@ public class LoginServiceImpl implements LoginService {
     }
 
     private String addTokenInCache(User user, boolean update) {
+        // 构建用户
         UserModel userModel = new UserModel(user.getId(), user.getStudentId(), user.getEmail());
+        // 生成token
         String token = generateToken(userModel);
+        // 缓存
         if (update) {
             redisUtil.set(TOKEN + user.getId(), token, jwtUtil.expiration);
         } else {
