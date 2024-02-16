@@ -3,6 +3,7 @@ package sast.evento.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import jakarta.annotation.Resource;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import sast.evento.common.enums.ErrorEnum;
 import sast.evento.entitiy.Department;
@@ -56,6 +57,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
+    @CacheEvict(value = "event")
     public void putDepartment(Integer departmentId, String departmentName) {
         if (departmentMapper.updateById(new Department(departmentId, departmentName)) < 1) {
             throw new LocalRunTimeException(ErrorEnum.COMMON_ERROR, "update failed");

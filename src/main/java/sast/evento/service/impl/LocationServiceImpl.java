@@ -3,6 +3,7 @@ package sast.evento.service.impl;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import jakarta.annotation.Resource;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import sast.evento.common.enums.ErrorEnum;
 import sast.evento.entitiy.Location;
@@ -61,6 +62,7 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
+    @CacheEvict(value = "event")
     public Boolean updateLocation(Location location) {
         if (location == null) {
             throw new LocalRunTimeException(ErrorEnum.PARAM_ERROR);
