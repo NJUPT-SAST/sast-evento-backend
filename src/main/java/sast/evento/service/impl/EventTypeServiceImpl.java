@@ -2,6 +2,7 @@ package sast.evento.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import jakarta.annotation.Resource;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import sast.evento.common.enums.ErrorEnum;
 import sast.evento.entitiy.EventType;
@@ -51,6 +52,7 @@ public class EventTypeServiceImpl implements EventTypeService {
     }
 
     @Override
+    @CacheEvict(value = "event")
     public Boolean editEventType(EventType eventType) {
         UpdateWrapper<EventType> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("id", eventType.getId());
