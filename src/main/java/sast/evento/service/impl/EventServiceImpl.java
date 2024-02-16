@@ -228,6 +228,7 @@ public class EventServiceImpl implements EventService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
+    @CacheEvict(value = "event")
     public Boolean updateEvent(EventModel eventModel) {
         Event event = new Event(eventModel);
 
